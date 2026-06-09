@@ -1,0 +1,2734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product Experience Map — James Kim</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #080a0f; --surface: #12151c; --border: #1e2230;
+      --text: #e0e0e8; --muted: #b0b0c4; --dim: #a0a0b8;
+      --cyan: #00ccff; --cyan-dim: rgba(0,204,255,0.15); --cyan-glow: rgba(0,204,255,0.35);
+      --gold: #ffcc33; --gold-dim: rgba(255,204,51,0.15); --gold-glow: rgba(255,204,51,0.3);
+      --purple: #b88aff; --purple-dim: rgba(153,102,255,0.12);
+      --sans: 'DM Sans', system-ui, sans-serif;
+    }
+    html, body { height: 100%; overflow: hidden; }
+    body { background: var(--bg); color: var(--text); font-family: var(--sans); }
+
+    /* ====== CANVAS AREA ====== */
+    .map-viewport {
+      width: 100%; height: 100%;
+      position: relative; overflow: hidden;
+      cursor: grab;
+      background: radial-gradient(ellipse at center, #0d1018 0%, #060810 70%);
+    }
+    .map-viewport.dragging { cursor: grabbing; }
+    .map-canvas {
+      position: absolute; top: 0; left: 0;
+      transform-origin: 0 0;
+    }
+
+    /* ====== LINES (SVG layer) ====== */
+    .lines-layer {
+      position: absolute; top: 0; left: 0;
+      pointer-events: none;
+      filter: drop-shadow(0 0 3px rgba(0,204,255,0.15));
+    }
+    .conn-line {
+      stroke: rgba(0,204,255,0.12); stroke-width: 1;
+      fill: none;
+      transition: opacity 0.3s, stroke-width 0.3s, stroke 0.3s;
+    }
+    .conn-line.highlight { stroke: var(--cyan); stroke-width: 2; filter: drop-shadow(0 0 4px var(--cyan-glow)); opacity: 1; }
+    .conn-line.data-flow {
+      stroke: rgba(217,70,239,0.25); stroke-width: 1.5;
+      stroke-dasharray: 12 8 4 8;
+      animation: data-flow-anim 2s linear infinite;
+    }
+    .conn-line.data-flow.highlight {
+      stroke: #d946ef; stroke-width: 2;
+      filter: drop-shadow(0 0 4px rgba(217,70,239,0.3));
+    }
+    @keyframes data-flow-anim {
+      to { stroke-dashoffset: -32; }
+    }
+
+    /* ====== NODES ====== */
+    .node {
+      position: absolute;
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      cursor: pointer;
+      transition: transform 0.25s ease;
+    }
+    .node:hover { transform: scale(1.08); }
+    .node.active { transform: scale(1.12); }
+
+    .node-circle {
+      width: 48px; height: 48px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid var(--dim);
+      background: radial-gradient(circle at 35% 35%, #1a1e2a, #0c0e14);
+      transition: border-color 0.3s, box-shadow 0.3s;
+      position: relative;
+    }
+
+    /* ── Product node — small spoke ── */
+    .node.product .node-circle {
+      width: 44px; height: 44px;
+      background: radial-gradient(circle at 35% 35%, #0a1e2a, #060e14);
+      border: 1.5px solid rgba(0,204,255,0.25);
+      box-shadow: 0 0 6px rgba(0,204,255,0.06);
+    }
+    .node.product:hover .node-circle,
+    .node.product.active .node-circle {
+      border-color: var(--cyan);
+      box-shadow: 0 0 14px var(--cyan-glow), 0 0 30px rgba(0,204,255,0.08), inset 0 0 10px rgba(0,204,255,0.1);
+    }
+
+    /* ── User node — large hub ── */
+    .node.user .node-circle {
+      width: 96px; height: 96px;
+      background: radial-gradient(circle at 40% 35%, #2a2210 0%, #1a1508 50%, #0e0a04 100%);
+      border: 2.5px solid rgba(255,204,51,0.4);
+      box-shadow: 0 0 20px rgba(255,204,51,0.1), 0 0 50px rgba(255,204,51,0.04), inset 0 0 20px rgba(255,204,51,0.06);
+    }
+    .node.user:hover .node-circle,
+    .node.user.active .node-circle {
+      border-color: var(--gold);
+      box-shadow: 0 0 30px var(--gold-glow), 0 0 70px rgba(255,204,51,0.1), inset 0 0 24px rgba(255,204,51,0.12);
+    }
+
+    .node-icon { font-size: 1rem; color: var(--dim); }
+    .node.product .node-icon { font-size: 0.95rem; color: var(--cyan); }
+    .node.user .node-icon { font-size: 1.6rem; color: var(--gold); }
+    .node-label {
+      font-size: 0.62rem; font-weight: 600; color: rgba(224,224,232,0.88);
+      text-align: center; max-width: 90px; line-height: 1.25;
+      text-shadow: 0 0 8px rgba(0,0,0,0.8);
+    }
+    .node.user .node-label {
+      font-size: 0.72rem; font-weight: 700; color: var(--gold);
+      text-shadow: 0 0 10px rgba(0,0,0,0.9);
+    }
+
+    /* ====== DETAIL PANEL ====== */
+    .detail-panel {
+      position: fixed; top: 80px; left: 24px; z-index: 50;
+      width: 290px;
+      background: rgba(12,15,22,0.92);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5), 0 0 1px rgba(0,204,255,0.2);
+      padding: 1.75rem;
+      opacity: 0; transform: translateX(-20px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: none;
+    }
+    .detail-panel.open {
+      opacity: 1; transform: translateX(0);
+      pointer-events: auto;
+    }
+    .detail-panel .dp-close {
+      position: absolute; top: 12px; right: 12px;
+      background: none; border: none; cursor: pointer;
+      color: var(--dim); font-size: 1.2rem; padding: 4px;
+      border-radius: 6px; transition: color 0.2s;
+    }
+    .detail-panel .dp-close:hover { color: var(--text); }
+    .detail-panel .dp-title { font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 0.15rem; }
+    .detail-panel .dp-subtitle { font-size: 0.72rem; color: var(--dim); margin-bottom: 0.75rem; }
+    .detail-panel .dp-desc { font-size: 0.76rem; color: var(--muted); line-height: 1.55; margin-bottom: 1rem; }
+    .detail-panel .dp-section-title {
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--cyan); margin-bottom: 0.5rem;
+    }
+    .detail-panel .dp-list { list-style: none; margin-bottom: 1rem; }
+    .detail-panel .dp-list li {
+      font-size: 0.72rem; color: var(--muted); padding: 0.25rem 0;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .detail-panel .dp-list li .material-symbols-outlined { font-size: 0.9rem; color: var(--dim); }
+
+    .dp-badge {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-size: 0.68rem; font-weight: 600; color: #fff;
+      padding: 0.2rem 0.55rem; border-radius: 6px; margin-bottom: 0.4rem;
+    }
+
+    /* ====== TOOLBAR ====== */
+    .toolbar {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      z-index: 50; display: flex; gap: 4px;
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: saturate(180%) blur(24px); -webkit-backdrop-filter: saturate(180%) blur(24px);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(255,255,255,0.05);
+      padding: 6px;
+    }
+    .toolbar button {
+      display: flex; align-items: center; gap: 6px;
+      padding: 10px 18px; border: none; border-radius: 10px;
+      background: transparent; color: rgba(255,255,255,0.9);
+      font-family: var(--sans); font-size: 0.78rem; font-weight: 600;
+      cursor: pointer; transition: background 0.2s, color 0.2s;
+    }
+    .toolbar button:hover { background: rgba(255,255,255,0.12); color: #fff; }
+    .toolbar button.active { background: rgba(255,255,255,0.9); color: #080a0f; }
+    .toolbar button .material-symbols-outlined { font-size: 1rem; }
+    .toolbar button .material-symbols-outlined { font-size: 1rem; }
+
+    /* ====== ZOOM CONTROLS ====== */
+    .zoom-controls {
+      position: fixed; bottom: 24px; right: 24px; z-index: 50;
+      display: flex; flex-direction: column; gap: 0;
+      background: rgba(12,15,22,0.85);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .zoom-controls button {
+      width: 40px; height: 40px; border: none;
+      background: transparent; color: var(--dim);
+      font-size: 1.2rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s, color 0.2s;
+    }
+    .zoom-controls button:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+    .zoom-controls button + button { border-top: 1px solid var(--border); }
+
+    /* Toolbar input mode (search/glossary inline) */
+    .tb-input-mode {
+      display: none; align-items: center; gap: 8px;
+      flex: 1; position: relative;
+    }
+    .tb-input-mode.active { display: flex; }
+    .tb-input-mode input {
+      flex: 1; border: none; outline: none; background: none;
+      font-family: var(--sans); font-size: 0.85rem; color: #fff;
+      padding: 8px 0; min-width: 200px;
+    }
+    .tb-input-mode input::placeholder { color: rgba(255,255,255,0.72); }
+    .tb-input-mode button {
+      background: none; border: none; cursor: pointer; color: rgba(255,255,255,0.75);
+      padding: 4px; border-radius: 6px; display: flex; align-items: center; justify-content: center;
+      transition: color 0.2s;
+    }
+    .tb-input-mode button:hover { color: #fff; background: transparent; }
+    .tb-buttons { display: flex; align-items: center; gap: 4px; }
+    .toolbar.input-active .tb-buttons { display: none; }
+    .search-results {
+      position: absolute; bottom: calc(100% + 12px); left: -14px; right: -14px;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: saturate(180%) blur(24px); -webkit-backdrop-filter: saturate(180%) blur(24px);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      margin-bottom: 8px; max-height: 320px; overflow-y: auto;
+      display: none;
+    }
+    .search-results.has-results { display: block; }
+    .search-result-item {
+      padding: 10px 16px; cursor: pointer;
+      display: flex; align-items: center; gap: 10px;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+      transition: background 0.15s;
+    }
+    .search-result-item:last-child { border-bottom: none; }
+    .search-result-item:hover { background: rgba(255,255,255,0.08); }
+    .search-result-item .sri-icon {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .search-result-item .sri-icon.user { background: var(--gold-dim); }
+    .search-result-item .sri-icon.product { background: var(--cyan-dim); }
+    .search-result-item .sri-icon .material-symbols-outlined { font-size: 1rem; }
+    .search-result-item .sri-icon.user .material-symbols-outlined { color: var(--gold); }
+    .search-result-item .sri-icon.product .material-symbols-outlined { color: var(--cyan); }
+    .search-result-item .sri-text { flex: 1; min-width: 0; }
+    .search-result-item .sri-name { font-size: 0.82rem; font-weight: 600; color: var(--text); }
+    .search-result-item .sri-match { font-size: 0.7rem; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .search-result-item { border-color: rgba(255,255,255,0.08); }
+    .search-no-results { padding: 16px; font-size: 0.82rem; color: var(--dim); text-align: center; }
+
+    /* Workflow infographic */
+    .wf-flow { margin-top: 0.5rem; position: relative; padding-left: 20px; }
+    .wf-flow::before {
+      content: ''; position: absolute; left: 5px; top: 8px; bottom: 8px;
+      width: 1px; background: linear-gradient(to bottom, var(--cyan), var(--dim));
+      opacity: 0.3;
+    }
+    .wf-step { position: relative; padding: 0.4rem 0 0.4rem 16px; }
+    .wf-step::before {
+      content: ''; position: absolute; left: -20px; top: 0.65rem;
+      width: 11px; height: 11px; border-radius: 50%;
+      background: var(--bg); border: 2px solid var(--cyan);
+      box-shadow: 0 0 6px rgba(0,204,255,0.25);
+    }
+    .wf-step:last-child::after {
+      content: ''; position: absolute; left: -17px; top: calc(0.65rem + 14px);
+      width: 5px; height: 5px; border-right: 1.5px solid var(--cyan); border-bottom: 1.5px solid var(--cyan);
+      transform: rotate(45deg); opacity: 0.5;
+    }
+    .wf-step .wf-num {
+      font-size: 0.55rem; font-weight: 700; color: var(--cyan); letter-spacing: 0.08em;
+      text-transform: uppercase; display: block; margin-bottom: 0.1rem;
+    }
+    .wf-step .wf-text { font-size: 0.7rem; color: var(--muted); line-height: 1.45; }
+    .wf-step.wf-issue::before {
+      border-color: #f87171; box-shadow: 0 0 6px rgba(239,68,68,0.3);
+    }
+    .wf-step.wf-issue .wf-num { color: #fb9a9a; }
+    .wf-step.wf-issue .wf-text { color: #fca5a5; font-weight: 500; }
+    /* Inferred alert */
+    .wf-inferred-alert {
+      margin-top: 0.5rem; margin-bottom: 0.75rem;
+      padding: 0.65rem 0.75rem;
+      background: rgba(251,191,36,0.08);
+      border: 1px solid rgba(251,191,36,0.2);
+      border-radius: 8px;
+      display: flex; gap: 0.5rem; align-items: flex-start;
+    }
+    .wf-inferred-alert .material-symbols-outlined {
+      font-size: 1rem; color: #fbbf24; flex-shrink: 0; margin-top: 1px;
+    }
+    .wf-inferred-alert p {
+      font-size: 0.65rem; color: #fbbf24; line-height: 1.5;
+    }
+    .wf-inferred-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 0.55rem; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; color: #fbbf24;
+      background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.2);
+      padding: 0.15rem 0.45rem; border-radius: 4px; margin-left: 0.4rem;
+    }
+    .wf-inferred-tag .material-symbols-outlined { font-size: 0.7rem; }
+
+    .wf-step.wf-data::before {
+      border-color: #e879f9; box-shadow: 0 0 6px rgba(217,70,239,0.3);
+      background: rgba(217,70,239,0.1);
+    }
+    .wf-step.wf-data .wf-num { color: #f0a0ff; }
+    .wf-step.wf-data .wf-text { color: #f0abff; }
+
+    /* Pain Points section */
+    /* Pain points button */
+    .dp-pain-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 0.4rem 0.7rem;
+      background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.18);
+      border-radius: 6px; color: #fca5a5;
+      font-family: var(--sans); font-size: 0.63rem; font-weight: 600;
+      cursor: pointer; transition: background 0.2s, border-color 0.2s;
+    }
+    .dp-pain-btn:hover { background: rgba(248,113,113,0.15); border-color: rgba(248,113,113,0.3); }
+    .dp-pain-btn .material-symbols-outlined { font-size: 0.8rem; }
+    .dp-pain-btn .pain-count {
+      background: rgba(248,113,113,0.2); padding: 0.1rem 0.35rem;
+      border-radius: 4px; font-size: 0.55rem;
+    }
+    /* Pain panel — right side */
+    .pain-panel {
+      position: fixed; top: 80px; left: 338px; z-index: 48;
+      width: 300px; max-height: calc(100vh - 120px); overflow-y: auto;
+      background: rgba(10,12,18,0.94);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(248,113,113,0.15); border-radius: 16px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+      padding: 1.5rem;
+      opacity: 0; transform: translateX(-16px);
+      transition: opacity 0.3s ease, transform 0.3s ease; pointer-events: none;
+    }
+    .pain-panel.open { opacity: 1; transform: translateX(0); pointer-events: auto; }
+    .pain-panel .pp-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+    .pain-panel .pp-title { font-size: 0.82rem; font-weight: 700; color: #fca5a5; }
+    .pain-panel .pp-close { background: none; border: none; cursor: pointer; color: var(--dim); padding: 4px; border-radius: 6px; transition: color 0.2s; display: flex; align-items: center; }
+    .pain-panel .pp-close:hover { color: var(--text); }
+    .dp-pain-point {
+      position: relative; padding: 0.5rem 0.65rem 0.5rem 1rem; margin-bottom: 0.4rem;
+      background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.12);
+      border-left: 3px solid rgba(239,68,68,0.4); border-radius: 6px;
+      font-size: 0.68rem; color: #fca5a5; line-height: 1.5; font-style: italic;
+    }
+    .dp-pain-point::before {
+      content: '\201C'; font-size: 1.1rem; color: rgba(248,113,113,0.35);
+      position: absolute; top: 1px; left: 4px; font-style: normal;
+    }
+    .pain-panel::-webkit-scrollbar { width: 4px; }
+    .pain-panel::-webkit-scrollbar-track { background: transparent; }
+    .pain-panel::-webkit-scrollbar-thumb { background: var(--dim); border-radius: 2px; }
+
+    /* View All tools button */
+    .dp-view-all-btn {
+      display: inline-flex; align-items: center; gap: 4px;
+      margin-top: 0.4rem; padding: 0.35rem 0.65rem;
+      background: rgba(255,204,51,0.08); border: 1px solid rgba(255,204,51,0.18);
+      border-radius: 6px; color: var(--gold);
+      font-family: var(--sans); font-size: 0.63rem; font-weight: 600;
+      cursor: pointer; transition: background 0.2s, border-color 0.2s;
+    }
+    .dp-view-all-btn:hover { background: rgba(255,204,51,0.15); border-color: rgba(255,204,51,0.3); }
+    .dp-view-all-btn .material-symbols-outlined { font-size: 0.8rem; }
+
+    /* Tools expansion panel — right of detail panel */
+    .tools-panel {
+      position: fixed; top: 80px; left: 338px; z-index: 48;
+      width: 300px; max-height: calc(100vh - 120px);
+      overflow-y: auto;
+      background: rgba(10,12,18,0.94);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5), 0 0 1px rgba(255,204,51,0.15);
+      padding: 1.5rem;
+      opacity: 0; transform: translateX(-16px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: none;
+    }
+    .tools-panel.open { opacity: 1; transform: translateX(0); pointer-events: auto; }
+    .tools-panel .tp-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .tools-panel .tp-title { font-size: 0.82rem; font-weight: 700; color: var(--text); }
+    .tools-panel .tp-count { font-size: 0.62rem; color: var(--dim); }
+    .tools-panel .tp-close {
+      background: none; border: none; cursor: pointer;
+      color: var(--dim); padding: 4px; border-radius: 6px;
+      transition: color 0.2s; display: flex; align-items: center;
+    }
+    .tools-panel .tp-close:hover { color: var(--text); }
+    .tools-panel .tp-item {
+      display: flex; align-items: flex-start; gap: 0.5rem;
+      padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .tools-panel .tp-item:last-child { border-bottom: none; }
+    .tools-panel::-webkit-scrollbar { width: 4px; }
+    .tools-panel::-webkit-scrollbar-track { background: transparent; }
+    .tools-panel::-webkit-scrollbar-thumb { background: var(--dim); border-radius: 2px; }
+
+    /* Data flow section in detail panel */
+    .dp-data-section { margin-top: 0.75rem; }
+    .dp-data-houses { margin-bottom: 0.5rem; }
+    .dp-data-houses span {
+      display: inline-block; font-size: 0.58rem; font-weight: 500;
+      color: #f0abff; background: rgba(217,70,239,0.08);
+      border: 1px solid rgba(217,70,239,0.15); border-radius: 4px;
+      padding: 0.12rem 0.4rem; margin: 0 3px 3px 0;
+    }
+    .dp-data-flow-item {
+      display: flex; align-items: flex-start; gap: 0.35rem;
+      padding: 0.25rem 0; font-size: 0.63rem; line-height: 1.4;
+    }
+    .dp-data-flow-item .df-arrow { flex-shrink: 0; font-size: 0.75rem; margin-top: 0px; }
+    .dp-data-flow-item .df-arrow.sends { color: #f0a0ff; }
+    .dp-data-flow-item .df-arrow.receives { color: var(--cyan); }
+    .dp-data-flow-item .df-target { font-weight: 600; color: var(--text); }
+    .dp-data-flow-item .df-type { color: var(--muted); }
+
+    /* Workflow thumbnails grid */
+    .wf-thumbs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 0.5rem; }
+    .wf-thumb {
+      padding: 0.6rem; border-radius: 8px;
+      background: rgba(0,204,255,0.04); border: 1px solid rgba(0,204,255,0.12);
+      cursor: pointer; transition: background 0.2s, border-color 0.2s;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      text-align: center;
+    }
+    .wf-thumb:hover { background: rgba(0,204,255,0.1); border-color: rgba(0,204,255,0.3); }
+    .wf-thumb .material-symbols-outlined { font-size: 1.1rem; color: var(--cyan); }
+    .wf-thumb .wf-thumb-name { font-size: 0.62rem; font-weight: 600; color: var(--text); line-height: 1.2; }
+    .wf-thumb .wf-thumb-count { font-size: 0.52rem; color: var(--dim); }
+
+    /* Workflow "show more" button */
+    .wf-expand-btn {
+      display: flex; align-items: center; gap: 5px;
+      margin-top: 0.5rem; padding: 0.45rem 0.75rem;
+      background: var(--cyan-dim); border: 1px solid rgba(0,204,255,0.2);
+      border-radius: 8px; color: var(--cyan);
+      font-family: var(--sans); font-size: 0.68rem; font-weight: 600;
+      cursor: pointer; transition: background 0.2s, border-color 0.2s;
+    }
+    .wf-expand-btn:hover { background: rgba(0,204,255,0.2); border-color: rgba(0,204,255,0.4); }
+    .wf-expand-btn .material-symbols-outlined { font-size: 0.85rem; }
+
+    /* Full workflow panel — slides in to the right of detail panel */
+    .workflow-panel {
+      position: fixed; top: 80px; left: 338px; z-index: 49;
+      width: 320px; max-height: calc(100vh - 120px);
+      overflow-y: auto;
+      background: rgba(10,12,18,0.94);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5), 0 0 1px rgba(0,204,255,0.15);
+      padding: 1.75rem;
+      opacity: 0; transform: translateX(-16px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: none;
+    }
+    .workflow-panel.open {
+      opacity: 1; transform: translateX(0);
+      pointer-events: auto;
+    }
+    .workflow-panel .wp-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .workflow-panel .wp-title {
+      font-size: 0.85rem; font-weight: 700; color: var(--text);
+    }
+    .workflow-panel .wp-close {
+      background: none; border: none; cursor: pointer;
+      color: var(--dim); padding: 4px; border-radius: 6px;
+      transition: color 0.2s; display: flex; align-items: center;
+    }
+    .workflow-panel .wp-close:hover { color: var(--text); }
+    .workflow-panel.expanded { width: 600px; }
+    /* scrollbar styling for workflow panel */
+    .workflow-panel::-webkit-scrollbar { width: 4px; }
+    .workflow-panel::-webkit-scrollbar-track { background: transparent; }
+    .workflow-panel::-webkit-scrollbar-thumb { background: var(--dim); border-radius: 2px; }
+
+    /* View toggle */
+    .wp-toggle {
+      display: flex; gap: 2px; background: rgba(255,255,255,0.04);
+      border-radius: 8px; padding: 2px; margin-bottom: 1rem;
+    }
+    .wp-toggle button {
+      flex: 1; padding: 6px 10px; border: none; border-radius: 6px;
+      background: transparent; color: var(--dim);
+      font-family: var(--sans); font-size: 0.65rem; font-weight: 600;
+      cursor: pointer; transition: background 0.2s, color 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 4px;
+    }
+    .wp-toggle button:hover { color: var(--text); }
+    .wp-toggle button.active { background: var(--cyan); color: #080a0f; }
+    .wp-toggle button .material-symbols-outlined { font-size: 0.8rem; }
+
+    /* Swimlane view */
+    .swimlane-container { overflow-x: auto; padding-bottom: 0.5rem; }
+    .swimlane-grid {
+      display: grid; gap: 0; min-width: 500px;
+      border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+    }
+    .swimlane-header {
+      display: contents;
+    }
+    .swimlane-header-cell {
+      padding: 0.5rem 0.75rem;
+      background: rgba(0,204,255,0.06);
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      font-size: 0.6rem; font-weight: 700; color: var(--cyan);
+      text-transform: uppercase; letter-spacing: 0.06em;
+      text-align: center;
+    }
+    .swimlane-header-cell:last-child { border-right: none; }
+    .swimlane-header-cell.lane-label {
+      text-align: left; background: rgba(255,204,51,0.06); color: var(--gold);
+      position: sticky; left: 0; z-index: 1;
+    }
+    .swimlane-row { display: contents; }
+    .swimlane-lane-label {
+      padding: 0.6rem 0.75rem;
+      background: rgba(255,204,51,0.03);
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      font-size: 0.62rem; font-weight: 600; color: var(--gold);
+      display: flex; align-items: center; gap: 4px;
+      position: sticky; left: 0; z-index: 1;
+    }
+    .swimlane-lane-label .material-symbols-outlined { font-size: 0.8rem; }
+    .swimlane-cell {
+      padding: 0.5rem;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      min-height: 48px; position: relative;
+    }
+    .swimlane-cell:last-child { border-right: none; }
+    .swimlane-row:last-child .swimlane-lane-label,
+    .swimlane-row:last-child .swimlane-cell { border-bottom: none; }
+    .swim-action {
+      font-size: 0.58rem; color: var(--text); line-height: 1.4;
+      padding: 0.35rem 0.5rem;
+      background: rgba(0,204,255,0.06); border: 1px solid rgba(0,204,255,0.15);
+      border-radius: 6px; margin-bottom: 4px;
+    }
+    .swim-action.data {
+      background: rgba(217,70,239,0.06); border-color: rgba(217,70,239,0.15);
+      color: #f0abff;
+    }
+    .swim-arrow {
+      position: absolute; right: -10px; top: 50%;
+      transform: translateY(-50%);
+      width: 0; height: 0;
+      border-top: 5px solid transparent; border-bottom: 5px solid transparent;
+      border-left: 6px solid var(--cyan);
+      z-index: 2; opacity: 0.5;
+      animation: swim-arrow-pulse 2s ease-in-out infinite;
+    }
+    @keyframes swim-arrow-pulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.8; }
+    }
+
+    /* Filter dropdown */
+    .tb-dropdown { position: relative; }
+    .tb-dropdown-btn {
+      display: flex; align-items: center; gap: 4px;
+      padding: 10px 14px; border: none; border-radius: 10px;
+      background: transparent; color: rgba(255,255,255,0.9);
+      font-family: var(--sans); font-size: 0.78rem; font-weight: 600;
+      cursor: pointer; transition: background 0.2s, color 0.2s;
+    }
+    .tb-dropdown-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
+    .tb-dropdown-menu {
+      position: absolute; bottom: calc(100% + 8px); left: 0;
+      background: rgba(12,15,22,0.95); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 10px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+      padding: 4px; display: none; min-width: 140px;
+    }
+    .tb-dropdown-menu.open { display: block; }
+    .tb-dropdown-menu button {
+      display: flex; align-items: center; gap: 6px; width: 100%;
+      padding: 8px 12px; border: none; border-radius: 6px;
+      background: transparent; color: var(--dim);
+      font-family: var(--sans); font-size: 0.75rem; font-weight: 600;
+      cursor: pointer; transition: background 0.15s, color 0.15s; text-align: left;
+    }
+    .tb-dropdown-menu button:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+    .tb-dropdown-menu button.active { color: var(--cyan); }
+    .tb-dropdown-menu button .material-symbols-outlined { font-size: 0.9rem; }
+
+    /* Workflows modal */
+    .wf-modal {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      display: none; align-items: center; justify-content: center;
+      padding: 2rem;
+    }
+    .wf-modal.open { display: flex; }
+    .wf-modal-inner {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; width: 100%; max-width: 800px; max-height: 80vh;
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .wf-modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border);
+    }
+    .wf-modal-header h2 { font-size: 1rem; font-weight: 700; color: var(--text); }
+    .wf-modal-close {
+      background: none; border: none; cursor: pointer; color: var(--dim);
+      padding: 4px; border-radius: 6px; transition: color 0.2s; display: flex;
+    }
+    .wf-modal-close:hover { color: var(--text); }
+    .wf-modal-body { padding: 1.5rem; overflow-y: auto; }
+    .wf-modal-group { margin-bottom: 1.5rem; }
+    .wf-modal-group-title {
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--gold); margin-bottom: 0.6rem;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .wf-modal-group-title .material-symbols-outlined { font-size: 0.85rem; }
+    .wf-modal-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .wf-modal-card {
+      padding: 0.85rem; border-radius: 10px;
+      background: rgba(0,204,255,0.04); border: 1px solid rgba(0,204,255,0.1);
+      cursor: pointer; transition: background 0.2s, border-color 0.2s;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .wf-modal-card:hover { background: rgba(0,204,255,0.1); border-color: rgba(0,204,255,0.3); }
+    .wf-modal-card .wmc-icon { font-size: 1.2rem; color: var(--cyan); }
+    .wf-modal-card .wmc-name { font-size: 0.75rem; font-weight: 600; color: var(--text); }
+    .wf-modal-card .wmc-meta { font-size: 0.6rem; color: var(--dim); display: flex; gap: 6px; }
+    .wf-modal-card .wmc-tag {
+      font-size: 0.5rem; font-weight: 600; letter-spacing: 0.05em;
+      text-transform: uppercase; padding: 1px 5px; border-radius: 3px;
+    }
+    .wf-modal-card .wmc-tag.cross { background: rgba(0,204,255,0.1); color: var(--cyan); }
+    .wf-modal-card .wmc-tag.inferred { background: rgba(251,191,36,0.1); color: #fbbf24; }
+  </style>
+</head>
+<body>
+
+  <div class="map-viewport" id="viewport">
+    <div class="map-canvas" id="canvas">
+      <svg class="lines-layer" id="lines" width="3200" height="2200"></svg>
+      <!-- Nodes injected by JS -->
+    </div>
+  </div>
+
+  <!-- Detail Panel -->
+  <div class="detail-panel" id="detail">
+    <button class="dp-close" onclick="closeDetail()"><span class="material-symbols-outlined">close</span></button>
+    <div id="detail-content"></div>
+  </div>
+
+  <!-- Workflow Panel (right of detail panel) -->
+  <div class="workflow-panel" id="workflow-panel">
+    <div class="wp-header">
+      <span class="wp-title">Full Workflow</span>
+      <button class="wp-close" onclick="closeWorkflow()"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div id="workflow-panel-content"></div>
+  </div>
+
+  <!-- Pain points panel -->
+  <div class="pain-panel" id="pain-panel">
+    <div class="pp-header">
+      <span class="pp-title">Pain Points</span>
+      <button class="pp-close" onclick="closePainPanel()"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div id="pain-panel-content"></div>
+  </div>
+
+  <!-- Tools expansion panel -->
+  <div class="tools-panel" id="tools-panel">
+    <div class="tp-header">
+      <div>
+        <span class="tp-title">All Tools & Services</span>
+        <span class="tp-count" id="tp-count"></span>
+      </div>
+      <button class="tp-close" onclick="closeToolsPanel()"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div id="tools-panel-content"></div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar" id="toolbar">
+    <div class="tb-buttons" id="tb-buttons">
+      <div class="tb-dropdown" id="filter-dropdown">
+        <button class="tb-dropdown-btn" id="filter-btn"><span class="material-symbols-outlined">hub</span> All <span class="material-symbols-outlined" style="font-size:0.8rem;margin-left:2px;">expand_more</span></button>
+        <div class="tb-dropdown-menu" id="filter-menu">
+          <button data-filter="all" class="active"><span class="material-symbols-outlined">hub</span> All</button>
+          <button data-filter="user"><span class="material-symbols-outlined">person</span> Users</button>
+          <button data-filter="product"><span class="material-symbols-outlined">widgets</span> Products</button>
+        </div>
+      </div>
+      <div style="width:1px;height:24px;background:rgba(255,255,255,0.25);margin:0 4px;"></div>
+      <button id="glossary-btn"><span class="material-symbols-outlined">menu_book</span> Glossary</button>
+      <button id="search-btn"><span class="material-symbols-outlined">search</span> Search</button>
+      <button id="workflows-btn"><span class="material-symbols-outlined">account_tree</span> Workflows</button>
+    </div>
+
+    <!-- Inline search (hidden by default, replaces buttons) -->
+    <div class="tb-input-mode" id="search-mode">
+      <span class="material-symbols-outlined" style="color:rgba(255,255,255,0.75);font-size:1.1rem;flex-shrink:0;">search</span>
+      <input type="text" id="search-input" placeholder="Search nodes, tools, hardware..." autocomplete="off" />
+      <button id="search-close"><span class="material-symbols-outlined">close</span></button>
+      <div class="search-results" id="search-results"></div>
+    </div>
+
+    <!-- Inline glossary (hidden by default, replaces buttons) -->
+    <div class="tb-input-mode" id="glossary-mode">
+      <span class="material-symbols-outlined" style="color:rgba(255,255,255,0.75);font-size:1.1rem;flex-shrink:0;">menu_book</span>
+      <input type="text" id="glossary-input" placeholder="Search acronyms &amp; terms..." autocomplete="off" />
+      <button id="glossary-close"><span class="material-symbols-outlined">close</span></button>
+      <div class="search-results" id="glossary-results"></div>
+    </div>
+  </div>
+
+  <!-- Workflows modal -->
+  <div class="wf-modal" id="wf-modal">
+    <div class="wf-modal-inner">
+      <div class="wf-modal-header">
+        <h2>All Workflows</h2>
+        <button class="wf-modal-close" id="wf-modal-close"><span class="material-symbols-outlined">close</span></button>
+      </div>
+      <div class="wf-modal-body" id="wf-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Zoom -->
+  <div class="zoom-controls">
+    <button onclick="zoomIn()">+</button>
+    <button onclick="zoomOut()">&minus;</button>
+    <button onclick="zoomReset()"><span class="material-symbols-outlined" style="font-size:1rem;">fit_screen</span></button>
+  </div>
+
+<script>
+(function() {
+  /* ========== DATA ========== */
+  var nodes = [
+    /* ══════ USERS ══════ */
+    { id: 'pilot', type: 'user', label: 'Pilot', x: 520, y: 380, icon: 'person',
+      detail: { title: 'Pilot', subtitle: 'Flight Crew', desc: 'Commercial airline pilots responsible for operating flights, pre-flight procedures, and communicating with operations centers. Stays logged in to ECS for 21 days. Uses biometrics (Touch ID / Face ID) for authentication.',
+        hardware: ['Mobile Phone (iOS)', 'Mobile Phone (Android)', 'Tablet (EFB)', 'Desktop', 'Phone (Call)'],
+        tools: [
+          { name: 'CCI', color: '#3b82f6', desc: 'Crew Check-In & scheduling' },
+          { name: 'ECS', color: '#00ccff', desc: '2-Way Comms with IOC' },
+          { name: 'FDPro', color: '#3b82f6', desc: 'Flight planning data' },
+          { name: 'WSI', color: '#16a34a', desc: 'Weather information' },
+          { name: 'PBS', color: '#3b82f6', desc: 'Preferential Bidding System' },
+          { name: 'CME', color: '#9966ff', desc: 'Hosts ECS as micro-frontend app' },
+        ],
+        workflows: [
+          { name: '2-Way Comms', icon: 'chat', crossFunctional: true,
+            actors: ['Pilot', 'System', 'Crew Scheduler / Tracker', 'Hotel/Limo'],
+            phases: ['Setup', 'Submit', 'Route & Assign', 'Resolve'],
+            swimlanes: [
+              /* [actorIndex, phaseIndex, text, isData] */
+              [0, 0, 'Opens ECS, sets up profile & message settings', false],
+              [0, 1, 'Initiates 2-Way Comm (Fatigue, Sick, Late Sign-In, etc.)', false],
+              [1, 1, '4-Part Bid Status routes to correct desk', true],
+              [1, 1, 'Push notifications sent to EFB & personal devices', true],
+              [2, 2, 'Receives request in CME inbox, assigns to self', false],
+              [2, 2, 'Reviews pilot info, sequence, PTP status', false],
+              [2, 3, 'Calls Pilot if needed (fatigue bypasses PTP)', false],
+              [2, 3, 'Updates FOS, marks complete/rejected/approved', false],
+              [3, 2, 'Receives Hotel/Limo requests in CME inbox', false],
+              [3, 3, 'Arranges booking, confirms back via ECS', false],
+              [0, 3, 'Receives notification of outcome', false],
+              [1, 3, 'Sequence updated automatically', true],
+            ],
+            steps: [
+            'Pilot opens ECS app and sets up user profile (email, phone, message settings)',
+            'Pilot initiates 2-Way Comms for: Fatigue, Sick, Sick if Needed, Clear Sick, Late Sign-In, Commuter Miss, or Hotel/Limo Issue',
+            'DATA: Request routed via 4-Part Bid Status (seat, base, equipment, division) to the correct desk',
+            'DATA: Push notifications sent to EFB & personal devices for status changes',
+            'Crew Scheduler or Crew Tracker calls Pilot if needed (fatigue bypasses PTP check)',
+            'Pilot receives notification when request is completed, rejected, or approved',
+            'DATA: Pilot sequence updated automatically based on request outcome',
+          ]},
+          { name: 'Bidding', icon: 'how_to_vote', steps: [
+            'Pilot builds bidding strategy in PBS (2-4 hours)',
+            'Pilot sets up standing bid — default with 7 active layers in order of preference',
+            'Pilot transfers standing bid to PBS — replaces current bid',
+            'Pilot adjusts for days off using personal calendar (1 min)',
+            'Pilot previews bid — reviews previous month, adjusts to new layers (15 min)',
+            'Pilot readjusts current bid — confirms preview matches desired changes (20 min)',
+            'Pilot reviews the bids — checks all layers match (5 min)',
+            'Pilot updates standing bid with current (10 min)',
+            'Pilot checks awards (1 hr+)',
+            'ISSUE: PBS is very complicated — thousands of pilots bidding simultaneously',
+          ]},
+          { name: 'Trading', icon: 'swap_horiz', steps: [
+            'Pilot identifies trip to trade on Electronic Trade Board (ETB)',
+            'Pilot submits trade request through TTS in FOS',
+            'DATA: System validates trade against rules and qualifications',
+            'Counterparty Pilot accepts or trade goes to open time (TTOT)',
+            'DATA: FOS updates sequences for both pilots',
+          ]},
+          { name: 'Overnights', icon: 'hotel', crossFunctional: true,
+            actors: ['Pilot', 'Hotel/Limo Coordinator', 'Chief Pilots Office'],
+            phases: ['Request', 'Coordinate', 'Confirm'],
+            swimlanes: [
+              [0, 0, 'Submits Hotel/Limo Issue via ECS 2-Way Comms', false],
+              [1, 0, 'Receives request in CME inbox', false],
+              [1, 1, 'Arranges hotel booking & ground transportation', false],
+              [1, 2, 'Sends confirmation back to Pilot via ECS', false],
+              [2, 1, 'Involved for escalations if needed', false],
+              [0, 2, 'Receives confirmation', false],
+            ],
+            steps: [
+            'Pilot submits Hotel/Limo Issue via ECS 2-Way Comms',
+            'Hotel/Limo Coordinator receives request in CME inbox',
+            'Hotel/Limo Coordinator arranges hotel booking and ground transportation',
+            'Hotel/Limo Coordinator sends confirmation back to Pilot via ECS',
+            'Chief Pilots Office involved for escalations if needed',
+          ]},
+          { name: 'Schedule Changes', icon: 'event_busy', steps: [
+            'Pilot receives schedule change notification via MPS',
+            'Pilot reviews updated sequence in CCI and FDPro',
+            'Crew Scheduler updates Pilot sequence in FOS',
+            'DATA: ECS notification sent to Pilot with new assignment details',
+            'Pilot confirms or escalates via ECS 2-Way Comms',
+          ]},
+          { name: 'Arrive to Cruise', icon: 'flight_takeoff', crossFunctional: true,
+            actors: ['Pilot', 'Gate Agent', 'Flight Attendant', 'System / Ground Crew'],
+            phases: ['Arrive', 'Pre-Flight', 'Boarding', 'Pushback', 'Cruise'],
+            swimlanes: [
+              [0, 0, 'Passes KCM security (5-15 min)', false],
+              [0, 0, 'Logs into CCI, finds gate, marks fit for duty', false],
+              [0, 0, 'Signs in for trip (geofencing required)', false],
+              [0, 1, 'Reviews airplane, checks weather via WSI & FDProX', false],
+              [0, 1, 'Checks flight plan, walks around aircraft', false],
+              [3, 1, 'eMAL, Comply 365, FD Pro referenced for verification', true],
+              [0, 1, 'Deals with MX issues via eMAL if found', false],
+              [0, 1, 'Signs flight plan, conducts departure briefing with FO', false],
+              [1, 2, 'Arrives at gate, opens jet bridge access', false],
+              [1, 2, 'Briefs Pilot on special needs for this leg', false],
+              [1, 2, 'Manages boarding sequence and standby processing', false],
+              [0, 2, 'Unpacks cockpit, briefs crew (3-10 min)', false],
+              [0, 2, 'Contacts Dispatcher via phone/ACARS if changes needed', false],
+              [3, 2, 'Revised flight plan appears in CCI (5-10 min delay)', true],
+              [1, 3, 'Confirms headcount, closes aircraft door', false],
+              [2, 3, 'Confirms all set, closes cockpit door', false],
+              [3, 3, 'Ground crew coordinates pushback', true],
+              [0, 4, 'Cruise — monitors FMS, SkyPath for turbulence, ATC comms', false],
+              [3, 4, 'FMS and SkyPath provide real-time flight and turbulence data', true],
+            ],
+            steps: [
+            'Pilot passes through KCM security checkpoint (5-15 min)',
+            'Pilot logs into CCI to find gate assignment (30s)',
+            'Pilot marks fit for duty in CCI — can be done anywhere before flight (1 min)',
+            'Pilot signs in for trip in CCI — geofencing requires being at the gate (5-30 min)',
+            'Pilot reviews airplane data — checks attitude time, PFR turnaround forecast vs route in CCI and WSI',
+            'Pilot checks weather impact on flight plan using WSI and FDProX',
+            'Pilot checks flight plan in CCI — downloads into Adobe Acrobat to highlight, validates aircraft matches dispatch (15s + 3 min)',
+            'DATA: FD Pro, eMAL, and Comply 365 referenced for flight plan verification',
+            'Pilot walks around aircraft — reviews existing MELs in Comply 365, contacts mechanics if new issues found',
+            'Pilot deals with MX issues via eMAL — waits for mechanics, makes announcements every 30 min if delayed',
+            'Pilot signs the flight plan in CCI (15s)',
+            'Pilot goes to ops lounge if extra time — updates apps, prints, reviews FD Pro',
+            'Pilot waits for Gate Agent at jet bridge — cannot proceed without gate agent present (1-10 min)',
+            'Gate Agent tells Pilot about special needs for this leg',
+            'Pilot unpacks and sets up cockpit — impacted by cleaners and MX crew (2-10 min)',
+            'Pilot briefs crew — reviews flight, potential challenges. Can be rushed if waited for gate agent (3-10 min)',
+            'Pilot deals with delays — calls operations on radio if boarding parts are behind, calls again after 10 min (1-15 min)',
+            'Pilot conducts departure briefing with FO — reviews contingencies, flight plan, departure diagrams, validates runway legality (2-5 min)',
+            'Pilot contacts Dispatcher via phone, Crew app, or ACARS if flight plan changes needed (5-10 min)',
+            'DATA: Revised flight plan appears 5-10 min later in CCI — no notification for performance/legality changes',
+            'Pilot waits for boarding to finish in cockpit',
+            'Flight Attendant confirms all set and closes cockpit door (1-2 min)',
+            'DATA: Ground crew coordinates pushback — weather, communication, equipment, and ramp congestion can cause issues (1-2 min)',
+            'ISSUE: "So frustrating to be in a poor GPS zone — can we expand geofencing to cover the unreliability of GPS?"',
+            'ISSUE: "5 clicks to just look at Flight Plan in CCI" — "I have to click 7 different things to get into the log book"',
+            'ISSUE: Pilots should be able to get to the plane 1.5 hr prior — would lead to way fewer delays',
+            'Cruise — the ground crew coordinates with the cockpit to push the aircraft back from the gate. Weather, poor communication, equipment failure, and ramp congestion can make this tricky. (ongoing)',
+            'ISSUE: The order of these steps can vary based on pilot preferences',
+          ]},
+        ],
+        painPoints: [
+          '"Difficult part its finding it" — about KCM',
+          '"So frustrating to be in a poor GPS zone, can we expand it to cover the unreliability of GPS?"',
+          '"5 clicks to just look at Flight Plan in CCI"',
+          '"Some of the ways you are notified about it, can be a little old school"',
+          '"I have to click 7 different things to get into the log book. We want to be able to do pilot stuff instead of playing with the iPad to get the data we need"',
+          '"Finding the information that I need is really hard. Like the location of the lounge, the key, how I\'m getting inside"',
+          '"Pilots should be able to get to the plane 1.5 hr prior, would lead to way fewer delays"',
+          '"When you get close to D-10 gate agents can get pushy"',
+          '"Non-standard / different procedures in different locations and different experience levels can cause issues"',
+        ]
+      }
+    },
+    { id: 'fa', type: 'user', label: 'FA', x: 100, y: 100, icon: 'person',
+      detail: { title: 'Flight Attendant', subtitle: 'Cabin Crew', desc: 'Flight attendants managing in-flight service, safety, and cabin operations. Access scheduling and compliance tools. Key terms: Bid Month (month FA is bidding for flying), Contractual Month (defined by union contract, may differ from calendar month), Flying Month (month FA flies awarded trips), Log (single flights bundled into trips), Line (schedule of flying within a month), Lineholder (FA who bids for and receives a full month of flying), RAPs (Reserve Availability Periods - blocks of time a reserve must be available), Reserve (FA eligible for any trip, can be called for days on via Panel by or WAR), Stand by (FA sitting at airport on call), Trip/Sequence (series of legs flown by an FA).',
+        hardware: ['Personal phone', 'Company issued tablet'],
+        tools: [
+          { name: 'CCI', color: '#3b82f6', desc: 'Crew Check-In & scheduling' },
+          { name: 'Comply 365', color: '#3b82f6', desc: 'Compliance documentation' },
+          { name: 'FDPro', color: '#3b82f6', desc: 'Flight details' },
+          { name: 'Crew Portal', color: '#00ccff', desc: 'Access schedule, bid packages, assignments' },
+          { name: 'PBS', color: '#3b82f6', desc: 'Preferential Bidding System' },
+          { name: 'LRD', color: '#3b82f6', desc: 'Lineholder/Reserve Designation ballot' },
+          { name: 'TBS/CQ', color: '#3b82f6', desc: 'Training Bidding System' },
+          { name: 'TTS', color: '#3b82f6', desc: 'Trip Trade System' },
+          { name: 'ETB', color: '#3b82f6', desc: 'Electronic Trade Board' },
+          { name: 'ROTA', color: '#3b82f6', desc: 'Reserve Open Time Assignment' },
+        ],
+        workflows: [
+          { name: 'Training Bidding', icon: 'school', steps: [
+            'Flight Attendant fills in for open training to remain eligible to work',
+            'FA receives TSS training planned absences',
+            'FA assigned training in TBS/CQ',
+            'FA views sequence in FOS via Crew Portal',
+            'FA elects to trade training via ETB if desired',
+          ]},
+          { name: 'Lineholder/Reserve Bidding', icon: 'how_to_vote', steps: [
+            'Each month FAs must bid to be either a lineholder or reserve (2 weeks out)',
+            'LRD opens for FA to bid on whether they can hold a line',
+            'LPD Planning Admin processes bids',
+            'Lineholder/Reserve Awards posted',
+            'Golden Day/Flex Day Designation (reserves awarded Golden Days)',
+            '2 Days Out: Reserves may elect to work on Golden or Flex Days',
+          ]},
+          { name: 'PBS Bidding', icon: 'ballot', steps: [
+            'PBS opens (same day for FAs but trip awards based on seniority)',
+            'Bid Packages Posted',
+            'PBS Bidding Open (FAs bid on which trip they want)',
+            'DATA: BVR Business Validation Report generated by Crew Planning',
+            'Schedules Awarded to FAs',
+            'FA views awarded schedule in Crew Portal',
+          ]},
+          { name: 'TTS/UBL', icon: 'swap_horiz', steps: [
+            'TTS (Trip Trade System) and UBL opened (lineholder only)',
+            'FAs submit bids to trade or pick up trips',
+            'TTS begins running for the next month',
+            'Trip Trade Open Time runs',
+            '2 Days Out: TTS Closed for Processing',
+            'Awards posted from TTS',
+            'TTS Bidding Reopens',
+            'UBL Auto Award, Manual Call List for crewmembers who did not receive trips',
+          ]},
+          { name: 'ROTA/ROTD', icon: 'event_repeat', steps: [
+            'ROTA runs to process the next day\'s trip assignments',
+            'ROTA awards and assigns sequences, identifies assignments and RAPs',
+            'ROTD continues running as needed (Reserve 4-6 block entry)',
+            'ROTA Burns (process can happen as early as D/O day)',
+            'DATA: Must be completed by D/O for lineholder operations',
+          ]},
+          { name: 'Electronic Trade Board (ETB)', icon: 'compare_arrows', steps: [
+            'ETB available for lineholders and reserves to swap or trade',
+            'FAs submit vacation trades, training trades',
+            'ETB opens for the next month',
+            'ETB Locked while TTS Burns',
+            'Off Days Trading Locked',
+          ]},
+        ]
+      }
+    },
+    { id: 'crew-tracker', type: 'user', label: 'Crew\nTracker', x: 150, y: 1100, icon: 'person',
+      detail: { title: 'Crew Tracker', painPoints: ['Must manually check PTP compliance before calling pilots','Pilot Lookup requires knowing employee name — no quick search by flight/sequence',], subtitle: 'IOC Staff', desc: 'IOC team member responsible for tracking crew positions and managing irregular operations. Routes incoming ECS requests by equipment and base. Reviews pilot sequence and status information. Can look up pilots by employee name to review flight status and notification preferences.',
+        hardware: ['Desktop workstation', 'Phone (Call)'],
+        tools: [
+          { name: 'ECS/CME', color: '#00ccff', desc: 'Open ECS inbox in CME application' },
+          { name: 'FOS', color: '#3b82f6', desc: 'System of record — assign/modify sequences' },
+          { name: 'Flight Card', color: '#ca8a04', desc: 'Sequence, gate code, station, date, meals, next activity' },
+          { name: 'Pilot Lookup', color: '#ca8a04', desc: 'Look up pilot by employee name' },
+        ],
+        workflows: [
+          { name: 'Handle 2-Way Comms', icon: 'chat', steps: [
+            'Crew Tracker receives new request in ECS inbox (with desk tab)',
+            'Crew Tracker selects and assigns request to self',
+            'Crew Tracker reviews pilot info: sequence, status, PTP (Protected Time Periods)',
+            'DATA: PTP check performed — fatigue requests bypass PTP',
+            'Crew Tracker calls Pilot if needed',
+            'Crew Tracker updates information in FOS',
+            'DATA: Changes reflected in CME automatically',
+            'Crew Tracker marks request as complete, rejected, or approved',
+            'DATA: Request stored in Desk History for reference',
+          ]},
+        ]
+      }
+    },
+    { id: 'crew-scheduler', type: 'user', label: 'Crew\nScheduler', x: 250, y: 1250, icon: 'person',
+      detail: { title: 'Crew Scheduler', subtitle: 'IOC Staff', desc: 'Manages crew scheduling, trip assignments, and reserve coordination. Routes incoming ECS requests by seat, base, equipment, and division. Handles DOTC (Daily Open Time Coverage) on a daily basis. Can remove assignee (SOD only) or transfer to another desk.',
+        hardware: ['Desktop workstation', 'Phone (Call)'],
+        tools: [
+          { name: 'ECS/CME', color: '#00ccff', desc: 'Open ECS inbox in CME application' },
+          { name: 'FOS', color: '#3b82f6', desc: 'System of record — assign/modify sequences' },
+          { name: 'PBS', color: '#3b82f6', desc: 'Preferential Bidding System' },
+          { name: 'MPS', color: '#ca8a04', desc: 'Schedule change notifications' },
+          { name: 'Flight Card', color: '#ca8a04', desc: 'Pilot sequence and activity data' },
+        ],
+        workflows: [
+          { name: 'Handle 2-Way Comms', icon: 'chat', steps: [
+            'Crew Scheduler receives new request in ECS inbox (routed by 4-Part Bid Status)',
+            'Crew Scheduler assigns request to self to begin working',
+            'Crew Scheduler reviews pilot info: sequence, status, PTP compliance',
+            'DATA: 4-Part Bid Status routes by seat, base, equipment, division',
+            'Crew Scheduler calls Pilot and/or updates information in FOS',
+            'DATA: Updates reflected in CME depending on application',
+            'Crew Scheduler marks request as complete, rejected, or approved',
+            'Crew Scheduler removes assignee (SOD only) or transfers desk (SOD and CS/CT)',
+          ]},
+          { name: 'DOTC', icon: 'today', steps: [
+            'Crew Scheduler reviews Daily Open Time Coverage requirements',
+            'Crew Scheduler checks available reserve pilots and open trips',
+            'Crew Scheduler assigns crew to uncovered flights in FOS',
+            'DATA: MPS notifications sent to affected pilots',
+          ]},
+          { name: 'Schedule Changes', icon: 'event_busy', steps: [
+            'Crew Scheduler identifies schedule change requirement',
+            'Crew Scheduler updates Pilot sequence in FOS',
+            'DATA: MPS notification sent to affected Pilot',
+            'Pilot confirms via ECS if needed',
+          ]},
+        ]
+      }
+    },
+    { id: 'training-schedulers', type: 'user', label: 'Training\nSchedulers', x: 1100, y: 500, icon: 'person',
+      detail: { title: 'Training Schedulers', painPoints: ['Must manually cross-reference MINT, MARFFLE, CPOP, CTP, and Equalization Report','No single unified system for training scheduling workflow','Before awarding, must run unreliable queries to verify data','Calling instructors directly required for specialized events (Blancord/ADP)',], subtitle: 'Training Operations', desc: 'Coordinates pilot and crew training schedules, certifications, and qualification tracking. Looks in MINT to find events for the next day that still need instructors (on holidays sometimes multiple days out). Awards events in CPOP and assigns bids in MINT, then updates the Equalization Report.',
+        hardware: ['Desktop workstation'],
+        tools: [
+          { name: 'MINT', color: '#3b82f6', desc: 'Find events needing instructors' },
+          { name: 'MARFFLE', color: '#ca8a04', desc: 'Check instructor availability' },
+          { name: 'CPOP', color: '#3b82f6', desc: 'Award overtime events' },
+          { name: 'CTP', color: '#3b82f6', desc: 'View overtime bids' },
+          { name: 'Equalization Report', color: '#ca8a04', desc: 'Track bid assignments' },
+        ],
+        workflows: [
+          { name: 'CKP/IP Overtime', icon: 'assignment', crossFunctional: true,
+            actors: ['Training Scheduler', 'System', 'Check Pilots / IPs'],
+            phases: ['Identify', 'Post for Bidding', 'Bid', 'Award'],
+            swimlanes: [
+              [0, 0, 'Finds unfilled events in MINT for next day', false],
+              [0, 0, 'Checks MARFFLE for available instructors', false],
+              [0, 1, 'Recreates events in CPOP for overtime bidding', false],
+              [1, 1, 'By 11am: events should be entered into CPOP', true],
+              [1, 1, 'Events sent from CPOP to CTP Overtime Proffer', true],
+              [2, 2, 'Bids on overtime events in CTP (11am-2pm)', false],
+              [1, 2, 'Bids sent back to CPOP', true],
+              [0, 3, 'Runs queries in Equalization Report to verify', false],
+              [0, 3, 'Awards event in CPOP based on seniority & qualifications', false],
+              [0, 3, 'Assigns bids to instructor in MINT, updates Equalization Report', false],
+            ],
+            steps: [
+            'Training Scheduler finds unfilled events in MINT for the next day',
+            'Training Scheduler checks MARFFLE — is there only one or multiple who can cover?',
+            'Training Scheduler recreates events in CPOP for overtime bidding (if more than one)',
+            'DATA: By 11am — events should be entered into CPOP',
+            'Check Pilots & Instructor Pilots bid on overtime events in CTP (11am-2pm window)',
+            'DATA: Bids from CTP sent back to CPOP automatically',
+            'Training Scheduler awards event in CPOP after 2pm based on seniority & qualifications',
+            'Training Scheduler runs queries in Equalization Report to verify before awarding',
+            'Training Scheduler assigns bids to instructor in MINT and updates Equalization Report',
+          ]},
+          { name: 'FCTI/SimP Overtime', icon: 'school', steps: [
+            'Training Scheduler checks MARFFLE for FCTI/SimP availability',
+            'Training Scheduler checks Equalization Report for seniority status',
+            'Training Scheduler manually decides who should be awarded (worked or not seniority)',
+            'Training Scheduler calls instructor directly if only one available (Blancord or ADP events)',
+            'Training Scheduler awards event and updates Equalization Report',
+          ]},
+        ]
+      }
+    },
+    { id: 'ckp-ip', type: 'user', label: 'Check Pilots\n& Instructor\nPilots', x: 950, y: 350, icon: 'person',
+      detail: { title: 'Check Pilots & Instructor Pilots', subtitle: 'CKP · IP', desc: 'Check Pilots and Instructor Pilots who can bid on overtime training events. They are qualified to handle CKP and IP events and use the CTP Overtime Proffer to submit bids.',
+        hardware: ['Personal phone', 'Company issued tablet'],
+        tools: [
+          { name: 'CTP', color: '#3b82f6', desc: 'Bid on overtime events via Overtime Proffer' },
+          { name: 'CPOP', color: '#3b82f6', desc: 'View available overtime events' },
+        ],
+        workflow: [
+          'Instructors have from 11am-2pm to complete overtime bids for the next day',
+          'Bid on overtime events within CTP Overtime Proffer',
+          'Awards are determined by seniority and qualifications',
+        ]
+      }
+    },
+    { id: 'fcti-simp', type: 'user', label: 'FCTI &\nSim Pilots', x: 1000, y: 650, icon: 'person',
+      detail: { title: 'Flight Crew Training Instructors & Sim Pilots', subtitle: 'FCTI · SimP', desc: 'Flight Crew Training Instructors and Simulator Pilots. For FCTI and SimP shifts, schedulers look at the MARFFLE to check availability, then check the Equalization Report to decide who should be awarded based on seniority.',
+        hardware: ['Personal phone', 'Desktop workstation'],
+        tools: [
+          { name: 'MARFFLE', color: '#ca8a04', desc: 'Shift availability lookup' },
+          { name: 'Equalization Report', color: '#ca8a04', desc: 'Seniority-based award decisions' },
+        ],
+        workflow: [
+          'Schedulers check MARFFLE for FCTI/SimP availability',
+          'Equalization Report checked for seniority status',
+          'Award decision made manually based on worked or not seniority',
+        ]
+      }
+    },
+
+    /* ══════ PRODUCTS ══════ */
+    { id: 'cci', type: 'product', label: 'CCI', x: 250, y: 100, icon: 'smartphone',
+      detail: { title: 'CCI · Crew Check-In', subtitle: 'Pilots · Flight Attendants', desc: 'Local, PWA, iOS app that allows crew members to access their flight schedules, details, FOS resources, and other mission critical information. Crew members also check-in to their flights via this app.',
+        hardware: ['Company issued tablet', 'Personal PC', 'Personal phone'],
+        tools: [
+          { name: 'WSI', color: '#16a34a', desc: 'It tells the weather' },
+          { name: 'eMAL', color: '#ca8a04', desc: 'EQP maintenance information' },
+          { name: 'FOS', color: '#2563eb', desc: 'Flight operations system' },
+        ]
+      }
+    },
+    { id: 'ecs', type: 'product', label: 'ECS', x: 300, y: 900, icon: 'chat',
+      detail: { title: 'ECS · Electronic Communication System', painPoints: ['Pilots waited 10 minutes to 3 hours for responses using legacy phone/radio/email','Urgent messages buried under non-urgent noise — no priority system','$4.2M in annual operational waste from cascading delays and miscommunication','Miscommunication caused delayed clearances, incorrect crew assignments, and last-minute flight changes',], subtitle: 'Pilots · Crew Scheduling · Crew Tracking · Hotel/Limo', desc: 'Real-time request-based 2-Way Comms platform hosted within CME as a micro-frontend app. Replaces radio, phone, and email for structured pilot-to-IOC communication. Message history retained for 90 days.',
+        hardware: ['Mobile Phone (iOS/Android)', 'Tablet (EFB)', 'Desktop'],
+        tools: [
+          { name: '4-Part Bid Status', color: '#00ccff', desc: 'Routes to Crew Scheduler (seat, base, equip, div) or Crew Tracker (equip, base), Hotel/Limo' },
+          { name: 'Inbox Priority', color: '#ca8a04', desc: 'Fatigue → Sick → Clear Sick → Late Sign-in → Commuter Miss → No Show DHD (oldest to newest)' },
+          { name: '2-Way Comms State', color: '#00ccff', desc: 'Open → In Progress → Assigned to CS/T or Hotel/Limo' },
+          { name: 'Desk History', color: '#3b82f6', desc: 'Stored for user reference on completed requests' },
+          { name: 'Message History', color: '#3b82f6', desc: 'DOTC RAS, TTS — operational notifications' },
+          { name: 'Push Notifications', color: '#16a34a', desc: 'EFB & personal devices at every state change' },
+          { name: 'Do Not Disturb', color: '#ca8a04', desc: 'Silences device, required notifications still forward on preferred channels' },
+        ],
+        workflow: [
+          'Pilot opens ECS, sets up profile (email, phone, message settings)',
+          'Pilot initiates 2-Way Comms: Fatigue, Sick, Sick if Needed, Clear Sick, Late Sign-In, Commuter Miss, Hotel/Limo Issue',
+          'Request routed via 4-Part Bid Status to correct desk',
+          'New message thread generated in ECS inbox — push notifications sent',
+          'CS/T, Tracker, or Hotel/Limo opens request in CME, assigns to self',
+          'If call needed: CS/T calls pilot (PTP checked first, except Fatigue)',
+          'FOS updated, pilot sequence modified — changes reflected in CME',
+          'Request marked complete/rejected/approved — pilot notified via push',
+          'Request stored in Desk History, Message History retained 90 days',
+        ]
+      }
+    },
+    { id: 'fdpro-1', type: 'product', label: 'FDPro', x: 700, y: 100, icon: 'description',
+      detail: { title: 'FDPro', subtitle: 'Flight Data', desc: 'Flight planning and data tool used by pilots and flight attendants for route information, fuel planning, and operational data.' }
+    },
+    { id: 'aircraft-fms-1', type: 'product', label: 'Aircraft FMS', x: 100, y: 250, icon: 'flight',
+      detail: { title: 'Aircraft FMS', subtitle: 'Flight Management System', desc: 'Onboard flight management system used for navigation, performance calculations, and flight planning.' }
+    },
+    { id: 'comply-365', type: 'product', label: 'Comply 365', x: 400, y: 230, icon: 'verified',
+      detail: { title: 'Comply 365', subtitle: 'Compliance', desc: 'Digital compliance and documentation platform for flight attendants and crew members. Stores manuals, safety documentation, and regulatory requirements.' }
+    },
+    { id: 'atc', type: 'product', label: 'ATC', x: 200, y: 550, icon: 'cell_tower',
+      detail: { title: 'ATC', subtitle: 'Air Traffic Control', desc: 'External air traffic control communication interface for pilots during flight operations.' }
+    },
+    { id: 'dispatch', type: 'product', label: 'Dispatch', x: 500, y: 600, icon: 'send',
+      detail: { title: 'Dispatch', subtitle: 'Flight Dispatch', desc: 'Flight dispatch system for operational coordination between pilots and the dispatch team.' }
+    },
+    { id: 'wsi', type: 'product', label: 'WSI', x: 650, y: 550, icon: 'cloud',
+      detail: { title: 'WSI', subtitle: 'Weather Service', desc: 'Weather information service providing real-time meteorological data, forecasts, and weather alerts for flight planning and operations.' }
+    },
+    { id: 'flight-keys', type: 'product', label: 'Flight Keys', x: 550, y: 250, icon: 'vpn_key',
+      detail: { title: 'Flight Keys', subtitle: 'Operations', desc: 'Flight key management and operational data access tool used by pilots for flight-specific information.' }
+    },
+    { id: 'mint', type: 'product', label: 'MINT', x: 1100, y: 300, icon: 'school',
+      detail: { title: 'MINT', painPoints: ['MINT prints poorly — teams create PDFs and email them as workaround','FCR Report is so cluttered that the spiral treatment is used fill required and sometimes info is missed','Lost capability from TIMS migration — now need MARFFLE because TIMS would supply lists directly',], subtitle: 'Training Management', desc: 'Training management and instructor scheduling system. Training schedulers look in MINT to find events for the next day that still need instructors. MINT prints poorly so teams create PDFs and email them. Originally had more capability in TIMS — every time they need a MARFFLE, it\'s because TIMS would supply a list of all available sips.',
+        hardware: ['Desktop workstation'],
+        tools: [
+          { name: 'FCR Report', color: '#ca8a04', desc: 'Printed as PDF, emailed around. Cluttered spiral treatment.' },
+          { name: 'MARFFLE export', color: '#ca8a04', desc: 'Daily report pulled from MINT, changes hourly, time-stamped' },
+        ],
+        workflow: [
+          'Find events needing instructors for next day',
+          'Print FCR Report (prints poorly, create PDF workaround)',
+          'After awards: assign bids to instructors and update Equalization Report',
+        ]
+      }
+    },
+    { id: 'marffle', type: 'product', label: 'MARFFLE\n(Excel)', x: 900, y: 500, icon: 'table_chart',
+      detail: { title: 'The MARFFLEs', subtitle: 'Excel Spreadsheets', desc: 'Two Excel-based reports used to check instructor availability. The first is a monthly MARFFLE made by the training crew — it has both CKP and IP within it and lists instructor qualifications. The second is a daily MARFFLE pulled from MINT that changes hour by hour (time-stamped), showing current schedule including new sick days that have come up.',
+        tools: [
+          { name: 'Monthly MARFFLE', color: '#16a34a', desc: 'CKP & IP qualifications, made by training crew' },
+          { name: 'Daily MARFFLE', color: '#ca8a04', desc: 'Pulled from MINT, hourly updates, current schedule' },
+        ],
+        workflow: [
+          'Check if there is only one instructor or multiple who can cover a shift',
+          'For CKP/IP: if more than one, events go to CPOP for bidding',
+          'For FCTI/SimP: check availability then go to Equalization Report',
+        ]
+      }
+    },
+    { id: 'cpop', type: 'product', label: 'CPOP', x: 1250, y: 350, icon: 'event_note',
+      detail: { title: 'CPOP', subtitle: 'Crew Planning Operations Platform', desc: 'Platform where training schedulers recreate events that need to be filled for overtime bidding. Schedulers "award" events by checking a box (that functionally does nothing). Events from CPOP are sent to the Overtime Proffer in CTP. Bids from CTP are sent back to CPOP.',
+        hardware: ['Desktop workstation'],
+        tools: [
+          { name: 'Event creation', color: '#3b82f6', desc: 'Recreate unfilled events for bidding' },
+          { name: 'Award system', color: '#ca8a04', desc: 'Check box to award (box does nothing)' },
+        ],
+        workflow: [
+          'Recreate events from MINT that need overtime coverage',
+          'Events sent to CTP Overtime Proffer automatically',
+          'Bids return from CTP after instructor bidding window',
+          'Award event based on seniority and qualifications',
+          'By 11am: schedulers should have entered events into CPOP',
+        ]
+      }
+    },
+    { id: 'ctp', type: 'product', label: 'CTP', x: 1300, y: 500, icon: 'assignment',
+      detail: { title: 'CTP · Overtime Proffer', painPoints: ['No qualification filtering — any instructor can bid on any event regardless of qualification','Bidding window limited to 11am-2pm for next day events',], subtitle: 'Crew Training Platform', desc: 'The Overtime Proffer within CTP allows Check Pilots and Instructor Pilots to bid on overtime training events. Receives events from CPOP and sends bids back. Note: not everything is being filtered to instructors for their specific qualification — any instructor can bid on any event.',
+        hardware: ['Desktop workstation', 'Personal phone'],
+        tools: [
+          { name: 'Overtime Proffer', color: '#3b82f6', desc: 'Bid submission for overtime events' },
+        ],
+        workflow: [
+          'Receives events from CPOP automatically',
+          'Instructors bid between 11am-2pm for next day events',
+          'Bids sent back to CPOP for award decisions',
+          'ISSUE: No qualification filtering — any instructor can bid on any event',
+        ]
+      }
+    },
+    { id: 'eq-report', type: 'product', label: 'Equalization\nReport (Excel)', x: 1250, y: 650, icon: 'table_chart',
+      detail: { title: 'Equalization Report', painPoints: ['Everything on this report is horizontal — team wants it easily accessible as a stand-up view','Schedulers must run bad queries to verify before awarding','Manual seniority-based decisions prone to human error',], subtitle: 'Excel Spreadsheet', desc: 'Excel-based report used to track instructor seniority and work history. Schedulers check a pilot\'s status to manually decide who should be awarded an event based on whether they\'ve worked or their seniority. Everything on this report is horizontal — the team wants it easily accessible as a stand-up view.',
+        tools: [
+          { name: 'Seniority tracking', color: '#ca8a04', desc: 'Worked or not seniority status' },
+          { name: 'Award history', color: '#ca8a04', desc: 'Bid assignment records' },
+        ],
+        workflow: [
+          'Before awarding: schedulers must run bad queries to verify',
+          'For FCTI/SimP: primary tool for manual award decisions',
+          'Updated after bids are assigned in MINT',
+          'ISSUE: Horizontal layout, needs stand-up accessible format',
+        ]
+      }
+    },
+
+    /* ══════ ADDITIONAL USERS ══════ */
+    { id: 'hotel-limo', type: 'user', label: 'Hotel/Limo\nCoordinator', x: 50, y: 1000, icon: 'person',
+      detail: { title: 'Hotel/Limo Coordinator', subtitle: 'IOC Support', desc: 'Handles overnight hotel bookings and ground transportation for crew during layovers. Receives Hotel/Limo Issue requests via ECS 2-Way Comms (routed by 4-Part Bid Status). Marks requests as complete, rejected, or approved.',
+        hardware: ['Desktop workstation', 'Phone (Call)'],
+        tools: [
+          { name: 'ECS/CME', color: '#00ccff', desc: 'Receive and respond to hotel/limo requests' },
+          { name: 'Desk History', color: '#3b82f6', desc: 'Reference completed requests' },
+        ],
+        workflow: [
+          'Receive Hotel/Limo Issue request in ECS inbox via CME',
+          'Select and assign 2-way comms to self to begin working',
+          'Coordinate hotel booking and limo/shuttle arrangement',
+          'Call pilot if needed for confirmation or clarification',
+          'Mark request as complete, rejected, or approved',
+          'Request stored in Desk History for reference',
+        ]
+      }
+    },
+    { id: 'cpo', type: 'user', label: 'Chief Pilots\nOffice', x: 400, y: 1250, icon: 'person',
+      detail: { title: 'Chief Pilots Office (CPO)', subtitle: 'Management', desc: 'Provides oversight and escalation support for pilot operations, training, and compliance. Involved in overnight and schedule change escalations.',
+        hardware: ['Desktop workstation', 'Phone'],
+        tools: [
+          { name: 'ECS', color: '#3b82f6', desc: 'Escalation communication' },
+          { name: 'FOS', color: '#3b82f6', desc: 'Flight Operating System data' },
+        ]
+      }
+    },
+
+    /* ══════ ADDITIONAL PRODUCTS ══════ */
+    { id: 'cme', type: 'product', label: 'CME', x: 450, y: 950, icon: 'web',
+      detail: { title: 'CME', subtitle: 'Crew Management Ecosystem', desc: 'Application that hosts ECS as a micro-frontend app. IOC staff (Crew Schedulers, Crew Trackers, Hotel/Limo) open the ECS inbox within CME to view and manage 2-way comms requests. Can see updated information after FOS changes are made.',
+        hardware: ['Desktop workstation'],
+        tools: [
+          { name: 'ECS Inbox', color: '#00ccff', desc: 'Embedded 2-Way Comms inbox' },
+          { name: 'FOS Integration', color: '#3b82f6', desc: 'Reflects FOS changes in real-time' },
+          { name: 'Desk Tabs', color: '#ca8a04', desc: 'Organized by desk role assignment' },
+        ]
+      }
+    },
+    { id: 'pbs', type: 'product', label: 'PBS', x: 400, y: 100, icon: 'how_to_vote',
+      detail: { title: 'PBS · Preferential Bidding System', painPoints: ['PBS is very complicated — thousands of pilots bidding simultaneously','&quot;5 clicks to just look at Flight Plan in CCI&quot;','Standing bid has only 7 active layers in order of preference — limited flexibility','Check awards process can take 1+ hours',], subtitle: 'Scheduling', desc: 'System used by pilots and flight attendants to bid on monthly schedules. Pilots create a bidding strategy, set up standing bids, adjust for days off, preview bids, and review awards. PBS is noted as being very complicated. Developed by AOS (vendor).',
+        hardware: ['Desktop workstation', 'Personal phone'],
+        tools: [
+          { name: 'PBS User Guides', color: '#3b82f6', desc: 'Reference material for bidding' },
+          { name: 'Help Desk', color: '#ca8a04', desc: 'Support for PBS issues' },
+          { name: 'Personal Calendar', color: '#16a34a', desc: 'Used alongside PBS for day-off planning' },
+        ],
+        workflow: [
+          'Build bidding strategy (2-4 hours)',
+          'Set up standing bid — like a default, active only 7 layers in order of preference',
+          'Transfer standing bid to system — replaces current bid',
+          'Adjust for day off (1 min)',
+          'Preview bid — look at previous month, adjust to new layers (15 min)',
+          'Readjust current bid — confirm the preview matches desired changes (20 min)',
+          'Review the bids — review bid layers, make sure everything matches (5 min)',
+          'Update standing bid with current (10 min)',
+          'Check awards — biggest problem is thousands/millions of pilots using PBS (1 hr+)',
+          'ISSUE: PBS is very complicated for users',
+        ]
+      }
+    },
+    { id: 'etb', type: 'product', label: 'ETB', x: 100, y: 400, icon: 'swap_horiz',
+      detail: { title: 'ETB · Electronic Trade Board', subtitle: 'Trip Trading', desc: 'System used by pilots to trade trips with other pilots. Part of the Trading journey flow. Connected to the Trip Trade System (TTS) and Trip Trade Open Times (TTOT).',
+        hardware: ['Desktop workstation', 'Personal phone'],
+        tools: [
+          { name: 'TTS', color: '#3b82f6', desc: 'Trip Trade System in FOS' },
+          { name: 'TTOT', color: '#3b82f6', desc: 'Trip Trade Open Times' },
+        ]
+      }
+    },
+    { id: 'mps', type: 'product', label: 'MPS', x: 200, y: 700, icon: 'sms',
+      detail: { title: 'MPS', subtitle: 'Messaging/Paging System', desc: 'Messaging and paging system used for schedule change notifications. Pilots receive notifications about schedule changes, reassignments, and operational updates through MPS.',
+        hardware: ['Personal phone', 'Pager'],
+      }
+    },
+    { id: 'pfr', type: 'product', label: 'PFR', x: 320, y: 480, icon: 'description',
+      detail: { title: 'PFR', subtitle: 'Pilot Flight Record', desc: 'Record system containing pilot flight history, status, and scheduling data. Referenced during schedule changes and used by crew scheduling for assignment decisions.',
+        hardware: ['Desktop workstation'],
+      }
+    },
+    { id: 'fos', type: 'product', label: 'FOS', x: 450, y: 800, icon: 'dns',
+      detail: { title: 'FOS · Flight Operating System', painPoints: ['Legacy system constraining modern workflow improvements','Many downstream systems depend on FOS data — changes are high-risk','FCRM only refreshes nightly — not real-time crew data',], subtitle: 'Core Operations', desc: 'The central flight operating system that manages crew data, trip trades, schedules, and operational records. Many other systems (PBS, TTS, FCRM) interface with FOS. Contains TTOS, TTS, and other subsystems.',
+        hardware: ['Desktop workstation'],
+        tools: [
+          { name: 'TTOS', color: '#3b82f6', desc: 'Trip Trade Operating System' },
+          { name: 'TTS', color: '#3b82f6', desc: 'Trip Trade System' },
+          { name: 'FCRM', color: '#ca8a04', desc: 'Flight Crew Resource Mgmt — nightly refreshed crew data' },
+          { name: 'Crew FUN', color: '#ca8a04', desc: 'Crew control configuration tables' },
+        ]
+      }
+    },
+
+    /* ══════ NEW NODES FROM ARRIVE-TO-CRUISE ══════ */
+    { id: 'skypath', type: 'product', label: 'SkyPath', x: 800, y: 200, icon: 'air',
+      detail: { title: 'SkyPath', subtitle: 'Turbulence Tracking', desc: 'Real-time turbulence tracking and reporting tool used during cruise phase. Aggregates turbulence data from multiple aircraft to provide pilots with up-to-date ride quality information along their route.',
+        hardware: ['Tablet (EFB)'],
+      }
+    },
+    { id: 'fmsplus', type: 'product', label: 'FMS+', x: 850, y: 450, icon: 'flight',
+      detail: { title: 'FMSPlus · Enhanced Flight Management System', subtitle: 'Flight Planning & Cruise', desc: 'Enhanced flight management system used during trip review and cruise phases. Provides advanced route optimization, performance monitoring, and flight plan management capabilities beyond standard FMS.',
+        hardware: ['Tablet (EFB)', 'Aircraft system'],
+      }
+    },
+
+    /* ══════ NEW NODES FROM ARRIVE-TO-PUSHBACK ══════ */
+    { id: 'emal', type: 'product', label: 'eMAL', x: 700, y: 300, icon: 'build',
+      detail: { title: 'eMAL', subtitle: 'Electronic Maintenance Log', desc: 'EQP maintenance information system. Pilots check eMAL for existing MELs (Minimum Equipment List) during walk-around. Used to report and track maintenance issues found during pre-flight inspection. Also referenced during flight plan verification.',
+        hardware: ['Tablet (EFB)', 'Desktop'],
+      }
+    },
+    { id: 'acars', type: 'product', label: 'ACARS', x: 650, y: 400, icon: 'satellite_alt',
+      detail: { title: 'ACARS', subtitle: 'Aircraft Communications Addressing and Reporting System', desc: 'Digital datalink system for transmitting messages between aircraft and ground stations. Used by pilots to contact dispatchers for flight plan changes, receive revised plans, and send/receive operational messages.',
+        hardware: ['Aircraft system', 'Desktop'],
+      }
+    },
+    { id: 'gate-agent', type: 'user', label: 'Gate\nAgent', x: 50, y: 650, icon: 'person',
+      detail: { title: 'Gate Agent', painPoints: ['&quot;When you get close to D-10 gate agents can get pushy&quot;','&quot;Non-standard / different procedures in different locations and different experience levels can cause issues&quot;','Pilots cannot proceed down jet bridge without gate agent present — creates dependency bottleneck',], subtitle: 'Airport Operations', desc: 'Responsible for boarding management and gate operations. Pilots cannot proceed down the jet bridge without a gate agent present. Gate agents are not required to be there until 1 hour prior. They inform pilots of special needs for each leg. When close to D-10 (departure minus 10 min), gate agents can get pushy.',
+        hardware: ['Desktop workstation', 'Handheld scanner'],
+        tools: [
+          { name: 'Gate system', color: '#3b82f6', desc: 'Boarding and passenger management' },
+        ],
+        workflows: [
+          { name: 'Gate to Pushback', icon: 'door_front', inferred: true, inferredNote: 'This workflow was reverse-engineered from pilot journey maps and contextual observations — not from direct gate agent research. Steps marked as data points are assumed system behaviors. To validate, conduct contextual inquiry sessions with 3-5 gate agents across different hub and spoke stations.', steps: [
+            'Gate Agent arrives at gate no later than 1 hour before departure',
+            'Gate Agent reviews passenger manifest, special needs, and standby list on gate system',
+            'DATA: Flight status, equipment type, and crew info pulled from operations system',
+            'Gate Agent opens jet bridge access for Pilot and crew',
+            'Gate Agent briefs Pilot on special needs for this leg (passengers with disabilities, unaccompanied minors, oversized baggage)',
+            'Gate Agent handles passenger questions and pre-boarding requests at the gate',
+            'Gate Agent initiates boarding sequence — pre-board, groups, standby',
+            'DATA: Boarding count tracked via handheld scanner against manifest',
+            'Gate Agent manages standby and upgrade processing based on available seats',
+            'Gate Agent resolves boarding issues — seat conflicts, bag gate-checks, oversold situations',
+            'Gate Agent coordinates with operations if delay occurs — catering, cleaning, maintenance hold',
+            'Gate Agent monitors D-10 countdown — increases urgency to close boarding',
+            'Gate Agent confirms final headcount matches manifest',
+            'Gate Agent closes aircraft door and communicates door closure to operations',
+            'DATA: Departure time logged in gate system',
+          ]},
+        ]
+      }
+    },
+    /* ══════ NEW NODES FROM FLIGHT & CREW OPS ARCHITECTURE ══════ */
+    { id: 'opshub', type: 'product', label: 'OpsHub', x: 600, y: 800, icon: 'hub',
+      detail: { title: 'OpsHub', subtitle: 'Data Integration Hub', desc: 'Central data integration hub connecting FOS, IOC Decision Platform, Crew Hub, and downstream systems. Routes crew data, flight data, and operational messages between systems. Appears in multiple points in the architecture as the primary data broker.',
+        hardware: ['Server infrastructure'],
+        tools: [
+          { name: 'Data routing', color: '#d946ef', desc: 'Routes data between FOS, IOC, and crew systems' },
+          { name: 'Event streaming', color: '#d946ef', desc: 'Real-time operational event distribution' },
+        ]
+      }
+    },
+    { id: 'ioc-platform', type: 'product', label: 'IOC Decision\nPlatform', x: 450, y: 1100, icon: 'dashboard',
+      detail: { title: 'IOC Decision Platform', subtitle: 'Operations Intelligence', desc: 'Decision support platform for the Integrated Operations Center. Aggregates data from FOS, OpsHub, Sabre PSS, and other systems to provide real-time operational intelligence for crew scheduling, tracking, and flight operations decisions.',
+        hardware: ['Desktop workstation'],
+        tools: [
+          { name: 'ATS alerts', color: '#3b82f6', desc: 'Air Traffic System integration' },
+          { name: 'DTD alerts', color: '#3b82f6', desc: 'Delay/disruption tracking' },
+          { name: 'Weather integration', color: '#16a34a', desc: 'Real-time weather feeds' },
+          { name: 'Crew status', color: '#d946ef', desc: 'Live crew positioning data from FOS' },
+        ]
+      }
+    },
+    { id: 'crew-hub', type: 'product', label: 'Crew Hub', x: 600, y: 950, icon: 'groups',
+      detail: { title: 'Crew Hub', subtitle: 'Crew Data Aggregation', desc: 'Aggregates crew data from multiple sources — scheduling, tracking, training, pay and benefits. Feeds into FOS and downstream crew-facing applications. Central repository for crew records, qualifications, and availability.',
+        hardware: ['Server infrastructure'],
+        tools: [
+          { name: 'Crew records', color: '#d946ef', desc: 'Consolidated crew data from multiple sources' },
+          { name: 'Qualification tracking', color: '#ca8a04', desc: 'Training status and certifications' },
+        ]
+      }
+    },
+    { id: 'sabre-pss', type: 'product', label: 'Sabre PSS', x: 50, y: 800, icon: 'airplane_ticket',
+      detail: { title: 'Sabre PSS', subtitle: 'Passenger Service System', desc: 'Sabre-based Passenger Service System handling reservations, ticketing, departure control, and passenger data. Interfaces with FOS for crew-passenger coordination and feeds data to OpsHub and IOC Decision Platform.',
+        hardware: ['Desktop workstation', 'Gate terminals'],
+        tools: [
+          { name: 'DCS', color: '#3b82f6', desc: 'Departure Control System' },
+          { name: 'Reservations', color: '#3b82f6', desc: 'Booking and ticketing' },
+        ]
+      }
+    },
+    { id: 'decs', type: 'product', label: 'DECS', x: 350, y: 600, icon: 'air',
+      detail: { title: 'DECS', subtitle: 'Dispatch Environmental Control System', desc: 'Environmental and dispatch control system used for flight dispatch operations. Interfaces with weather systems and flight planning to support dispatch decisions.',
+        hardware: ['Desktop workstation'],
+      }
+    },
+    { id: 'sendblue', type: 'product', label: 'SendBlue', x: 750, y: 800, icon: 'mail',
+      detail: { title: 'SendBlue', subtitle: 'FOS Messaging Service', desc: 'Messaging service within FOS used for operational notifications, crew communications, and system-to-system message delivery. Part of FOS Other Services alongside Fargo.',
+        hardware: ['Server infrastructure'],
+      }
+    },
+    { id: 'crew-pay', type: 'product', label: 'Crew Pay\n& Benefits', x: 750, y: 950, icon: 'payments',
+      detail: { title: 'Crew Pay & Benefits', subtitle: 'FOS Module', desc: 'FOS module handling crew pay calculations, credit accrual, overtime, per diem, and benefits administration. Receives data from crew scheduling, tracking, and trip trade systems.',
+        hardware: ['Desktop workstation'],
+      }
+    },
+
+    /* ══════ FA SCHEDULING SYSTEMS (from FA Scheduling Overview) ══════ */
+    { id: 'aos', type: 'product', label: 'AOS', x: 1450, y: 100, icon: 'auto_awesome',
+      detail: { title: 'AOS · Advanced Optimization System', subtitle: 'Legacy Scheduling', desc: 'A legacy system that awards trips from PBS into FOS. Part of the PBS bidding pipeline — after PBS processes bids, AOS handles the optimization and award distribution to flight attendants.',
+        tools: [
+          { name: 'Trip Awards', color: '#3b82f6', desc: 'Awards PBS trips into FOS' },
+        ]
+      }
+    },
+    { id: 'bvr', type: 'product', label: 'BVR', x: 1600, y: 200, icon: 'fact_check',
+      detail: { title: 'BVR · Business Validation Report', subtitle: 'Crew Planning', desc: 'Report generated by Crew Planning during PBS bidding. Validates business rules and constraints before schedules are awarded to flight attendants. Ensures bid results comply with operational and contractual requirements.' }
+    },
+    { id: 'ccs', type: 'product', label: 'CCS', x: 1750, y: 100, icon: 'gavel',
+      detail: { title: 'CCS · Common Crew Service', subtitle: 'Data Governance', desc: 'A job in the data governance area. Qualifies legal and available FAs to check legalities and all scheduling rules. Ensures crew assignments comply with FAA regulations, union contract terms, and company policies.',
+        tools: [
+          { name: 'Legality Check', color: '#3b82f6', desc: 'Validates FA scheduling rules compliance' },
+          { name: 'QLA Engine', color: '#ca8a04', desc: 'Qualified Legal Available determination' },
+        ]
+      }
+    },
+    { id: 'lrd', type: 'product', label: 'LRD', x: 1500, y: 300, icon: 'how_to_vote',
+      detail: { title: 'LRD · Lineholder/Reserve Designation', subtitle: 'FA Bidding', desc: 'Allows flight attendants to cast their ballot on whether they are lineholder or reserve. Awards are given based on seniority. This is the first step in the monthly bidding cycle — FAs must choose their designation before PBS bidding opens.' }
+    },
+    { id: 'lpd', type: 'product', label: 'LPD', x: 1750, y: 300, icon: 'admin_panel_settings',
+      detail: { title: 'LPD · Planning Admin', subtitle: 'Crew Planning', desc: 'Planning administration tool used by Crew Planning to process LRD bids and manage planning workflows. Handles the administrative side of lineholder/reserve designation processing.' }
+    },
+    { id: 'rota', type: 'product', label: 'ROTA', x: 1450, y: 400, icon: 'event_available',
+      detail: { title: 'ROTA · Reserve Open Time Assignment', subtitle: 'Reserve Scheduling', desc: 'Awards and assigns sequences to reserves, identifies assignments and Reserve Availability Periods (RAPs). Must be completed by D/O (day of operations) for lineholder operations. ROTA has a 5-day rolling processing of trips.',
+        tools: [
+          { name: 'Sequence Assignment', color: '#3b82f6', desc: 'Awards trips to reserve FAs' },
+          { name: 'RAP Identification', color: '#ca8a04', desc: 'Identifies Reserve Availability Periods' },
+        ]
+      }
+    },
+    { id: 'rotd', type: 'product', label: 'ROTD', x: 1600, y: 500, icon: 'update',
+      detail: { title: 'ROTD · Reserve Open Time Assignment Daily', subtitle: 'Daily Reserve Processing', desc: 'Reserve 4-6 is a block entry on reserve but original ROTA has a 5-day rolling processing of trips. ROTD runs once a day to handle daily reserve assignments and updates. Continues running as needed after ROTA processes.' }
+    },
+    { id: 'tts', type: 'product', label: 'TTS', x: 1750, y: 450, icon: 'swap_horiz',
+      detail: { title: 'TTS · Trip Trade System', subtitle: 'Trip Trading', desc: 'Awards crewmembers sequences for bidding and linesman trades. FAs submit bids to trade or pick up trips. TTS runs for the next month, is closed 2 days out for processing, then reopens. Connected to UBL for unsuccessful bidders.',
+        tools: [
+          { name: 'Trip Bidding', color: '#3b82f6', desc: 'Submit bids for trip trades' },
+          { name: 'Trade Processing', color: '#ca8a04', desc: 'Processes and awards trades' },
+        ]
+      }
+    },
+    { id: 'ubl', type: 'product', label: 'UBL', x: 1900, y: 500, icon: 'person_off',
+      detail: { title: 'UBL · Unsuccessful Bidders List', subtitle: 'FA Scheduling', desc: 'Lists crewmembers who did not receive trips through TTS bidding. UBL Auto Award assigns remaining trips, followed by a Manual Call List for any remaining unassigned FAs.' }
+    },
+    { id: 'tss', type: 'product', label: 'TSS', x: 1900, y: 200, icon: 'calendar_month',
+      detail: { title: 'TSS · Training Scheduling System', subtitle: 'Crew Planning', desc: 'System employed by Crew Planning that allows them to build training slots for flight attendants. TSS generates training planned absences that are sent to FAs as part of the training bidding workflow.' }
+    },
+    { id: 'tbs', type: 'product', label: 'TBS', x: 1900, y: 350, icon: 'school',
+      detail: { title: 'TBS · Training Bidding System (CQ)', subtitle: 'FA Training', desc: 'Shows the data flight attendants bid on for training (also known as CQ). Can be used to confirm FAs for any scheduling conflicts. Part of the training bidding workflow — FAs are assigned training here after receiving TSS planned absences.' }
+    },
+    { id: 'crew-portal', type: 'product', label: 'Crew\nPortal', x: 1600, y: 50, icon: 'web',
+      detail: { title: 'Crew Portal', subtitle: 'FA Portal', desc: 'Portal for flight attendants to access their schedule, bid packages, assignments, and view sequences in FOS. Central hub for FA self-service — used throughout the bidding, trading, and scheduling workflows.',
+        tools: [
+          { name: 'Schedule View', color: '#00ccff', desc: 'View awarded schedule and sequences' },
+          { name: 'Bid Packages', color: '#3b82f6', desc: 'Access PBS bid packages' },
+          { name: 'Assignments', color: '#3b82f6', desc: 'View current trip assignments' },
+        ]
+      }
+    },
+
+    /* ══════ CREW PLANNER (User) ══════ */
+    { id: 'crew-planner', type: 'user', label: 'Crew\nPlanner', x: 1650, y: 700, icon: 'person',
+      detail: { title: 'Crew Planner', subtitle: 'Crew Planning Team', desc: 'Crew Planning team member responsible for building FA schedules, managing PBS bidding, generating BVR reports, coordinating training slots, and administering lineholder/reserve designations. Works with multiple scheduling systems to ensure adequate crew coverage.',
+        hardware: ['Desktop workstation'],
+        tools: [
+          { name: 'PBS', color: '#3b82f6', desc: 'Preferential Bidding System' },
+          { name: 'BVR', color: '#ca8a04', desc: 'Business Validation Report' },
+          { name: 'AOS', color: '#3b82f6', desc: 'Advanced Optimization System' },
+          { name: 'CCS', color: '#3b82f6', desc: 'Common Crew Service legality checks' },
+          { name: 'LPD', color: '#3b82f6', desc: 'Planning Admin' },
+          { name: 'TSS', color: '#3b82f6', desc: 'Training Scheduling System' },
+          { name: 'ROTA', color: '#3b82f6', desc: 'Reserve Open Time Assignment' },
+          { name: 'ROTD', color: '#3b82f6', desc: 'Reserve Open Time Assignment Daily' },
+          { name: 'TTS', color: '#3b82f6', desc: 'Trip Trade System' },
+        ],
+        workflows: [
+          { name: 'PBS Administration', icon: 'ballot', steps: [
+            'Crew Planner opens PBS for FA bidding',
+            'Crew Planner posts bid packages',
+            'PBS Bidding opens — FAs bid on trips',
+            'DATA: CCS validates legality of all bid combinations',
+            'Crew Planner generates BVR Business Validation Report',
+            'AOS awards trips from PBS into FOS',
+            'Schedules awarded to FAs and posted in Crew Portal',
+          ]},
+          { name: 'Training Planning', icon: 'school', steps: [
+            'Crew Planner builds training slots in TSS',
+            'TSS generates training planned absences for FAs',
+            'FAs bid on training in TBS/CQ',
+            'Crew Planner confirms FA assignments and resolves scheduling conflicts',
+          ]},
+          { name: 'Reserve Management', icon: 'event_repeat', steps: [
+            'Crew Planner configures ROTA for next day trip assignments',
+            'ROTA runs 5-day rolling processing of trips',
+            'ROTD handles daily reserve assignments',
+            'DATA: Sequences and RAPs assigned to reserve FAs',
+            'ROTA Burns — process can happen as early as D/O day',
+          ]},
+        ]
+      }
+    },
+  ];
+
+
+  /* ========== DATA FLOW METADATA ========== */
+  var dataFlowMeta = {
+    'fos': {
+      houses: ['Crew schedules & sequences', 'Trip trades & open times', 'Flight operations records', 'Crew pay & benefits data', 'Reserve availability', 'Master Crew Records (MCR)'],
+      sends: [{to:'opshub',dataType:'Crew data, flight data, operational events'},{to:'sendblue',dataType:'Notification triggers, message payloads'},{to:'crew-pay',dataType:'Schedule data, credit hours, overtime'},{to:'cci',dataType:'Schedule data, sequence updates, flight info'},{to:'fdpro-1',dataType:'Flight plans, route data, dispatch info'},{to:'crew-portal',dataType:'Sequence data, schedule updates, trip assignments'}],
+      receives: [{from:'pbs',dataType:'Bid awards, schedule preferences'},{from:'etb',dataType:'Trip trade requests & confirmations'},{from:'ecs',dataType:'Request outcomes, status updates'},{from:'crew-hub',dataType:'Aggregated crew records, qualifications'},{from:'sabre-pss',dataType:'Passenger counts, flight status'},{from:'acars',dataType:'Aircraft position, flight telemetry'},{from:'dispatch',dataType:'Dispatch releases, flight plans'},{from:'aos',dataType:'Awarded trips from PBS optimization'},{from:'tts',dataType:'Trip trade awards and assignments'},{from:'rota',dataType:'Reserve trip assignments'},{from:'rotd',dataType:'Daily reserve assignments'}]
+    },
+    'ecs': {
+      houses: ['2-Way Comms messages & threads', 'Request statuses (Open/In Progress/Complete)', 'Desk History logs', 'Message History (90 days)', 'Notification preferences'],
+      sends: [{to:'fos',dataType:'Request outcomes, sequence change triggers'}],
+      receives: [{from:'opshub',dataType:'Operational context, crew positioning'},{from:'sendblue',dataType:'System notifications, status alerts'}]
+    },
+    'cci': {
+      houses: ['Crew check-in status', 'Gate assignments', 'Flight schedule display', 'User profile & message settings'],
+      sends: [],
+      receives: [{from:'fos',dataType:'Schedule data, sequence updates, flight details'}]
+    },
+    'opshub': {
+      houses: ['Aggregated operational events', 'Real-time data streams', 'Cross-system event log'],
+      sends: [{to:'ioc-platform',dataType:'Crew status, flight status, operational alerts'},{to:'ecs',dataType:'Operational context, crew positioning data'}],
+      receives: [{from:'fos',dataType:'Crew data, flight data, operational events'},{from:'crew-hub',dataType:'Crew records, qualification data'},{from:'sabre-pss',dataType:'Passenger data, booking status'},{from:'cme',dataType:'ECS request data, desk activity'}]
+    },
+    'ioc-platform': {
+      houses: ['Decision support data', 'ATS alerts', 'Delay/disruption tracking', 'Weather feeds'],
+      sends: [{to:'crew-tracker',dataType:'Operational alerts, disruption notices'},{to:'crew-scheduler',dataType:'Scheduling alerts, coverage gaps'}],
+      receives: [{from:'opshub',dataType:'Aggregated crew/flight/ops data'}]
+    },
+    'crew-hub': {
+      houses: ['Consolidated crew records', 'Qualifications & certifications', 'Training status', 'Crew availability'],
+      sends: [{to:'fos',dataType:'Crew records, qualification updates'},{to:'opshub',dataType:'Crew data feeds'}],
+      receives: []
+    },
+    'sabre-pss': {
+      houses: ['Passenger reservations', 'Ticketing data', 'Departure control', 'Boarding manifests'],
+      sends: [{to:'fos',dataType:'Passenger counts, flight status updates'},{to:'opshub',dataType:'Booking data, departure status'},{to:'gate-agent',dataType:'Boarding manifest, standby list, seat map'}],
+      receives: []
+    },
+    'pbs': {
+      houses: ['Bid preferences & standing bids', 'Award results', 'Schedule layers'],
+      sends: [{to:'fos',dataType:'Bid awards, schedule assignments'},{to:'aos',dataType:'Bid results for trip optimization'},{to:'bvr',dataType:'Bid data for validation report'}],
+      receives: [{from:'lrd',dataType:'Lineholder/Reserve designations'}]
+    },
+    'etb': {
+      houses: ['Active trade listings', 'Trade history'],
+      sends: [{to:'fos',dataType:'Trade requests, confirmations'}],
+      receives: []
+    },
+    'sendblue': {
+      houses: ['Message queue', 'Delivery status logs'],
+      sends: [{to:'ecs',dataType:'Operational notifications, status messages'},{to:'mps',dataType:'Schedule change notifications, pager alerts'}],
+      receives: [{from:'fos',dataType:'Notification triggers, event payloads'}]
+    },
+    'mps': {
+      houses: ['Notification queue', 'Pager message logs'],
+      sends: [],
+      receives: [{from:'sendblue',dataType:'Schedule change notifications'}]
+    },
+    'crew-pay': {
+      houses: ['Pay calculations', 'Credit accrual', 'Per diem records', 'Overtime logs'],
+      sends: [],
+      receives: [{from:'fos',dataType:'Schedule data, flight hours, overtime'}]
+    },
+    'dispatch': {
+      houses: ['Flight plans', 'Dispatch releases', 'Route data'],
+      sends: [{to:'fos',dataType:'Flight plans, dispatch releases'},{to:'decs',dataType:'Environmental control data'}],
+      receives: [{from:'wsi',dataType:'Weather forecasts, SIGMET/AIRMET'}]
+    },
+    'wsi': {
+      houses: ['Weather data', 'Forecasts', 'SIGMET/AIRMET alerts'],
+      sends: [{to:'dispatch',dataType:'Weather forecasts, hazard alerts'},{to:'decs',dataType:'Environmental data feeds'}],
+      receives: []
+    },
+    'decs': {
+      houses: ['Environmental control parameters', 'Dispatch weather integration'],
+      sends: [],
+      receives: [{from:'dispatch',dataType:'Dispatch environmental data'},{from:'wsi',dataType:'Weather data feeds'}]
+    },
+    'acars': {
+      houses: ['Aircraft telemetry', 'Position reports', 'Datalink messages'],
+      sends: [{to:'fos',dataType:'Aircraft position, flight data, OOOI times'}],
+      receives: []
+    },
+    'mint': {
+      houses: ['Training events & schedules', 'Instructor assignments', 'FCR Reports', 'MARFFLE exports'],
+      sends: [{to:'marffle',dataType:'Daily instructor availability (hourly updates)'}],
+      receives: [{from:'eq-report',dataType:'Updated bid assignments, seniority data'}]
+    },
+    'cpop': {
+      houses: ['Overtime events', 'Award status', 'Event assignments'],
+      sends: [{to:'ctp',dataType:'Overtime events for bidding'},{to:'eq-report',dataType:'Award decisions, assignment records'}],
+      receives: []
+    },
+    'ctp': {
+      houses: ['Overtime bids', 'Proffer listings'],
+      sends: [],
+      receives: [{from:'cpop',dataType:'Overtime events to bid on'}]
+    },
+    'eq-report': {
+      houses: ['Seniority rankings', 'Work history', 'Award tracking'],
+      sends: [{to:'mint',dataType:'Bid assignments, updated seniority'}],
+      receives: [{from:'cpop',dataType:'Award decisions'}]
+    },
+    'cme': {
+      houses: ['ECS micro-frontend state', 'Desk tab configuration'],
+      sends: [{to:'opshub',dataType:'ECS request data, desk activity logs'}],
+      receives: []
+    },
+    'fdpro-1': {
+      houses: ['Flight planning data', 'Route information', 'Fuel planning'],
+      sends: [],
+      receives: [{from:'fos',dataType:'Flight plans, operational data'}]
+    },
+    'aos': {
+      houses: ['Trip optimization results', 'PBS award distribution'],
+      sends: [{to:'fos',dataType:'Awarded trips, optimized schedule assignments'}],
+      receives: [{from:'pbs',dataType:'Bid results for optimization'}]
+    },
+    'bvr': {
+      houses: ['Validation reports', 'Business rule compliance results'],
+      sends: [],
+      receives: [{from:'pbs',dataType:'Bid data for validation'}]
+    },
+    'ccs': {
+      houses: ['Legality rules', 'FA qualification data', 'Scheduling rule sets'],
+      sends: [{to:'pbs',dataType:'Legality validation results'},{to:'rota',dataType:'FA availability and legality data'},{to:'tts',dataType:'Trade legality validation'}],
+      receives: []
+    },
+    'lrd': {
+      houses: ['Lineholder/Reserve ballots', 'Seniority-based designations'],
+      sends: [{to:'pbs',dataType:'Lineholder/Reserve designation results'},{to:'lpd',dataType:'Ballot data for processing'}],
+      receives: []
+    },
+    'lpd': {
+      houses: ['Planning administration data', 'Processed bid results'],
+      sends: [{to:'lrd',dataType:'Processed designation awards'}],
+      receives: [{from:'lrd',dataType:'Raw ballot data'}]
+    },
+    'rota': {
+      houses: ['Reserve assignments', 'RAP schedules', '5-day rolling trip processing'],
+      sends: [{to:'fos',dataType:'Reserve trip assignments, RAP data'},{to:'rotd',dataType:'Base assignments for daily processing'}],
+      receives: [{from:'ccs',dataType:'FA legality and availability data'}]
+    },
+    'rotd': {
+      houses: ['Daily reserve assignments', 'Block entry data'],
+      sends: [{to:'fos',dataType:'Daily reserve assignment updates'}],
+      receives: [{from:'rota',dataType:'Base assignment data for daily runs'}]
+    },
+    'tts': {
+      houses: ['Trip trade bids', 'Trade awards', 'Linesman trade data'],
+      sends: [{to:'fos',dataType:'Trip trade awards and assignments'},{to:'ubl',dataType:'Unsuccessful bidder data'}],
+      receives: [{from:'ccs',dataType:'Trade legality validation'}]
+    },
+    'ubl': {
+      houses: ['Unsuccessful bidder list', 'Auto award results', 'Manual call list'],
+      sends: [{to:'fos',dataType:'Auto award assignments'}],
+      receives: [{from:'tts',dataType:'Unsuccessful bidder data'}]
+    },
+    'tss': {
+      houses: ['Training slots', 'Planned absences', 'FA training schedule'],
+      sends: [{to:'tbs',dataType:'Training slot availability for bidding'}],
+      receives: []
+    },
+    'tbs': {
+      houses: ['Training bids', 'CQ assignments', 'Scheduling conflict data'],
+      sends: [{to:'fos',dataType:'Training assignments, confirmed schedules'}],
+      receives: [{from:'tss',dataType:'Training slot availability'}]
+    },
+    'crew-portal': {
+      houses: ['FA schedule view', 'Bid package access', 'Assignment display'],
+      sends: [],
+      receives: [{from:'fos',dataType:'Sequence data, schedule updates, trip assignments'}]
+    },
+  };
+
+  var connections = [
+    /* ── Pilot connections ── */
+    ['pilot', 'cci'], ['pilot', 'ecs'], ['pilot', 'fdpro-1'], ['pilot', 'aircraft-fms-1'],
+    ['pilot', 'atc'], ['pilot', 'dispatch'], ['pilot', 'wsi'], ['pilot', 'flight-keys'], ['pilot', 'comply-365'],
+    ['pilot', 'pbs'], ['pilot', 'etb'], ['pilot', 'mps'], ['pilot', 'pfr'], ['pilot', 'fos'],
+    ['pilot', 'emal'], ['pilot', 'acars'], ['pilot', 'gate-agent'],
+    ['pilot', 'skypath'], ['pilot', 'fmsplus'],
+    /* ── FA connections ── */
+    ['fa', 'cci'], ['fa', 'comply-365'], ['fa', 'fdpro-1'], ['fa', 'aircraft-fms-1'],
+    ['fa', 'pbs'], ['fa', 'etb'], ['fa', 'crew-portal'], ['fa', 'lrd'], ['fa', 'tbs'],
+    ['fa', 'tts'], ['fa', 'ubl'], ['fa', 'rota'], ['fa', 'rotd'], ['fa', 'aos'],
+    ['fa', 'ccs'], ['fa', 'fos'],
+    /* ── Crew Planner connections ── */
+    ['crew-planner', 'pbs'], ['crew-planner', 'bvr'], ['crew-planner', 'aos'],
+    ['crew-planner', 'ccs'], ['crew-planner', 'lpd'], ['crew-planner', 'tss'],
+    ['crew-planner', 'rota'], ['crew-planner', 'rotd'], ['crew-planner', 'tts'],
+    /* ── Crew Scheduler connections (add new FA systems) ── */
+    ['crew-scheduler', 'ccs'], ['crew-scheduler', 'lrd'], ['crew-scheduler', 'rota'],
+    ['crew-scheduler', 'rotd'], ['crew-scheduler', 'tts'], ['crew-scheduler', 'tbs'],
+    /* ── IOC: Crew Tracker & Scheduler ── */
+    ['crew-tracker', 'ecs'], ['crew-tracker', 'fos'],
+    ['crew-scheduler', 'ecs'], ['crew-scheduler', 'fos'], ['crew-scheduler', 'pbs'], ['crew-scheduler', 'mps'],
+    /* ── Hotel/Limo Coordinator ── */
+    ['hotel-limo', 'ecs'],
+    /* ── Chief Pilots Office ── */
+    ['cpo', 'ecs'], ['cpo', 'fos'],
+    /* ── Training Schedulers — full workflow ── */
+    ['training-schedulers', 'mint'], ['training-schedulers', 'marffle'],
+    ['training-schedulers', 'cpop'], ['training-schedulers', 'ctp'],
+    ['training-schedulers', 'eq-report'],
+    /* ── CKP & IP connections ── */
+    ['ckp-ip', 'ctp'], ['ckp-ip', 'cpop'],
+    /* ── FCTI & SimP connections ── */
+    ['fcti-simp', 'marffle'], ['fcti-simp', 'eq-report'],
+    /* ── CME connections ── */
+    ['crew-tracker', 'cme'], ['crew-scheduler', 'cme'], ['hotel-limo', 'cme'],
+    ['cme', 'ecs'],                /* CME hosts ECS as micro-frontend */
+    ['cme', 'fos'],                /* CME reflects FOS changes */
+    /* ── Product-to-product data flows (3rd element = 'data' for magenta lines) ── */
+    ['mint', 'marffle', 'data'],           /* MARFFLE pulled from MINT */
+    ['cpop', 'ctp', 'data'],               /* Events from CPOP → CTP Overtime Proffer */
+    ['eq-report', 'mint', 'data'],         /* Equalization updated in MINT */
+    ['cpop', 'eq-report', 'data'],         /* Awards reflected in Equalization Report */
+    ['pbs', 'fos', 'data'],                /* PBS bid data → FOS */
+    ['etb', 'fos', 'data'],                /* ETB trip trades → FOS */
+    ['ecs', 'fos', 'data'],                /* ECS request outcomes → FOS */
+    /* ── Architecture data flows (from Flight & Crew Ops diagram) ── */
+    ['fos', 'opshub', 'data'],             /* FOS crew/flight data → OpsHub */
+    ['opshub', 'ioc-platform', 'data'],    /* OpsHub feeds → IOC Decision Platform */
+    ['opshub', 'ecs', 'data'],             /* OpsHub operational data → ECS */
+    ['crew-hub', 'fos', 'data'],           /* Crew Hub aggregated data → FOS */
+    ['crew-hub', 'opshub', 'data'],        /* Crew Hub → OpsHub */
+    ['sabre-pss', 'fos', 'data'],          /* Sabre PSS passenger data → FOS */
+    ['sabre-pss', 'opshub', 'data'],       /* Sabre PSS → OpsHub */
+    ['fos', 'sendblue', 'data'],           /* FOS notifications → SendBlue */
+    ['sendblue', 'ecs', 'data'],           /* SendBlue messages → ECS */
+    ['sendblue', 'mps', 'data'],           /* SendBlue → MPS notifications */
+    ['fos', 'crew-pay', 'data'],           /* FOS schedule data → Crew Pay */
+    ['acars', 'fos', 'data'],              /* ACARS flight data → FOS */
+    ['dispatch', 'fos', 'data'],           /* Dispatch data → FOS */
+    ['dispatch', 'decs', 'data'],          /* Dispatch ↔ DECS */
+    ['wsi', 'dispatch', 'data'],           /* Weather data → Dispatch */
+    ['wsi', 'decs', 'data'],               /* Weather data → DECS */
+    ['fos', 'cci', 'data'],                /* FOS schedule data → CCI */
+    ['fos', 'fdpro-1', 'data'],            /* FOS flight data → FDPro */
+    ['sabre-pss', 'gate-agent', 'data'],   /* Sabre PSS boarding data → Gate Agent */
+    ['ioc-platform', 'crew-tracker', 'data'], /* IOC Platform alerts → Crew Tracker */
+    ['ioc-platform', 'crew-scheduler', 'data'], /* IOC Platform alerts → Crew Scheduler */
+    ['cme', 'opshub', 'data'],             /* CME ↔ OpsHub */
+    /* ── FA Scheduling data flows ── */
+    ['pbs', 'aos', 'data'],               /* PBS bid results → AOS for optimization */
+    ['aos', 'fos', 'data'],               /* AOS awarded trips → FOS */
+    ['pbs', 'bvr', 'data'],               /* PBS data → BVR for validation */
+    ['ccs', 'pbs', 'data'],               /* CCS legality → PBS validation */
+    ['ccs', 'rota', 'data'],              /* CCS legality → ROTA */
+    ['ccs', 'tts', 'data'],              /* CCS legality → TTS trade validation */
+    ['lrd', 'pbs', 'data'],               /* LRD designations → PBS */
+    ['lrd', 'lpd', 'data'],               /* LRD ballots → LPD processing */
+    ['rota', 'fos', 'data'],              /* ROTA assignments → FOS */
+    ['rota', 'rotd', 'data'],             /* ROTA base data → ROTD daily */
+    ['rotd', 'fos', 'data'],              /* ROTD daily assignments → FOS */
+    ['tts', 'fos', 'data'],               /* TTS trade awards → FOS */
+    ['tts', 'ubl', 'data'],               /* TTS unsuccessful → UBL */
+    ['ubl', 'fos', 'data'],               /* UBL auto awards → FOS */
+    ['tss', 'tbs', 'data'],               /* TSS training slots → TBS bidding */
+    ['tbs', 'fos', 'data'],               /* TBS assignments → FOS */
+    ['fos', 'crew-portal', 'data'],        /* FOS schedule data → Crew Portal */
+  ];
+
+  /* ========== RENDER ========== */
+  var canvas = document.getElementById('canvas');
+  var linesSvg = document.getElementById('lines');
+  var viewport = document.getElementById('viewport');
+  var detailPanel = document.getElementById('detail');
+  var detailContent = document.getElementById('detail-content');
+  var activeNodeId = null;
+  var currentFilter = 'all';
+
+  /* Pan & Zoom state */
+  var pan = { x: 0, y: 0 };
+  var scale = 0.85;
+  var isDragging = false;
+  var dragStart = { x: 0, y: 0 };
+
+  function nodeMap() {
+    var m = {};
+    nodes.forEach(function(n) { m[n.id] = n; });
+    return m;
+  }
+  var nMap = nodeMap();
+
+  /* Draw lines */
+  function drawLines() {
+    linesSvg.innerHTML = '';
+
+    /* Build a map of how many lines share each endpoint pair direction
+       so we can offset overlapping lines with curves */
+    var pairCount = {};
+    var pairIndex = {};
+    connections.forEach(function(c) {
+      /* Create a canonical key for lines sharing the same two nodes */
+      var key = [c[0], c[1]].sort().join('|');
+      pairCount[key] = (pairCount[key] || 0) + 1;
+    });
+
+    /* Also count lines per node to compute angular offsets at connection points */
+    var nodeLineIndices = {};
+    connections.forEach(function(c, ci) {
+      [c[0], c[1]].forEach(function(nid) {
+        if (!nodeLineIndices[nid]) nodeLineIndices[nid] = [];
+        nodeLineIndices[nid].push(ci);
+      });
+    });
+
+    connections.forEach(function(c, ci) {
+      var a = nMap[c[0]], b = nMap[c[1]];
+      if (!a || !b) return;
+
+      var aVis = currentFilter === 'all' || a.type === currentFilter;
+      var bVis = currentFilter === 'all' || b.type === currentFilter;
+      if (!aVis && !bVis) return;
+
+      var isData = c[2] === 'data';
+      var ar = a.type === 'user' ? 48 : 22;
+      var br = b.type === 'user' ? 48 : 22;
+      var x1 = a.x + ar, y1 = a.y + ar, x2 = b.x + br, y2 = b.y + br;
+      var isHighlight = activeNodeId && (c[0] === activeNodeId || c[1] === activeNodeId);
+
+      var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+      line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+      line.classList.add('conn-line');
+      if (isData) line.classList.add('data-flow');
+      if (isHighlight) line.classList.add('highlight');
+      line.dataset.from = c[0];
+      line.dataset.to = c[1];
+      linesSvg.appendChild(line);
+
+      /* Animated traveling dot for data flows */
+      if (isData) {
+        var pathD = 'M' + x1 + ',' + y1 + ' L' + x2 + ',' + y2;
+        var dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        dot.setAttribute('r', isHighlight ? 3 : 2);
+        dot.setAttribute('fill', isHighlight ? '#f0a0ff' : 'rgba(217,70,239,0.6)');
+        var anim = document.createElementNS('http://www.w3.org/2000/svg', 'animateMotion');
+        anim.setAttribute('dur', '3s');
+        anim.setAttribute('repeatCount', 'indefinite');
+        anim.setAttribute('path', pathD);
+        anim.setAttribute('begin', (Math.random() * 3).toFixed(1) + 's');
+        dot.appendChild(anim);
+        linesSvg.appendChild(dot);
+      }
+    });
+  }
+
+  /* Draw nodes */
+  function drawNodes() {
+    /* Remove old nodes */
+    canvas.querySelectorAll('.node').forEach(function(n) { n.remove(); });
+
+    nodes.forEach(function(n) {
+      var visible = currentFilter === 'all' || n.type === currentFilter;
+
+      var el = document.createElement('div');
+      el.className = 'node ' + n.type + (n.id === activeNodeId ? ' active' : '');
+      el.style.left = n.x + 'px';
+      el.style.top = n.y + 'px';
+      if (!visible) el.style.opacity = '0.15';
+      el.dataset.id = n.id;
+
+      var circle = document.createElement('div');
+      circle.className = 'node-circle';
+      circle.innerHTML = '<span class="material-symbols-outlined node-icon">' + (n.icon || 'circle') + '</span>';
+
+      var label = document.createElement('span');
+      label.className = 'node-label';
+      label.textContent = (n.label || '').replace('\\n', '\n');
+      label.style.whiteSpace = 'pre-line';
+
+      el.appendChild(circle);
+      el.appendChild(label);
+      canvas.appendChild(el);
+
+      el.addEventListener('click', function(e) {
+        e.stopPropagation();
+        selectNode(n.id);
+      });
+    });
+  }
+
+  /* Select node */
+  function selectNode(id) {
+    activeNodeId = id;
+    workflowPanel.classList.remove('open');
+    workflowPanel.classList.remove('expanded');
+    toolsPanel.classList.remove('open');
+    painPanel.classList.remove('open');
+    currentWfView = 'steps';
+    drawNodes();
+    drawLines();
+    centerOnNode(id);
+
+    var n = nMap[id];
+    if (!n || !n.detail) {
+      detailPanel.classList.remove('open');
+      return;
+    }
+
+    var d = n.detail;
+    var html = '<p class="dp-title">' + d.title + '</p>';
+    if (d.subtitle) html += '<p class="dp-subtitle">' + d.subtitle + '</p>';
+    if (d.desc) html += '<p class="dp-desc">' + d.desc + '</p>';
+
+    if (d.hardware) {
+      html += '<p class="dp-section-title">Hardware</p><ul class="dp-list">';
+      d.hardware.forEach(function(h) {
+        html += '<li><span class="material-symbols-outlined">devices</span>' + h + '</li>';
+      });
+      html += '</ul>';
+    }
+
+    if (d.tools) {
+      var maxTools = 5;
+      var hasMoreTools = d.tools.length > maxTools;
+      html += '<p class="dp-section-title">Tools &amp; Services</p>';
+      d.tools.slice(0, maxTools).forEach(function(t) {
+        html += '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.4rem;">';
+        html += '<span class="dp-badge" style="background:' + t.color + ';">' + t.name + '</span>';
+        html += '<span style="font-size:0.72rem;color:var(--muted);">' + t.desc + '</span>';
+        html += '</div>';
+      });
+      if (hasMoreTools) {
+        html += '<button class="dp-view-all-btn" id="view-all-tools-btn"><span class="material-symbols-outlined">open_in_new</span>View all ' + d.tools.length + ' tools</button>';
+      }
+    }
+
+    /* Render data flow section for product nodes */
+    var dfm = dataFlowMeta[id];
+    if (dfm) {
+      html += '<div class="dp-data-section">';
+      if (dfm.houses && dfm.houses.length > 0) {
+        html += '<p class="dp-section-title" style="margin-top:0.75rem;">Data Housed</p>';
+        html += '<div class="dp-data-houses">';
+        dfm.houses.forEach(function(h) { html += '<span>' + h + '</span>'; });
+        html += '</div>';
+      }
+      if (dfm.sends && dfm.sends.length > 0) {
+        html += '<p class="dp-section-title">Sends To</p>';
+        dfm.sends.forEach(function(s) {
+          var targetNode = nMap[s.to];
+          var targetName = targetNode ? (targetNode.detail ? targetNode.detail.title : targetNode.label) : s.to;
+          html += '<div class="dp-data-flow-item">';
+          html += '<span class="material-symbols-outlined df-arrow sends">arrow_forward</span>';
+          html += '<span><span class="df-target">' + targetName + '</span> <span class="df-type">&mdash; ' + s.dataType + '</span></span>';
+          html += '</div>';
+        });
+      }
+      if (dfm.receives && dfm.receives.length > 0) {
+        html += '<p class="dp-section-title" style="margin-top:0.4rem;">Receives From</p>';
+        dfm.receives.forEach(function(r) {
+          var sourceNode = nMap[r.from];
+          var sourceName = sourceNode ? (sourceNode.detail ? sourceNode.detail.title : sourceNode.label) : r.from;
+          html += '<div class="dp-data-flow-item">';
+          html += '<span class="material-symbols-outlined df-arrow receives">arrow_back</span>';
+          html += '<span><span class="df-target">' + sourceName + '</span> <span class="df-type">&mdash; ' + r.dataType + '</span></span>';
+          html += '</div>';
+        });
+      }
+      html += '</div>';
+    }
+
+    /* Render pain points if they exist */
+    if (d.painPoints && d.painPoints.length > 0) {
+      html += '<button class="dp-pain-btn" id="pain-points-btn"><span class="material-symbols-outlined">warning</span>Pain Points <span class="pain-count">' + d.painPoints.length + '</span></button>';
+    }
+
+    /* Render workflows — multiple named (thumbnails) or single (inline preview) */
+    if (d.workflows && d.workflows.length > 0) {
+      html += '<p class="dp-section-title" style="margin-top:0.75rem;">Workflows</p>';
+      html += '<div class="wf-thumbs">';
+      d.workflows.forEach(function(wf, wi) {
+        html += '<div class="wf-thumb" data-wf-index="' + wi + '" data-node-id="' + id + '">';
+        html += '<span class="material-symbols-outlined">' + (wf.icon || 'play_arrow') + '</span>';
+        html += '<span class="wf-thumb-name">' + wf.name + '</span>';
+        html += '<span class="wf-thumb-count">' + wf.steps.length + ' steps' + (wf.inferred ? ' · inferred' : '') + '</span>';
+        html += '</div>';
+      });
+      html += '</div>';
+    } else if (d.workflow) {
+      html += '<p class="dp-section-title" style="margin-top:0.75rem;">Workflows</p>';
+      html += '<div class="wf-thumbs">';
+      html += '<div class="wf-thumb" data-wf-index="-1" data-node-id="' + id + '">';
+      html += '<span class="material-symbols-outlined">account_tree</span>';
+      html += '<span class="wf-thumb-name">' + (d.title || 'Workflow') + '</span>';
+      html += '<span class="wf-thumb-count">' + d.workflow.length + ' steps</span>';
+      html += '</div>';
+      html += '</div>';
+    }
+
+    detailContent.innerHTML = html;
+    detailPanel.classList.add('open');
+
+    /* Bind workflow thumbnail clicks */
+    detailContent.querySelectorAll('.wf-thumb').forEach(function(thumb) {
+      thumb.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var nid = thumb.dataset.nodeId;
+        var wi = parseInt(thumb.dataset.wfIndex);
+        openWorkflow(nid, wi);
+      });
+    });
+
+    /* Bind single-workflow expand button */
+    var expandBtn = detailContent.querySelector('.wf-expand-btn');
+    if (expandBtn) {
+      expandBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        openWorkflow(expandBtn.dataset.nodeId, -1);
+      });
+    }
+
+    /* Bind View All Tools button */
+    var viewAllBtn = detailContent.querySelector('#view-all-tools-btn');
+    if (viewAllBtn) {
+      viewAllBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        openToolsPanel(id);
+      });
+    }
+
+    /* Bind Pain Points button */
+    var painBtn = detailContent.querySelector('#pain-points-btn');
+    if (painBtn) {
+      painBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        openPainPanel(id);
+      });
+    }
+  }
+
+  /* Pain panel */
+  var painPanel = document.getElementById('pain-panel');
+  var painPanelContent = document.getElementById('pain-panel-content');
+
+  function openPainPanel(id) {
+    var n = nMap[id];
+    if (!n || !n.detail || !n.detail.painPoints) return;
+    /* Close other side panels */
+    workflowPanel.classList.remove('open');
+    workflowPanel.classList.remove('expanded');
+    toolsPanel.classList.remove('open');
+    painPanel.classList.remove('open');
+    var html = '';
+    n.detail.painPoints.forEach(function(pp) {
+      html += '<div class="dp-pain-point">' + pp + '</div>';
+    });
+    painPanelContent.innerHTML = html;
+    painPanel.classList.add('open');
+  }
+
+  window.closePainPanel = function() {
+    painPanel.classList.remove('open');
+  };
+
+  /* Tools panel */
+  var toolsPanel = document.getElementById('tools-panel');
+  var toolsPanelContent = document.getElementById('tools-panel-content');
+  var tpCount = document.getElementById('tp-count');
+
+  function openToolsPanel(id) {
+    var n = nMap[id];
+    if (!n || !n.detail || !n.detail.tools) return;
+    var tools = n.detail.tools;
+
+    /* Close workflow panel if open */
+    workflowPanel.classList.remove('open');
+    workflowPanel.classList.remove('expanded');
+
+    tpCount.textContent = tools.length + ' total';
+    var html = '';
+    tools.forEach(function(t) {
+      html += '<div class="tp-item">';
+      html += '<span class="dp-badge" style="background:' + t.color + ';flex-shrink:0;">' + t.name + '</span>';
+      html += '<span style="font-size:0.72rem;color:var(--muted);line-height:1.45;">' + t.desc + '</span>';
+      html += '</div>';
+    });
+    toolsPanelContent.innerHTML = html;
+    toolsPanel.classList.add('open');
+  }
+
+  window.closeToolsPanel = function() {
+    toolsPanel.classList.remove('open');
+    painPanel.classList.remove('open');
+  };
+
+  /* Workflow panel */
+  var workflowPanel = document.getElementById('workflow-panel');
+  var workflowContent = document.getElementById('workflow-panel-content');
+
+  function renderWorkflowSteps(steps) {
+    var html = '<div class="wf-flow">';
+    var stepNum = 0;
+    steps.forEach(function(step) {
+      var isIssue = step.indexOf('ISSUE:') === 0;
+      var isData = step.indexOf('DATA:') === 0;
+      var label = step;
+      var cls = '';
+      var numLabel;
+      if (isIssue) {
+        label = step.replace('ISSUE: ', '');
+        cls = ' wf-issue';
+        numLabel = 'Issue';
+      } else if (isData) {
+        label = step.replace('DATA: ', '');
+        cls = ' wf-data';
+        numLabel = 'Data';
+      } else {
+        stepNum++;
+        numLabel = 'Step ' + stepNum;
+      }
+      html += '<div class="wf-step' + cls + '">';
+      html += '<span class="wf-num">' + numLabel + '</span>';
+      html += '<span class="wf-text">' + label + '</span>';
+      html += '</div>';
+    });
+    html += '</div>';
+    return html;
+  }
+
+  var currentWfView = 'steps'; /* 'steps' or 'swimlane' */
+  var currentWfId = null;
+  var currentWfIndex = -1;
+
+  function renderSwimlane(wf) {
+    var actors = wf.actors;
+    var phases = wf.phases;
+    var lanes = wf.swimlanes;
+    var cols = phases.length + 1; /* +1 for actor label column */
+    var html = '<div class="swimlane-container"><div class="swimlane-grid" style="grid-template-columns: 120px repeat(' + phases.length + ', minmax(120px, 1fr));">';
+    /* Header row */
+    html += '<div class="swimlane-header">';
+    html += '<div class="swimlane-header-cell lane-label">Actor</div>';
+    phases.forEach(function(p) {
+      html += '<div class="swimlane-header-cell">' + p + '</div>';
+    });
+    html += '</div>';
+    /* One row per actor */
+    actors.forEach(function(actor, ai) {
+      html += '<div class="swimlane-row">';
+      html += '<div class="swimlane-lane-label"><span class="material-symbols-outlined">person</span>' + actor + '</div>';
+      phases.forEach(function(phase, pi) {
+        html += '<div class="swimlane-cell">';
+        /* Find all actions for this actor in this phase */
+        lanes.forEach(function(l) {
+          if (l[0] === ai && l[1] === pi) {
+            html += '<div class="swim-action' + (l[3] ? ' data' : '') + '">' + l[2] + '</div>';
+          }
+        });
+        /* Add arrow if this actor has actions in the next phase too */
+        var hasNext = lanes.some(function(l) { return l[0] === ai && l[1] === pi + 1; });
+        var hasCurrent = lanes.some(function(l) { return l[0] === ai && l[1] === pi; });
+        if (hasCurrent && hasNext) {
+          html += '<div class="swim-arrow"></div>';
+        }
+        html += '</div>';
+      });
+      html += '</div>';
+    });
+    html += '</div></div>';
+    return html;
+  }
+
+  function openWorkflow(id, wfIndex) {
+    toolsPanel.classList.remove('open');
+    painPanel.classList.remove('open');
+    currentWfId = id;
+    currentWfIndex = wfIndex;
+    var n = nMap[id];
+    if (!n || !n.detail) return;
+    var d = n.detail;
+    var title, steps;
+
+    var wf = null;
+    if (wfIndex >= 0 && d.workflows && d.workflows[wfIndex]) {
+      wf = d.workflows[wfIndex];
+      title = wf.name;
+      steps = wf.steps;
+    } else if (d.workflow) {
+      title = 'Workflow';
+      steps = d.workflow;
+    } else return;
+
+    var isCross = wf && wf.crossFunctional;
+
+    var html = '<p style="font-size:0.68rem;color:var(--muted);margin-bottom:0.25rem;">' + (d.title || n.label) + '</p>';
+    html += '<p style="font-size:0.95rem;font-weight:700;color:var(--cyan);margin-bottom:0.5rem;">' + title;
+    if (wf && wf.inferred) {
+      html += '<span class="wf-inferred-tag"><span class="material-symbols-outlined">info</span>Inferred</span>';
+    }
+    html += '</p>';
+    if (wf && wf.inferred && wf.inferredNote) {
+      html += '<div class="wf-inferred-alert"><span class="material-symbols-outlined">warning</span><p>' + wf.inferredNote + '</p></div>';
+    }
+
+    /* Toggle for cross-functional workflows */
+    if (isCross) {
+      html += '<div class="wp-toggle">';
+      html += '<button class="' + (currentWfView === 'steps' ? 'active' : '') + '" data-view="steps"><span class="material-symbols-outlined">list</span>Steps</button>';
+      html += '<button class="' + (currentWfView === 'swimlane' ? 'active' : '') + '" data-view="swimlane"><span class="material-symbols-outlined">view_kanban</span>Swimlane</button>';
+      html += '</div>';
+    }
+
+    if (currentWfView === 'swimlane' && isCross) {
+      workflowPanel.classList.add('expanded');
+      html += renderSwimlane(wf);
+    } else {
+      workflowPanel.classList.remove('expanded');
+      html += renderWorkflowSteps(steps);
+    }
+
+    workflowContent.innerHTML = html;
+    workflowPanel.classList.add('open');
+
+    /* Bind toggle buttons */
+    workflowContent.querySelectorAll('.wp-toggle button').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        currentWfView = btn.dataset.view;
+        openWorkflow(currentWfId, currentWfIndex);
+      });
+    });
+  }
+
+  window.closeWorkflow = function() {
+    workflowPanel.classList.remove('open');
+    workflowPanel.classList.remove('expanded');
+    currentWfView = 'steps';
+  };
+
+  window.closeDetail = function() {
+    activeNodeId = null;
+    detailPanel.classList.remove('open');
+    workflowPanel.classList.remove('open');
+    toolsPanel.classList.remove('open');
+    painPanel.classList.remove('open');
+    drawNodes();
+    drawLines();
+  };
+
+  /* Click background to deselect */
+  viewport.addEventListener('click', function() {
+    closeDetail();
+  });
+
+  /* ========== PAN & ZOOM ========== */
+  function applyTransform() {
+    canvas.style.transform = 'translate(' + pan.x + 'px,' + pan.y + 'px) scale(' + scale + ')';
+  }
+
+  /* Smoothly animate pan to center a node (offset right to account for detail panel) */
+  var animFrame = null;
+  function centerOnNode(id) {
+    var n = nMap[id];
+    if (!n) return;
+
+    /* Collect all related node IDs (this node + all connected nodes) */
+    var relatedIds = [id];
+    connections.forEach(function(c) {
+      if (c[0] === id && nMap[c[1]]) relatedIds.push(c[1]);
+      if (c[1] === id && nMap[c[0]]) relatedIds.push(c[0]);
+    });
+
+    /* Compute bounding box of all related nodes */
+    var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    relatedIds.forEach(function(rid) {
+      var rn = nMap[rid];
+      if (!rn) return;
+      var sz = rn.type === 'user' ? 96 : 44;
+      if (rn.x < minX) minX = rn.x;
+      if (rn.y < minY) minY = rn.y;
+      if (rn.x + sz > maxX) maxX = rn.x + sz;
+      if (rn.y + sz > maxY) maxY = rn.y + sz;
+    });
+
+    /* Add padding */
+    var pad = 80;
+    minX -= pad; minY -= pad; maxX += pad; maxY += pad;
+    var contentW = maxX - minX;
+    var contentH = maxY - minY;
+
+    /* Account for detail panel on the left (290px + 24px margin) */
+    var panelOffset = 330;
+    var vw = window.innerWidth - panelOffset;
+    var vh = window.innerHeight;
+
+    /* Calculate target scale to fit all related nodes */
+    var targetScale = Math.min(vw / contentW, vh / contentH, 1.2);
+    targetScale = Math.max(0.3, Math.min(targetScale, 1.2));
+
+    /* Calculate target pan to center the bounding box (offset for panel) */
+    var targetX = panelOffset + (vw - contentW * targetScale) / 2 - minX * targetScale;
+    var targetY = (vh - contentH * targetScale) / 2 - minY * targetScale;
+
+    /* Animate to target */
+    var startX = pan.x, startY = pan.y, startScale = scale;
+    var startTime = null;
+    var duration = 500;
+
+    if (animFrame) cancelAnimationFrame(animFrame);
+
+    function step(ts) {
+      if (!startTime) startTime = ts;
+      var t = Math.min((ts - startTime) / duration, 1);
+      var ease = 1 - Math.pow(1 - t, 3);
+      pan.x = startX + (targetX - startX) * ease;
+      pan.y = startY + (targetY - startY) * ease;
+      scale = startScale + (targetScale - startScale) * ease;
+      applyTransform();
+      if (t < 1) animFrame = requestAnimationFrame(step);
+      else animFrame = null;
+    }
+    animFrame = requestAnimationFrame(step);
+  }
+
+  viewport.addEventListener('mousedown', function(e) {
+    if (e.target.closest('.node')) return;
+    isDragging = true;
+    dragStart.x = e.clientX - pan.x;
+    dragStart.y = e.clientY - pan.y;
+    viewport.classList.add('dragging');
+  });
+  window.addEventListener('mousemove', function(e) {
+    if (!isDragging) return;
+    pan.x = e.clientX - dragStart.x;
+    pan.y = e.clientY - dragStart.y;
+    applyTransform();
+  });
+  window.addEventListener('mouseup', function() {
+    isDragging = false;
+    viewport.classList.remove('dragging');
+  });
+
+  viewport.addEventListener('wheel', function(e) {
+    e.preventDefault();
+    var delta = e.deltaY > 0 ? -0.05 : 0.05;
+    scale = Math.min(2, Math.max(0.3, scale + delta));
+    applyTransform();
+  }, { passive: false });
+
+  window.zoomIn = function() { scale = Math.min(2, scale + 0.15); applyTransform(); };
+  window.zoomOut = function() { scale = Math.max(0.3, scale - 0.15); applyTransform(); };
+  window.zoomReset = function() {
+    /* Calculate bounding box of all visible nodes */
+    var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    var nodeSize = 90; /* node width/height including label */
+    nodes.forEach(function(n) {
+      var vis = currentFilter === 'all' || n.type === currentFilter;
+      if (!vis) return;
+      if (n.x < minX) minX = n.x;
+      if (n.y < minY) minY = n.y;
+      if (n.x + nodeSize > maxX) maxX = n.x + nodeSize;
+      if (n.y + nodeSize > maxY) maxY = n.y + nodeSize;
+    });
+    if (minX === Infinity) { minX = 0; minY = 0; maxX = 1200; maxY = 800; }
+    var contentW = maxX - minX + 120; /* padding */
+    var contentH = maxY - minY + 120;
+    var vw = window.innerWidth;
+    var vh = window.innerHeight;
+    var padding = 80;
+    scale = Math.min((vw - padding * 2) / contentW, (vh - padding * 2) / contentH, 1.2);
+    scale = Math.max(0.3, Math.min(scale, 1.2));
+    pan.x = (vw - contentW * scale) / 2 - minX * scale + 60 * scale;
+    pan.y = (vh - contentH * scale) / 2 - minY * scale + 60 * scale;
+    applyTransform();
+  };
+
+  /* ========== FILTER DROPDOWN ========== */
+  var filterBtn = document.getElementById('filter-btn');
+  var filterMenu = document.getElementById('filter-menu');
+  var filterLabels = { all: 'All', user: 'Users', product: 'Products' };
+  var filterIcons = { all: 'hub', user: 'person', product: 'widgets' };
+
+  filterBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    filterMenu.classList.toggle('open');
+  });
+  document.addEventListener('click', function() { filterMenu.classList.remove('open'); });
+
+  filterMenu.querySelectorAll('button').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      filterMenu.querySelectorAll('button').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      currentFilter = btn.dataset.filter;
+      filterBtn.innerHTML = '<span class="material-symbols-outlined">' + filterIcons[currentFilter] + '</span> ' + filterLabels[currentFilter] + ' <span class="material-symbols-outlined" style="font-size:0.8rem;margin-left:2px;">expand_more</span>';
+      filterMenu.classList.remove('open');
+      drawNodes();
+      drawLines();
+      zoomReset();
+    });
+  });
+
+  /* ========== WORKFLOWS MODAL ========== */
+  var wfModal = document.getElementById('wf-modal');
+  var wfModalBody = document.getElementById('wf-modal-body');
+  var wfModalClose = document.getElementById('wf-modal-close');
+  var workflowsBtn = document.getElementById('workflows-btn');
+
+  function openWorkflowsModal() {
+    /* Collect all workflows from all nodes */
+    var groups = [];
+    nodes.forEach(function(n) {
+      var d = n.detail;
+      if (!d) return;
+      var wfs = [];
+      if (d.workflows && d.workflows.length > 0) {
+        d.workflows.forEach(function(wf, wi) {
+          wfs.push({ wf: wf, nodeId: n.id, wfIndex: wi, nodeTitle: d.title || n.label });
+        });
+      } else if (d.workflow) {
+        wfs.push({ wf: { name: d.title || n.label, icon: n.icon || 'account_tree', steps: d.workflow, crossFunctional: false, inferred: false }, nodeId: n.id, wfIndex: -1, nodeTitle: d.title || n.label });
+      }
+      if (wfs.length > 0) groups.push({ node: n, wfs: wfs });
+    });
+
+    var html = '';
+    groups.forEach(function(g) {
+      var isUser = g.node.type === 'user';
+      html += '<div class="wf-modal-group">';
+      html += '<p class="wf-modal-group-title"><span class="material-symbols-outlined">' + (isUser ? 'person' : 'widgets') + '</span>' + (g.node.detail.title || g.node.label) + '</p>';
+      html += '<div class="wf-modal-grid">';
+      g.wfs.forEach(function(item) {
+        var wf = item.wf;
+        html += '<div class="wf-modal-card" data-node-id="' + item.nodeId + '" data-wf-index="' + item.wfIndex + '">';
+        html += '<span class="material-symbols-outlined wmc-icon">' + (wf.icon || 'account_tree') + '</span>';
+        html += '<span class="wmc-name">' + wf.name + '</span>';
+        html += '<div class="wmc-meta">';
+        html += '<span>' + wf.steps.length + ' steps</span>';
+        if (wf.crossFunctional) html += '<span class="wmc-tag cross">Cross-functional</span>';
+        if (wf.inferred) html += '<span class="wmc-tag inferred">Inferred</span>';
+        html += '</div></div>';
+      });
+      html += '</div></div>';
+    });
+
+    wfModalBody.innerHTML = html;
+    wfModal.classList.add('open');
+
+    /* Bind card clicks */
+    wfModalBody.querySelectorAll('.wf-modal-card').forEach(function(card) {
+      card.addEventListener('click', function() {
+        var nid = card.dataset.nodeId;
+        var wi = parseInt(card.dataset.wfIndex);
+        wfModal.classList.remove('open');
+        selectNode(nid);
+        setTimeout(function() { openWorkflow(nid, wi); }, 350);
+      });
+    });
+  }
+
+  workflowsBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    openWorkflowsModal();
+  });
+  wfModalClose.addEventListener('click', function() { wfModal.classList.remove('open'); });
+  wfModal.addEventListener('click', function(e) { if (e.target === wfModal) wfModal.classList.remove('open'); });
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && wfModal.classList.contains('open')) wfModal.classList.remove('open'); });
+
+  /* ========== SEARCH ========== */
+  var toolbar = document.getElementById('toolbar');
+  var tbButtons = document.getElementById('tb-buttons');
+  var searchMode = document.getElementById('search-mode');
+  var searchInput = document.getElementById('search-input');
+  var searchResults = document.getElementById('search-results');
+  var searchBtn = document.getElementById('search-btn');
+  var searchCloseBtn = document.getElementById('search-close');
+
+  function closeAllInputModes() {
+    toolbar.classList.remove('input-active');
+    searchMode.classList.remove('active');
+    document.getElementById('glossary-mode').classList.remove('active');
+    searchResults.innerHTML = '';
+    searchResults.classList.remove('has-results');
+    var gr = document.getElementById('glossary-results');
+    if (gr) { gr.innerHTML = ''; gr.classList.remove('has-results'); }
+  }
+
+  function openSearch() {
+    closeAllInputModes();
+    toolbar.classList.add('input-active');
+    searchMode.classList.add('active');
+    searchInput.value = '';
+    setTimeout(function() { searchInput.focus(); }, 50);
+  }
+
+  function closeSearch() {
+    closeAllInputModes();
+    activeNodeId = null;
+    detailPanel.classList.remove('open');
+    currentFilter = 'all';
+    filterBtn.innerHTML = '<span class="material-symbols-outlined">hub</span> All <span class="material-symbols-outlined" style="font-size:0.8rem;margin-left:2px;">expand_more</span>';
+    filterMenu.querySelectorAll('button').forEach(function(b) { b.classList.toggle('active', b.dataset.filter === 'all'); });
+    drawNodes();
+    drawLines();
+  }
+
+  searchBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    openSearch();
+  });
+
+  searchCloseBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    closeSearch();
+  });
+
+  /* Build searchable index from all node data */
+  function buildSearchText(n) {
+    var parts = [n.label || '', n.id || '', n.type || ''];
+    if (n.detail) {
+      parts.push(n.detail.title || '');
+      parts.push(n.detail.subtitle || '');
+      parts.push(n.detail.desc || '');
+      if (n.detail.hardware) parts = parts.concat(n.detail.hardware);
+      if (n.detail.tools) {
+        n.detail.tools.forEach(function(t) {
+          parts.push(t.name || '');
+          parts.push(t.desc || '');
+        });
+      }
+    }
+    return parts.join(' ').toLowerCase();
+  }
+
+  function findMatchContext(searchText, query) {
+    var idx = searchText.indexOf(query);
+    if (idx === -1) return '';
+    var start = Math.max(0, idx - 20);
+    var end = Math.min(searchText.length, idx + query.length + 30);
+    var snippet = searchText.substring(start, end);
+    if (start > 0) snippet = '...' + snippet;
+    if (end < searchText.length) snippet = snippet + '...';
+    return snippet;
+  }
+
+  searchInput.addEventListener('input', function() {
+    var q = searchInput.value.trim().toLowerCase();
+    if (!q) {
+      searchResults.innerHTML = '';
+      searchResults.classList.remove('has-results');
+      return;
+    }
+
+    var matches = [];
+    nodes.forEach(function(n) {
+      var text = buildSearchText(n);
+      if (text.indexOf(q) !== -1) {
+        matches.push({ node: n, context: findMatchContext(text, q) });
+      }
+    });
+
+    if (matches.length === 0) {
+      searchResults.innerHTML = '<div class="search-no-results">No results for &ldquo;' + q.replace(/</g,'&lt;') + '&rdquo;</div>';
+      searchResults.classList.add('has-results');
+      return;
+    }
+
+    var html = '';
+    matches.forEach(function(m) {
+      var n = m.node;
+      html += '<div class="search-result-item" data-id="' + n.id + '">';
+      html += '<div class="sri-icon ' + n.type + '"><span class="material-symbols-outlined">' + (n.icon || 'circle') + '</span></div>';
+      html += '<div class="sri-text">';
+      html += '<p class="sri-name">' + (n.detail ? n.detail.title : n.label) + '</p>';
+      if (m.context) html += '<p class="sri-match">' + m.context + '</p>';
+      html += '</div></div>';
+    });
+    searchResults.innerHTML = html;
+    searchResults.classList.add('has-results');
+
+    /* Click result → select node, close search */
+    searchResults.querySelectorAll('.search-result-item').forEach(function(item) {
+      item.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var id = item.dataset.id;
+        closeSearch();
+        selectNode(id);
+      });
+    });
+  });
+
+  /* Escape to close input modes */
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && toolbar.classList.contains('input-active')) {
+      closeAllInputModes();
+    }
+    /* Cmd/Ctrl+K to open search */
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      if (searchMode.classList.contains('active')) closeSearch();
+      else openSearch();
+    }
+  });
+
+  /* ========== GLOSSARY ========== */
+  var glossary = [{"term":"3K","def":"A record that holds all the pilot information, including the 4 part bid status"},{"term":"4AVP","def":"FOS entry tape load with the number of vacations days"},{"term":"AA","def":"American Airlines"},{"term":"ACARS","def":"Aircraft Communications Addressing and Reporting System"},{"term":"ACT","def":"Actual Times"},{"term":"ADM","def":"Application Development and Maintenance"},{"term":"AFA","def":"Association of Flight Attendance"},{"term":"ALP","def":"Allocation Load into the FOS System"},{"term":"ALPA","def":"Airlines Pilots Association"},{"term":"AOG","def":"Aircraft On Ground (Waiting for part)"},{"term":"AOS","def":"Advanced Optimization System - legacy system that awards trips from PBS into FOS"},{"term":"BVR","def":"Business Validation Report - generated by Crew Planning during PBS bidding"},{"term":"CCS","def":"Common Crew Service - qualifies legal and available FAs, checks legalities and scheduling rules"},{"term":"LRD","def":"Lineholder/Reserve Designation - allows FAs to cast ballot on lineholder or reserve status"},{"term":"LPD","def":"Planning Admin - used by Crew Planning for bid processing"},{"term":"ROTD","def":"Reserve Open Time Assignment Daily - daily reserve processing, runs once a day"},{"term":"TSS","def":"Training Scheduling System - builds training slots for flight attendants"},{"term":"UBL","def":"Unsuccessful Bidders List - crewmembers who did not receive trips"},{"term":"APA","def":"Allied Pilots Association"},{"term":"APFA","def":"Association of Professional Flight Attendants"},{"term":"ATC","def":"Air Traffic Control"},{"term":"AVRS","def":"Automated Voice Response System"},{"term":"BART","def":"Food and Beverage Server"},{"term":"BLG","def":"Bid line Generator"},{"term":"BPR","def":"Board of Pilots Representatives"},{"term":"BSI","def":"British Standards Institute"},{"term":"CA","def":"Captain"},{"term":"CAC","def":"Company Arrival Control"},{"term":"CASS","def":"Crewmember Access Security System"},{"term":"CATS","def":"Crew Activity Tracking System (LUS version of FOS)"},{"term":"CBA","def":"Collective Bargaining Agreement"},{"term":"CCI","def":"Crew Check In - crew portal to sign-in and various other crew related items"},{"term":"CCR","def":"Program to initialize the bid awards"},{"term":"CDO","def":"Continuous Duty Override"},{"term":"CDR","def":"Coded Departure Route"},{"term":"CLA","def":"Conditional Labor Agreement"},{"term":"CMRP","def":"Crew Management Replacement Project"},{"term":"COTS","def":"Commercial Off The Shelf"},{"term":"CPA","def":"Credit Plan Account - Pilot non sick flying bank account"},{"term":"CPO","def":"Chief Pilots Office"},{"term":"CPOP","def":"Crew Planning Operations Platform"},{"term":"CRAF","def":"Civil Reserve Air Fleet - Dept of Defense usage of aircraft and personnel"},{"term":"CRE","def":"Corporate Real-estate"},{"term":"CREW FUN","def":"Crew control (configuration) tables"},{"term":"CRJ","def":"Canadian Regional Jet"},{"term":"CRM","def":"Crew Resource Management"},{"term":"CRP","def":"Conference Room Pilot"},{"term":"CST","def":"Central Standard Time"},{"term":"CTDD","def":"Contract Date Table"},{"term":"CTP","def":"Crew Training Platform - Overtime Proffer"},{"term":"DECS","def":"Dispatch Environmental Control System"},{"term":"DFP","def":"Duty Free Periods"},{"term":"DO","def":"Day Off"},{"term":"DOTC","def":"Daily Open Time Coverage - done by Crew Scheduler on a daily basis"},{"term":"DPAL","def":"Data Process Assurance Level"},{"term":"DR","def":"Development Request"},{"term":"DT","def":"Date of flight"},{"term":"DUTY RIG","def":"A guarantee for each on-duty period that will pay and credit one hour for every two hours of actual on-duty time"},{"term":"EAG","def":"European Aeronautical Group"},{"term":"ECS","def":"Electronic Communication System - 2-way comms between pilots and IOC"},{"term":"EO","def":"Engineering Order"},{"term":"EQ","def":"2 Character equipment code"},{"term":"ETB","def":"Electronic Trade Board"},{"term":"ETO","def":"Estimated Time of Off"},{"term":"ETOPS","def":"Equipment Type Operating Procedures"},{"term":"FA","def":"Flight Attendants"},{"term":"FAA","def":"Federal Aviation Administration"},{"term":"FAAST","def":"Federal Aviation Administration Safety Team"},{"term":"FAR","def":"Federal Aviation Regulation"},{"term":"FAST","def":"Training Program"},{"term":"FATS","def":"Attendance Record Program"},{"term":"FB","def":"Second First Officer"},{"term":"FC","def":"Third First Officer"},{"term":"FCTI","def":"Flight Crew Training Instructor"},{"term":"FCRM","def":"Flight Crew Resource Mgmt - nightly refreshed FOS crew data repository"},{"term":"FDPro","def":"Flight Data Pro - flight planning and operational data tool"},{"term":"FLIFO","def":"Flight Information"},{"term":"FLT","def":"Flight number"},{"term":"FO","def":"First Officer"},{"term":"FOI","def":"Full Operational Integration"},{"term":"FOS","def":"Flight Operating System"},{"term":"FS","def":"Functional Specification"},{"term":"GMT","def":"Greenwich Mean Time"},{"term":"GTD","def":"Greater Time To Date"},{"term":"HBT","def":"Home Base Time - time of day expressed in the time zone for the crew or home base"},{"term":"HCI","def":"Human Computer Interaction"},{"term":"HISEND","def":"HI - Personal Mode - Sending messages one way"},{"term":"IAA","def":"Validator"},{"term":"ICAO","def":"International Civil Aviation Organization"},{"term":"IOC","def":"Integrated Operations Center"},{"term":"IOE","def":"Initial Operating Experience"},{"term":"IPT","def":"Integrated Product Team"},{"term":"ISO","def":"International Standards Organization"},{"term":"IVR","def":"Interactive Voice Response"},{"term":"JCBA","def":"Joint Collective Bargaining Agreement"},{"term":"JSC","def":"Joint Scheduling Committee"},{"term":"JSIC","def":"Joint Scheduling Implementation Committee"},{"term":"LBFO","def":"Last and Best Final Offer (Union Contracts)"},{"term":"LOA","def":"Leave of absence"},{"term":"MARFFLE","def":"Excel-based instructor availability report (monthly + daily versions)"},{"term":"MCR","def":"Master Crew Record"},{"term":"MINT","def":"Training management and instructor scheduling system"},{"term":"MOC","def":"Maintenance and Operations Control"},{"term":"MOD","def":"Manager On Duty"},{"term":"MOT","def":"Mandatory Off Time"},{"term":"MOU","def":"Memorandum of Understanding"},{"term":"NDB","def":"Navigation Database"},{"term":"NMB","def":"National Mediation Board"},{"term":"NTSB","def":"National Transportation and Safety Board"},{"term":"OAG","def":"The Shared database for all airlines"},{"term":"OCM","def":"Operational Crews Monitor - alerts Crew Schedule / Crew Tracking users"},{"term":"ODAN","def":"On-Duty All-Nighter Duty Period"},{"term":"ODL","def":"Overnight Duty Layover"},{"term":"OE","def":"Optional Exchange"},{"term":"OOOI","def":"Out Off On In"},{"term":"OSO","def":"Off Scheduled Operations"},{"term":"PBS","def":"Preferential Bidding System - developed by AOS (vendor)"},{"term":"PDS","def":"Performance Development System"},{"term":"PE","def":"Personal Emergency"},{"term":"POI","def":"Principal Operating Inspector"},{"term":"PSS","def":"Passenger Service System"},{"term":"PTP","def":"Protected Time Periods"},{"term":"PVD","def":"Paid Vacation Day"},{"term":"QA","def":"Quality Assurance"},{"term":"QLA","def":"Qualified Legal Available"},{"term":"RA","def":"Reassignment of a Crew member"},{"term":"RAP","def":"Reserve Availability Periods"},{"term":"RC","def":"Relief Captain - secondary captain for extended long haul flights"},{"term":"RF","def":"Reserve Flying"},{"term":"RON","def":"Remaining Over Night"},{"term":"ROTA","def":"Reserve Open Time Award"},{"term":"RTAS","def":"Recurrent Training Assignment System"},{"term":"RTS","def":"Return To Service"},{"term":"SDS","def":"System/Software Design Specification"},{"term":"SEP","def":"Schedule Enhancement Period"},{"term":"SFP","def":"Single FOS Partition"},{"term":"SimP","def":"Simulator Pilot"},{"term":"SSIM","def":"Standard Schedules Information Manual"},{"term":"STA","def":"Station"},{"term":"TARS","def":"Time Accrued Reserve System"},{"term":"TBS","def":"Training Bid System"},{"term":"TDY","def":"Temporary Duty Assignment"},{"term":"TRNG","def":"Training Days"},{"term":"TTOS","def":"Trip Trade Operating System (in FOS)"},{"term":"TTOT","def":"Trip Trade Open Times"},{"term":"TTS","def":"Trip Trade System"},{"term":"TWU","def":"Transport Workers Union"},{"term":"USAPA","def":"US Airline Pilots Association"},{"term":"UTC","def":"Universal Time Zone"},{"term":"VAC","def":"Vacation Days"},{"term":"VJA","def":"Voluntary Junior Assignment"},{"term":"WOCL","def":"Window of Circadian Low (Can't operate during this time)"},{"term":"WSI","def":"Weather Service International"},{"term":"ZMT","def":"Zero Meridian Time or Zulu time"}];
+
+  var glossaryMode = document.getElementById('glossary-mode');
+  var glossaryInput = document.getElementById('glossary-input');
+  var glossaryResults = document.getElementById('glossary-results');
+  var glossaryBtn = document.getElementById('glossary-btn');
+  var glossaryCloseBtn = document.getElementById('glossary-close');
+
+  function openGlossary() {
+    closeAllInputModes();
+    toolbar.classList.add('input-active');
+    glossaryMode.classList.add('active');
+    glossaryInput.value = '';
+    showGlossaryResults('');
+    setTimeout(function() { glossaryInput.focus(); }, 50);
+  }
+
+  function closeGlossary() {
+    closeAllInputModes();
+    activeNodeId = null;
+    detailPanel.classList.remove('open');
+    currentFilter = 'all';
+    filterBtn.innerHTML = '<span class="material-symbols-outlined">hub</span> All <span class="material-symbols-outlined" style="font-size:0.8rem;margin-left:2px;">expand_more</span>';
+    filterMenu.querySelectorAll('button').forEach(function(b) { b.classList.toggle('active', b.dataset.filter === 'all'); });
+    drawNodes();
+    drawLines();
+  }
+
+  function showGlossaryResults(q) {
+    q = q.toLowerCase().trim();
+    var matches = glossary.filter(function(g) {
+      if (!q) return true; /* show all when empty */
+      return g.term.toLowerCase().indexOf(q) !== -1 || g.def.toLowerCase().indexOf(q) !== -1;
+    });
+
+    if (matches.length === 0) {
+      glossaryResults.innerHTML = '<div class="search-no-results">No matches for \u201c' + q.replace(/</g,'&lt;') + '\u201d</div>';
+      glossaryResults.classList.add('has-results');
+      return;
+    }
+
+    /* Limit to 30 if showing all */
+    var display = q ? matches : matches.slice(0, 30);
+    var html = '';
+    display.forEach(function(g) {
+      html += '<div class="search-result-item glossary-item">';
+      html += '<div class="sri-icon product"><span style="font-size:0.7rem;font-weight:700;color:var(--cyan);">' + g.term.substring(0,3) + '</span></div>';
+      html += '<div class="sri-text">';
+      html += '<p class="sri-name">' + g.term + '</p>';
+      html += '<p class="sri-match" style="white-space:normal;">' + g.def + '</p>';
+      html += '</div></div>';
+    });
+    if (!q && matches.length > 30) {
+      html += '<div class="search-no-results" style="font-size:0.7rem;">Type to search all ' + matches.length + ' terms</div>';
+    }
+    glossaryResults.innerHTML = html;
+    glossaryResults.classList.add('has-results');
+  }
+
+  glossaryBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    openGlossary();
+  });
+
+  glossaryCloseBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    closeGlossary();
+  });
+
+  glossaryInput.addEventListener('input', function() {
+    showGlossaryResults(glossaryInput.value);
+  });
+
+  /* Glossary escape already handled by the main escape handler above */
+
+  /* ========== INIT ========== */
+  drawNodes();
+  drawLines();
+  zoomReset();
+  applyTransform();
+
+})();
+</script>
+</body>
+</html>
