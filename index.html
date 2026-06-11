@@ -3738,7 +3738,7 @@ function toggleTheme() {
        This creates the mesh/lattice look. When a node is clicked,
        also draw its actual long-distance connections as highlighted lines. */
     if (currentFilter !== 'datamap' && currentFilter !== 'usermap') {
-      var MAX_MESH_DIST = 800;
+      var MAX_MESH_DIST = 500;
       var drawn = {}; /* avoid duplicate lines */
 
       /* 1. Draw mesh lines: for each CONNECTED pair, only if close enough */
