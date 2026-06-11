@@ -3755,18 +3755,15 @@ function toggleTheme() {
         var isData = c[2] === 'data';
         var isActive = activeNodeId && (c[0]===activeNodeId || c[1]===activeNodeId);
 
-        /* Show data flows connected to products the active user uses,
-           AND data flows between those products and their downstream connections */
+        /* Show data flows only between products the active user directly uses */
         var isRelatedData = false;
         if (activeNodeId && isData && !isActive) {
-          /* Get all products the active user directly connects to */
           var userProducts = {};
           connections.forEach(function(cc) {
             if (cc[0] === activeNodeId) userProducts[cc[1]] = true;
             if (cc[1] === activeNodeId) userProducts[cc[0]] = true;
           });
-          /* Show data line if at least one endpoint is a product the user uses */
-          if (userProducts[c[0]] || userProducts[c[1]]) isRelatedData = true;
+          if (userProducts[c[0]] && userProducts[c[1]]) isRelatedData = true;
         }
 
         /* Draw if close OR if it involves the active/dragging node OR related data */
