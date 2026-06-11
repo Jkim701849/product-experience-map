@@ -1156,6 +1156,7 @@
       padding: 2rem;
     }
     .wf-modal.open { display: flex; }
+    .wf-modal.open ~ .toolbar { display: none !important; }
     .wf-modal-inner {
       background: var(--surface); border: 1px solid var(--border);
       border-radius: 16px; width: 100%; max-width: 800px; max-height: 80vh;
@@ -1454,6 +1455,7 @@
     }
     .glossary-view.active { display: flex; flex-direction: column; }
     body.glossary-active .zoom-controls,
+    body.glossary-active .toolbar,
     body.glossary-active .detail-panel,
     body.glossary-active .welcome-card { display: none !important; }
     body.pathgraph-active .glossary-view,
@@ -1578,6 +1580,7 @@
     }
     .users-view.active { display: flex; flex-direction: column; }
     body.users-active .zoom-controls,
+    body.users-active .toolbar,
     body.users-active .detail-panel,
     body.users-active .welcome-card { display: none !important; }
     body.users-active .pathgraph-view,
