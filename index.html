@@ -5239,12 +5239,16 @@ function toggleTheme() {
     if (e.key === '+' || e.key === '=') { scale = Math.min(2, scale + 0.1); moved = true; }
     if (e.key === '-') { scale = Math.max(0.3, scale - 0.1); moved = true; }
     if (moved) { e.preventDefault(); applyTransform(); }
-    /* Press 'P' to export current node positions to console */
+    /* Press 'P' to export current node positions to clipboard */
     if (e.key === 'p' || e.key === 'P') {
       var out = {};
       nodes.forEach(function(n) { out[n.id] = { x: Math.round(n.x), y: Math.round(n.y) }; });
-      console.log('NODE POSITIONS:', JSON.stringify(out, null, 2));
-      console.log('Copy the above and share it to save the layout.');
+      var json = JSON.stringify(out);
+      navigator.clipboard.writeText(json).then(function() {
+        alert('Node positions copied to clipboard! Paste them to Claude.');
+      }).catch(function() {
+        prompt('Copy these positions:', json);
+      });
     }
   });
 
