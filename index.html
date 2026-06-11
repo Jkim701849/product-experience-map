@@ -955,8 +955,9 @@
       background: var(--bg);
       overflow: hidden;
     }
-    .pathgraph-view.active { display: flex; flex-direction: column; }
+    .pathgraph-view.active { display: flex; flex-direction: column; z-index: 60; }
     body.pathgraph-active .zoom-controls,
+    body.pathgraph-active .toolbar,
     body.pathgraph-active .detail-panel,
     body.pathgraph-active .welcome-card { display: none !important; }
     .pathgraph-back-bar {
@@ -1452,8 +1453,9 @@
       background: var(--bg);
       overflow: hidden;
     }
-    .glossary-view.active { display: flex; flex-direction: column; }
+    .glossary-view.active { display: flex; flex-direction: column; z-index: 60; }
     body.glossary-active .zoom-controls,
+    body.glossary-active .toolbar,
     body.glossary-active .detail-panel,
     body.glossary-active .welcome-card { display: none !important; }
     body.pathgraph-active .glossary-view,
@@ -1576,8 +1578,9 @@
       background: radial-gradient(ellipse at center, #0d1018 0%, #060810 70%);
       overflow: hidden; color: #e0e0e8;
     }
-    .users-view.active { display: flex; flex-direction: column; }
+    .users-view.active { display: flex; flex-direction: column; z-index: 60; }
     body.users-active .zoom-controls,
+    body.users-active .toolbar,
     body.users-active .detail-panel,
     body.users-active .welcome-card { display: none !important; }
     body.users-active .pathgraph-view,
