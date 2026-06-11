@@ -6574,14 +6574,78 @@ function toggleTheme() {
       model.position.sub(center.multiplyScalar(scale));
       model.position.y += 2; // lift slightly off ground
 
-      // Make materials slightly metallic
+      // Apply American Airlines livery
+      var aaSilver = new THREE.Color(0xd8dce3);
+      var aaBlue = new THREE.Color(0x0078d2);
+      var aaDarkBlue = new THREE.Color(0x003876);
+      var aaRed = new THREE.Color(0xb31942);
+      var aaWhite = new THREE.Color(0xf0f2f5);
+      var aaGray = new THREE.Color(0x8c9099);
+
       model.traverse(function(child) {
         if (child.isMesh && child.material) {
-          child.material.metalness = 0.3;
-          child.material.roughness = 0.5;
+          var mat = child.material;
+          mat.metalness = 0.35;
+          mat.roughness = 0.4;
+
+          var name = (child.name || '').toLowerCase();
+          var matName = (mat.name || '').toLowerCase();
+          var combined = name + ' ' + matName;
+
+          // Tail / vertical stabilizer — AA blue with flag motif
+          if (combined.match(/tail|vert|stab|fin|rudder/)) {
+            mat.color.copy(aaBlue);
+            mat.metalness = 0.2;
+            mat.roughness = 0.5;
+          }
+          // Engines / nacelles — light gray
+          else if (combined.match(/engine|nacelle|fan|turbine|cowl|intake/)) {
+            mat.color.copy(aaGray);
+            mat.metalness = 0.6;
+            mat.roughness = 0.25;
+          }
+          // Windows / glass — dark tint
+          else if (combined.match(/window|glass|cockpit|wind/)) {
+            mat.color.set(0x1a2a3a);
+            mat.metalness = 0.9;
+            mat.roughness = 0.05;
+            mat.transparent = true;
+            mat.opacity = 0.8;
+          }
+          // Landing gear / wheels
+          else if (combined.match(/gear|wheel|tire|strut|brake/)) {
+            mat.color.set(0x3c3c3c);
+            mat.metalness = 0.7;
+            mat.roughness = 0.3;
+          }
+          // Fuselage / body — AA polished silver-white
+          else {
+            mat.color.copy(aaSilver);
+            mat.metalness = 0.4;
+            mat.roughness = 0.35;
+          }
         }
       });
 
+      // Add AA stripe along fuselage (blue-red-blue bands)
+      var stripeGroup = new THREE.Group();
+      var stripeMat1 = new THREE.MeshStandardMaterial({ color: aaBlue, metalness: 0.2, roughness: 0.5 });
+      var stripeMat2 = new THREE.MeshStandardMaterial({ color: aaRed, metalness: 0.2, roughness: 0.5 });
+
+      // Blue stripe
+      var s1 = new THREE.Mesh(new THREE.CylinderGeometry(1.83 * scale * maxDim / 20, 1.83 * scale * maxDim / 20, 18 * scale * maxDim / 20, 24, 1, true, -0.08, 0.06), stripeMat1);
+      s1.rotation.z = Math.PI / 2;
+      s1.position.copy(model.position);
+      s1.position.y += 2.3 * scale * maxDim / 20;
+      stripeGroup.add(s1);
+
+      // Red stripe (slightly below blue)
+      var s2 = new THREE.Mesh(new THREE.CylinderGeometry(1.83 * scale * maxDim / 20, 1.83 * scale * maxDim / 20, 18 * scale * maxDim / 20, 24, 1, true, -0.14, 0.06), stripeMat2);
+      s2.rotation.z = Math.PI / 2;
+      s2.position.copy(s1.position);
+      stripeGroup.add(s2);
+
+      aircraftScene.add(stripeGroup);
       aircraftScene.add(model);
 
       if (hintEl) hintEl.textContent = 'Drag to rotate \u00b7 Scroll to zoom \u00b7 Click hotspots to explore';
