@@ -3713,6 +3713,7 @@ function toggleTheme() {
   var detailPanel = document.getElementById('detail');
   var detailContent = document.getElementById('detail-content');
   var activeNodeId = null;
+  var draggingNodeId = null;
   var currentFilter = 'all';
 
   /* Pan & Zoom state */
@@ -3768,8 +3769,9 @@ function toggleTheme() {
           if (userProducts[c[0]] || userProducts[c[1]]) isRelatedData = true;
         }
 
-        /* Draw if close OR if it involves the active node OR related data */
-        if (d < MAX_MESH_DIST || isActive || isRelatedData) {
+        /* Draw if close OR if it involves the active/dragging node OR related data */
+        var isDragged = draggingNodeId && (c[0]===draggingNodeId || c[1]===draggingNodeId);
+        if (d < MAX_MESH_DIST || isActive || isRelatedData || isDragged) {
           drawn[key] = true;
           var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
           line.setAttribute('x1',x1); line.setAttribute('y1',y1);
@@ -4362,6 +4364,7 @@ function toggleTheme() {
         dragNode = nodeEl;
         dragMoved = false;
         var nid = nodeEl.dataset.id;
+        draggingNodeId = nid;
         var n = nMap[nid];
         if (!n) return;
         dragNodeStart.x = n.x;
@@ -4389,6 +4392,7 @@ function toggleTheme() {
       window.addEventListener('mouseup', function() {
         if (dragNode) {
           dragNode.classList.remove('node-dragging');
+          draggingNodeId = null;
           var nid = dragNode.dataset.id;
           if (!dragMoved) {
             selectNode(nid);
@@ -4417,6 +4421,7 @@ function toggleTheme() {
         touchDragNode = nodeEl;
         touchDragMoved = false;
         var nid = nodeEl.dataset.id;
+        draggingNodeId = nid;
         var n = nMap[nid];
         if (!n) return;
         touchNodeStart.x = n.x;
@@ -4445,6 +4450,7 @@ function toggleTheme() {
       window.addEventListener('touchend', function() {
         if (touchDragNode) {
           touchDragNode.classList.remove('node-dragging');
+          draggingNodeId = null;
           var nid = touchDragNode.dataset.id;
           if (!touchDragMoved) {
             selectNode(nid);
