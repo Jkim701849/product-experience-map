@@ -1773,6 +1773,172 @@
       .users-details { padding: 1rem; }
     }
 
+    /* ====== WORKFLOWS VIEW ====== */
+    .workflows-view {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 40; display: none;
+      background: var(--bg); overflow: hidden;
+    }
+    .workflows-view.active { display: flex; flex-direction: column; z-index: 60; }
+    body.workflows-active .zoom-controls,
+    body.workflows-active .toolbar,
+    body.workflows-active .detail-panel,
+    body.workflows-active .welcome-card { display: none !important; }
+
+    .workflows-header {
+      padding: 1rem 1.5rem; display: flex; align-items: center; gap: 1rem;
+      border-bottom: 1px solid var(--card-border); flex-shrink: 0;
+    }
+    .workflows-header h2 {
+      font-family: var(--sans); font-size: 1rem; font-weight: 600;
+      color: var(--text); margin: 0;
+    }
+    .wv-close {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--card-bg); border: none;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.4);
+      color: var(--card-text-tertiary); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s, color 0.2s; padding: 0;
+    }
+    .wv-close .material-symbols-outlined { font-size: 1.2rem; }
+    .wv-close:hover { background: var(--card-hover); color: var(--card-text); }
+
+    .workflows-layout {
+      flex: 1; display: flex; overflow: hidden;
+    }
+
+    /* Left sidebar */
+    .wv-sidebar {
+      width: 280px; flex-shrink: 0; overflow-y: auto;
+      border-right: 1px solid var(--card-border);
+      padding: 1rem; background: var(--card-bg);
+    }
+    .wv-sidebar::-webkit-scrollbar { width: 4px; }
+    .wv-sidebar::-webkit-scrollbar-track { background: transparent; }
+    .wv-sidebar::-webkit-scrollbar-thumb { background: var(--dim); border-radius: 2px; }
+
+    .wv-group-title {
+      font-family: var(--sans); font-size: 0.65rem; font-weight: 700;
+      color: var(--dim); text-transform: uppercase; letter-spacing: 0.08em;
+      padding: 0.75rem 0.5rem 0.35rem; display: flex; align-items: center; gap: 0.4rem;
+    }
+    .wv-group-title .material-symbols-outlined { font-size: 0.85rem; }
+
+    .wv-thumb {
+      padding: 0.65rem 0.75rem; margin-bottom: 4px;
+      border-radius: 8px; cursor: pointer;
+      transition: background 0.15s; border: 1px solid transparent;
+    }
+    .wv-thumb:hover { background: var(--card-hover); }
+    .wv-thumb.active { background: var(--cyan-dim); border-color: rgba(0,204,255,0.2); }
+    .wv-thumb-name {
+      font-family: var(--sans); font-size: 0.75rem; font-weight: 600;
+      color: var(--text); margin-bottom: 0.2rem;
+    }
+    .wv-thumb-meta {
+      font-family: var(--sans); font-size: 0.6rem; color: var(--dim);
+      display: flex; gap: 0.5rem; align-items: center;
+    }
+    .wv-thumb-tag {
+      font-size: 0.5rem; font-weight: 700; letter-spacing: 0.05em;
+      text-transform: uppercase; padding: 1px 5px; border-radius: 3px;
+    }
+    .wv-thumb-tag.cross { background: rgba(0,204,255,0.1); color: var(--cyan); }
+    .wv-thumb-tag.inferred { background: rgba(251,191,36,0.1); color: #fbbf24; }
+
+    /* Right content area */
+    .wv-content {
+      flex: 1; overflow-y: auto; padding: 2rem;
+      display: flex; align-items: flex-start; justify-content: center;
+    }
+    .wv-content::-webkit-scrollbar { width: 4px; }
+    .wv-content::-webkit-scrollbar-track { background: transparent; }
+    .wv-content::-webkit-scrollbar-thumb { background: var(--dim); border-radius: 2px; }
+
+    .wv-empty {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      height: 100%; color: var(--dim); font-family: var(--sans); gap: 0.75rem;
+    }
+    .wv-empty .material-symbols-outlined { font-size: 3rem; opacity: 0.3; }
+    .wv-empty p { font-size: 0.85rem; }
+
+    .wv-infographic {
+      max-width: 700px; width: 100%;
+    }
+    .wv-info-header {
+      margin-bottom: 1.5rem;
+    }
+    .wv-info-source {
+      font-family: var(--sans); font-size: 0.65rem; color: var(--dim);
+      margin-bottom: 0.25rem;
+    }
+    .wv-info-title {
+      font-family: var(--sans); font-size: 1.4rem; font-weight: 700;
+      color: var(--cyan); margin-bottom: 0.5rem;
+    }
+    .wv-info-badges {
+      display: flex; gap: 0.5rem; flex-wrap: wrap;
+    }
+    .wv-info-badge {
+      font-family: var(--sans); font-size: 0.6rem; font-weight: 600;
+      padding: 0.2rem 0.6rem; border-radius: 4px;
+      background: var(--card-elevated); color: var(--dim);
+      border: 1px solid var(--card-border);
+    }
+
+    /* Infographic step cards */
+    .wv-steps-flow {
+      display: flex; flex-direction: column; gap: 0;
+      position: relative; padding-left: 24px;
+    }
+    .wv-steps-flow::before {
+      content: ''; position: absolute; left: 11px; top: 20px; bottom: 20px;
+      width: 2px; background: var(--card-border);
+    }
+    .wv-step-card {
+      position: relative; padding: 1rem 1.25rem;
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 10px; margin-bottom: 0.75rem;
+      transition: border-color 0.2s;
+    }
+    .wv-step-card::before {
+      content: ''; position: absolute; left: -19px; top: 1.2rem;
+      width: 12px; height: 12px; border-radius: 50%;
+      background: var(--bg); border: 2px solid var(--cyan);
+      box-shadow: 0 0 6px rgba(0,204,255,0.25);
+    }
+    .wv-step-card.issue::before { border-color: var(--red); box-shadow: 0 0 6px rgba(239,68,68,0.25); }
+    .wv-step-card.data::before {
+      border-color: var(--purple); background: var(--purple);
+      border-radius: 2px; transform: rotate(45deg); width: 10px; height: 10px;
+    }
+    .wv-step-num {
+      font-family: var(--sans); font-size: 0.55rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      color: var(--cyan); margin-bottom: 0.25rem;
+    }
+    .wv-step-card.issue .wv-step-num { color: var(--red); }
+    .wv-step-card.data .wv-step-num { color: var(--purple); }
+    .wv-step-text {
+      font-family: var(--sans); font-size: 0.8rem; color: var(--text);
+      line-height: 1.5;
+    }
+
+    /* Swimlane in infographic gets more space */
+    .wv-infographic .swimlane-container { margin-top: 1rem; }
+
+    @media (max-width: 768px) {
+      .workflows-layout { flex-direction: column; }
+      .wv-sidebar {
+        width: 100%; max-height: 35vh; border-right: none;
+        border-bottom: 1px solid var(--card-border);
+        flex-shrink: 0;
+      }
+      .wv-content { padding: 1rem; }
+      .wv-info-title { font-size: 1.1rem; }
+    }
+
   </style>
 </head>
 <body>
@@ -1866,6 +2032,23 @@
     </div>
   </div>
 
+  <!-- Workflows View -->
+  <div class="workflows-view" id="workflows-view">
+    <div class="workflows-header">
+      <button class="wv-close" id="workflows-view-close"><span class="material-symbols-outlined">arrow_back</span></button>
+      <h2>Workflows</h2>
+    </div>
+    <div class="workflows-layout">
+      <div class="wv-sidebar" id="wv-sidebar"></div>
+      <div class="wv-content" id="wv-content">
+        <div class="wv-empty">
+          <span class="material-symbols-outlined">account_tree</span>
+          <p>Select a workflow to view</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Detail Panel -->
   <div class="detail-panel" id="detail">
     <button class="dp-close" onclick="closeDetail()"><span class="material-symbols-outlined">close</span></button>
@@ -1939,6 +2122,7 @@
           <button data-filter="pathgraph"><span class="material-symbols-outlined">timeline</span> Path Graph</button>
           <button data-filter="glossary"><span class="material-symbols-outlined">menu_book</span> Glossary</button>
           <button data-filter="users"><span class="material-symbols-outlined">group</span> Users</button>
+          <button data-filter="workflows"><span class="material-symbols-outlined">account_tree</span> Workflows</button>
         </div>
       </div>
       <div style="width:1px;height:24px;background:var(--toolbar-divider);margin:0 4px;"></div>
@@ -4910,6 +5094,123 @@ function toggleTheme() {
     viewport.style.display = '';
   }
 
+  function hideWorkflowsView() {
+    var wvView = document.getElementById('workflows-view');
+    var viewport = document.getElementById('viewport');
+    wvView.classList.remove('active');
+    document.body.classList.remove('workflows-active');
+    viewport.style.display = '';
+  }
+
+  /* ========== WORKFLOWS VIEW ========== */
+  var wvView = document.getElementById('workflows-view');
+
+  function renderWorkflowsView() {
+    var sidebar = document.getElementById('wv-sidebar');
+    var content = document.getElementById('wv-content');
+
+    /* Collect all workflows */
+    var groups = [];
+    nodes.forEach(function(n) {
+      var d = n.detail;
+      if (!d) return;
+      var wfs = [];
+      if (d.workflows && d.workflows.length > 0) {
+        d.workflows.forEach(function(wf, wi) {
+          wfs.push({ wf: wf, nodeId: n.id, wfIndex: wi, nodeTitle: d.title || n.label });
+        });
+      } else if (d.workflow) {
+        wfs.push({ wf: { name: d.title || n.label, icon: n.icon || 'account_tree', steps: d.workflow, crossFunctional: false, inferred: false }, nodeId: n.id, wfIndex: -1, nodeTitle: d.title || n.label });
+      }
+      if (wfs.length > 0) groups.push({ node: n, wfs: wfs });
+    });
+
+    /* Build sidebar */
+    var shtml = '';
+    groups.forEach(function(g) {
+      var isUser = g.node.type === 'user';
+      shtml += '<div class="wv-group-title"><span class="material-symbols-outlined">' + (isUser ? 'person' : 'widgets') + '</span>' + (g.node.detail.title || g.node.label) + '</div>';
+      g.wfs.forEach(function(item) {
+        var wf = item.wf;
+        shtml += '<div class="wv-thumb" data-node-id="' + item.nodeId + '" data-wf-index="' + item.wfIndex + '">';
+        shtml += '<div class="wv-thumb-name">' + wf.name + '</div>';
+        shtml += '<div class="wv-thumb-meta">';
+        shtml += '<span>' + wf.steps.length + ' steps</span>';
+        if (wf.crossFunctional) shtml += '<span class="wv-thumb-tag cross">Cross-functional</span>';
+        if (wf.inferred) shtml += '<span class="wv-thumb-tag inferred">Inferred</span>';
+        shtml += '</div></div>';
+      });
+    });
+    sidebar.innerHTML = shtml;
+
+    /* Reset content */
+    content.innerHTML = '<div class="wv-empty"><span class="material-symbols-outlined">account_tree</span><p>Select a workflow to view</p></div>';
+
+    /* Bind sidebar clicks */
+    sidebar.querySelectorAll('.wv-thumb').forEach(function(thumb) {
+      thumb.addEventListener('click', function() {
+        sidebar.querySelectorAll('.wv-thumb').forEach(function(t) { t.classList.remove('active'); });
+        thumb.classList.add('active');
+
+        var nid = thumb.dataset.nodeId;
+        var wi = parseInt(thumb.dataset.wfIndex);
+        var n = nMap[nid];
+        if (!n || !n.detail) return;
+        var d = n.detail;
+        var wf, title, steps;
+
+        if (wi >= 0 && d.workflows && d.workflows[wi]) {
+          wf = d.workflows[wi];
+          title = wf.name;
+          steps = wf.steps;
+        } else if (d.workflow) {
+          wf = { name: d.title || n.label, steps: d.workflow, crossFunctional: false, inferred: false };
+          title = wf.name;
+          steps = d.workflow;
+        } else return;
+
+        var isCross = wf && wf.crossFunctional;
+
+        var html = '<div class="wv-infographic">';
+        html += '<div class="wv-info-header">';
+        html += '<p class="wv-info-source">' + (d.title || n.label) + '</p>';
+        html += '<h3 class="wv-info-title">' + title + '</h3>';
+        html += '<div class="wv-info-badges">';
+        html += '<span class="wv-info-badge">' + steps.length + ' steps</span>';
+        if (isCross) html += '<span class="wv-info-badge" style="background:var(--cyan-dim);color:var(--cyan);border-color:rgba(0,204,255,0.2);">Cross-functional</span>';
+        if (wf.inferred) html += '<span class="wv-info-badge" style="background:rgba(251,191,36,0.1);color:#fbbf24;border-color:rgba(251,191,36,0.2);">Inferred</span>';
+        html += '</div></div>';
+
+        /* Render steps as infographic cards */
+        if (isCross && wf.actors) {
+          html += renderSwimlane(wf);
+        } else {
+          html += '<div class="wv-steps-flow">';
+          var stepNum = 0;
+          steps.forEach(function(step) {
+            var isIssue = step.indexOf('ISSUE:') === 0;
+            var isData = step.indexOf('DATA:') === 0;
+            var label = step;
+            var cls = '';
+            var numLabel;
+            if (isIssue) { label = step.replace('ISSUE: ', ''); cls = ' issue'; numLabel = 'Issue'; }
+            else if (isData) { label = step.replace('DATA: ', ''); cls = ' data'; numLabel = 'Data'; }
+            else { stepNum++; numLabel = 'Step ' + stepNum; }
+            html += '<div class="wv-step-card' + cls + '">';
+            html += '<div class="wv-step-num">' + numLabel + '</div>';
+            html += '<div class="wv-step-text">' + label + '</div>';
+            html += '</div>';
+          });
+          html += '</div>';
+        }
+
+        html += '</div>';
+        content.innerHTML = html;
+        content.scrollTop = 0;
+      });
+    });
+  }
+
   /* ========== GLOSSARY VIEW (Full-screen) ========== */
   function renderGlossaryView(filterQuery) {
     var scroll = document.getElementById('glossary-view-scroll');
@@ -5393,8 +5694,8 @@ function toggleTheme() {
   /* ========== FILTER DROPDOWN ========== */
   var filterBtn = document.getElementById('filter-btn');
   var filterMenu = document.getElementById('filter-menu');
-  var filterLabels = { all: 'All', usermap: 'Relationships', datamap: 'Data Map', pathgraph: 'Path Graph', glossary: 'Glossary', users: 'Users' };
-  var filterIcons = { all: 'hub', usermap: 'group', product: 'widgets', datamap: 'share', pathgraph: 'timeline', glossary: 'menu_book', users: 'group' };
+  var filterLabels = { all: 'All', usermap: 'Relationships', datamap: 'Data Map', pathgraph: 'Path Graph', glossary: 'Glossary', users: 'Users', workflows: 'Workflows' };
+  var filterIcons = { all: 'hub', usermap: 'group', product: 'widgets', datamap: 'share', pathgraph: 'timeline', glossary: 'menu_book', users: 'group', workflows: 'account_tree' };
 
   filterBtn.addEventListener('click', function(e) {
     e.stopPropagation();
@@ -5422,8 +5723,18 @@ function toggleTheme() {
       if (prevFilter === 'pathgraph') { pgView.classList.remove('active'); document.body.classList.remove('pathgraph-active'); viewport.style.display = ''; }
       if (prevFilter === 'glossary') { gView.classList.remove('active'); document.body.classList.remove('glossary-active'); viewport.style.display = ''; }
       if (prevFilter === 'users') { uView.classList.remove('active'); document.body.classList.remove('users-active'); viewport.style.display = ''; }
+      if (prevFilter === 'workflows') { hideWorkflowsView(); }
 
-      if (currentFilter === 'pathgraph') {
+      if (currentFilter === 'workflows') {
+        viewport.style.display = 'none';
+        closeDetail();
+        hideWelcomeCard();
+        var wvView = document.getElementById('workflows-view');
+        wvView.classList.add('active');
+        document.body.classList.add('workflows-active');
+        renderWorkflowsView();
+        return;
+      } else if (currentFilter === 'pathgraph') {
         viewport.style.display = 'none';
         closeDetail();
         hideWelcomeCard();
@@ -5568,6 +5879,7 @@ function toggleTheme() {
     hidePathGraph();
     hideGlossaryView();
     hideUsersView();
+    hideWorkflowsView();
     applyPositions(originalPositions);
     currentFilter = 'all';
     filterBtn.innerHTML = '<span class="material-symbols-outlined">hub</span> All <span class="material-symbols-outlined" style="font-size:0.8rem;margin-left:2px;">expand_more</span>';
@@ -5699,6 +6011,7 @@ function toggleTheme() {
     hidePathGraph();
     hideGlossaryView();
     hideUsersView();
+    hideWorkflowsView();
     currentFilter = 'all';
     filterBtn.innerHTML = '<span class="material-symbols-outlined">hub</span> All <span class="material-symbols-outlined" style="font-size:0.8rem;margin-left:2px;">expand_more</span>';
     filterMenu.querySelectorAll('button').forEach(function(b) { b.classList.toggle('active', b.dataset.filter === 'all'); });
@@ -5760,7 +6073,7 @@ function toggleTheme() {
 
   function showWelcomeCard() {
     if (!startOverlay.classList.contains('hidden')) return;
-    if (currentFilter === 'pathgraph' || currentFilter === 'glossary' || currentFilter === 'users') return;
+    if (currentFilter === 'pathgraph' || currentFilter === 'glossary' || currentFilter === 'users' || currentFilter === 'workflows') return;
     if (welcomeDismissed) {
       mapBackBtn.classList.add('visible');
       return;
@@ -5862,7 +6175,7 @@ function toggleTheme() {
     startOverlay.classList.add('hidden');
     setTimeout(function() {
       if (callback) callback();
-      if (!activeNodeId && currentFilter !== 'pathgraph' && currentFilter !== 'glossary' && currentFilter !== 'users') showWelcomeCard();
+      if (!activeNodeId && currentFilter !== 'pathgraph' && currentFilter !== 'glossary' && currentFilter !== 'users' && currentFilter !== 'workflows') showWelcomeCard();
     }, 600);
   }
 
@@ -5882,10 +6195,7 @@ function toggleTheme() {
           dismissStart(function() { triggerFilter('users'); });
           break;
         case 'workflows':
-          dismissStart(function() {
-            var wBtn = document.getElementById('workflows-btn');
-            if (wBtn) wBtn.click();
-          });
+          dismissStart(function() { triggerFilter('workflows'); });
           break;
         case 'glossary':
           dismissStart(function() { triggerFilter('glossary'); });
@@ -5910,6 +6220,9 @@ function toggleTheme() {
   document.getElementById('glossary-view-search').addEventListener('input', function() {
     renderGlossaryView(this.value);
   });
+
+  /* ========== WORKFLOWS VIEW EVENT BINDINGS ========== */
+  document.getElementById('workflows-view-close').addEventListener('click', backToMenu);
 
   /* ========== USERS VIEW EVENT BINDINGS ========== */
   document.getElementById('users-view-close').addEventListener('click', backToMenu);
