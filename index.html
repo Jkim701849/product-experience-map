@@ -1243,6 +1243,17 @@
     }
 
     /* ====== RESPONSIVE — MOBILE ====== */
+    /* Notch — hidden on desktop, shown on mobile */
+    .dp-notch-bar { display: none; }
+    .dp-notch-bar {
+      width: 100%; padding: 10px 0 6px; cursor: grab;
+      display: none; justify-content: center; flex-shrink: 0;
+    }
+    .dp-notch {
+      width: 36px; height: 4px; border-radius: 2px;
+      background: var(--dim); opacity: 0.4;
+    }
+
     @media (max-width: 768px) {
       /* Detail panel becomes bottom sheet */
       .detail-panel {
@@ -1250,11 +1261,15 @@
         width: 100%; max-width: 100%;
         max-height: 55vh;
         border-radius: 16px 16px 0 0;
-        padding: 1.25rem 1.25rem 5rem;
+        padding: 0 0 5rem;
         transform: translateY(20px);
+        transition: opacity 0.3s ease, transform 0.3s ease, max-height 0.35s ease;
       }
       .detail-panel.open { transform: translateY(0); }
-      .detail-panel .dp-close { top: 8px; right: 12px; }
+      .detail-panel.expanded { max-height: 92vh; }
+      .dp-notch-bar { display: flex; }
+      .detail-panel .dp-close { top: 6px; right: 12px; z-index: 3; }
+      #detail-content { padding: 0 1.25rem 1.25rem; }
 
       /* Side panels become full-screen overlays */
       .pain-panel, .tools-panel, .workflow-panel {
@@ -1868,6 +1883,7 @@
 
   <!-- Detail Panel -->
   <div class="detail-panel" id="detail">
+    <div class="dp-notch-bar" id="dp-notch-bar"><div class="dp-notch"></div></div>
     <button class="dp-close" onclick="closeDetail()"><span class="material-symbols-outlined">close</span></button>
     <div id="detail-content"></div>
   </div>
@@ -4676,6 +4692,7 @@ function toggleTheme() {
   window.closeDetail = function() {
     activeNodeId = null;
     detailPanel.classList.remove('open');
+    detailPanel.classList.remove('expanded');
     workflowPanel.classList.remove('open');
     toolsPanel.classList.remove('open');
     painPanel.classList.remove('open');
@@ -4689,6 +4706,53 @@ function toggleTheme() {
   viewport.addEventListener('click', function() {
     closeDetail();
   });
+
+  /* ========== MOBILE BOTTOM SHEET ========== */
+  (function() {
+    var notch = document.getElementById('dp-notch-bar');
+    if (!notch) return;
+    var isMobile = function() { return window.innerWidth <= 768; };
+
+    /* Expand on scroll */
+    detailPanel.addEventListener('scroll', function() {
+      if (!isMobile()) return;
+      if (detailPanel.scrollTop > 10) {
+        detailPanel.classList.add('expanded');
+      }
+    });
+
+    /* Drag notch to collapse/dismiss */
+    var startY = 0, dragging = false;
+    notch.addEventListener('touchstart', function(e) {
+      if (!isMobile()) return;
+      dragging = true;
+      startY = e.touches[0].clientY;
+      detailPanel.style.transition = 'none';
+    });
+    window.addEventListener('touchmove', function(e) {
+      if (!dragging) return;
+      var dy = e.touches[0].clientY - startY;
+      if (dy > 0) {
+        detailPanel.style.transform = 'translateY(' + dy + 'px)';
+      }
+    });
+    window.addEventListener('touchend', function() {
+      if (!dragging) return;
+      dragging = false;
+      detailPanel.style.transition = '';
+      var dy = parseInt(detailPanel.style.transform.replace(/[^0-9-]/g,'')) || 0;
+      if (dy > 80) {
+        /* Dragged down far enough — if expanded, collapse; otherwise close */
+        if (detailPanel.classList.contains('expanded')) {
+          detailPanel.classList.remove('expanded');
+          detailPanel.scrollTop = 0;
+        } else {
+          closeDetail();
+        }
+      }
+      detailPanel.style.transform = '';
+    });
+  })();
 
   /* ========== PAN & ZOOM ========== */
   function applyTransform() {
