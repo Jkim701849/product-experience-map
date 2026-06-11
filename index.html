@@ -6540,18 +6540,139 @@ function toggleTheme() {
     fillLight.position.set(-15, 10, -10);
     aircraftScene.add(fillLight);
 
-    // Ground plane
-    var groundGeo = new THREE.PlaneGeometry(200, 200);
-    var groundMat = new THREE.MeshStandardMaterial({ color: 0x1a1f2e, roughness: 0.9 });
-    var ground = new THREE.Mesh(groundGeo, groundMat);
-    ground.rotation.x = -Math.PI / 2;
-    ground.position.y = -2.5;
-    aircraftScene.add(ground);
+    // Tarmac ground
+    var tarmacGeo = new THREE.PlaneGeometry(300, 300);
+    var tarmacMat = new THREE.MeshStandardMaterial({ color: 0x2a2d33, roughness: 0.95, metalness: 0.05 });
+    var tarmac = new THREE.Mesh(tarmacGeo, tarmacMat);
+    tarmac.rotation.x = -Math.PI / 2;
+    tarmac.position.y = -2.5;
+    tarmac.receiveShadow = true;
+    aircraftScene.add(tarmac);
 
-    // Grid
-    var grid = new THREE.GridHelper(100, 40, 0x2a3040, 0x1e2530);
-    grid.position.y = -2.49;
-    aircraftScene.add(grid);
+    // Taxiway lines (yellow)
+    var lineMat = new THREE.MeshBasicMaterial({ color: 0xd4a017 });
+    for (var li = -2; li <= 2; li++) {
+      var lineGeo = new THREE.PlaneGeometry(200, 0.15);
+      var line = new THREE.Mesh(lineGeo, lineMat);
+      line.rotation.x = -Math.PI / 2;
+      line.position.set(0, -2.49, li * 8);
+      aircraftScene.add(line);
+    }
+    // Cross line
+    var crossLine = new THREE.Mesh(new THREE.PlaneGeometry(0.15, 40), lineMat);
+    crossLine.rotation.x = -Math.PI / 2;
+    crossLine.position.set(18, -2.49, 0);
+    aircraftScene.add(crossLine);
+
+    // Safety zone dashes (white)
+    var dashMat = new THREE.MeshBasicMaterial({ color: 0x888888 });
+    for (var di = -8; di <= 8; di++) {
+      var dash = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 0.1), dashMat);
+      dash.rotation.x = -Math.PI / 2;
+      dash.position.set(di * 2.5, -2.49, 12);
+      aircraftScene.add(dash);
+    }
+
+    // Crew member figure builder
+    function buildPerson(x, z, skinColor, uniformColor, hatColor, facing) {
+      var person = new THREE.Group();
+      var skinMat = new THREE.MeshStandardMaterial({ color: skinColor, roughness: 0.7 });
+      var uniformMat = new THREE.MeshStandardMaterial({ color: uniformColor, roughness: 0.6 });
+
+      // Legs
+      var legMat = new THREE.MeshStandardMaterial({ color: 0x1a1a2e, roughness: 0.7 });
+      var legL = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.5, 6), legMat);
+      legL.position.set(-0.08, 0.25, 0);
+      person.add(legL);
+      var legR = legL.clone();
+      legR.position.x = 0.08;
+      person.add(legR);
+
+      // Torso
+      var torso = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.12, 0.45, 8), uniformMat);
+      torso.position.y = 0.72;
+      person.add(torso);
+
+      // Arms
+      var armL = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.4, 6), uniformMat);
+      armL.position.set(-0.2, 0.65, 0);
+      armL.rotation.z = 0.15;
+      person.add(armL);
+      var armR = armL.clone();
+      armR.position.x = 0.2;
+      armR.rotation.z = -0.15;
+      person.add(armR);
+
+      // Head
+      var head = new THREE.Mesh(new THREE.SphereGeometry(0.12, 8, 8), skinMat);
+      head.position.y = 1.06;
+      person.add(head);
+
+      // Hair / hat
+      if (hatColor) {
+        var hatMat = new THREE.MeshStandardMaterial({ color: hatColor, roughness: 0.5 });
+        var hat = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.06, 8), hatMat);
+        hat.position.y = 1.15;
+        person.add(hat);
+        var brim = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.02, 8), hatMat);
+        brim.position.y = 1.12;
+        person.add(brim);
+      } else {
+        var hairMat = new THREE.MeshStandardMaterial({ color: 0x2a1a0a, roughness: 0.9 });
+        var hair = new THREE.Mesh(new THREE.SphereGeometry(0.13, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2), hairMat);
+        hair.position.y = 1.1;
+        person.add(hair);
+      }
+
+      // Shoes
+      var shoeMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.8 });
+      var shoeL = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.04, 0.14), shoeMat);
+      shoeL.position.set(-0.08, 0.02, 0.03);
+      person.add(shoeL);
+      var shoeR = shoeL.clone();
+      shoeR.position.x = 0.08;
+      person.add(shoeR);
+
+      person.position.set(x, -2.5, z);
+      person.scale.set(1.8, 1.8, 1.8);
+      if (facing) person.rotation.y = facing;
+      return person;
+    }
+
+    // Crew members positioned around the aircraft
+    var crewFigures = [
+      // Pilots near cockpit / nose
+      buildPerson(14, 2, 0xd4a574, 0x0a1628, 0x0a1628, -1.2),    // Captain - navy uniform, cap
+      buildPerson(13, -1.5, 0xc49a6c, 0x0a1628, null, -0.8),      // First Officer - navy, no cap
+
+      // Flight Attendants near main door
+      buildPerson(10, 3.5, 0xb8865c, 0x1a1a6e, null, -1.5),       // FA #1 - navy dress
+      buildPerson(9, 4, 0xd4a574, 0x8b1a2b, null, -1.0),          // FA #2 - red accent
+
+      // Gate Agent at jet bridge area
+      buildPerson(11, 5, 0xc49a6c, 0x2d4a7a, null, -2.0),         // Gate Agent - blue blazer
+
+      // Gate Crew / ramp under wing (with safety vests)
+      buildPerson(-1, 7, 0x8d6e4a, 0xd4a017, 0xd4a017, 0.5),      // Gate Crew - yellow vest, hard hat
+      buildPerson(1, 8, 0xd4a574, 0xd4a017, 0xd4a017, 0.3),       // Gate Crew - yellow vest, hard hat
+
+      // ABR Driver near cargo area
+      buildPerson(3, -6, 0xb8865c, 0xe87400, 0xe87400, 1.8),      // ABR Driver - orange vest, hard hat
+
+      // Bag Clerk planeside
+      buildPerson(-2, -5, 0xc49a6c, 0x2d6b3d, 0x2d6b3d, 1.5),    // Bag Clerk - green vest, cap
+
+      // Sweeper further out on tarmac
+      buildPerson(-8, -9, 0xd4a574, 0x4a4a5a, 0x4a4a5a, 0.8),    // Sweeper - gray uniform, cap
+
+      // AMT / Maintenance near nose gear
+      buildPerson(10, -3, 0x8d6e4a, 0x3c5a3c, null, -0.3),        // AMT - olive uniform
+
+      // Ticket Agent further from plane
+      buildPerson(16, 6, 0xc49a6c, 0x2d4a7a, null, -1.8),         // Ticket Agent - blue vest
+    ];
+
+    crewFigures.forEach(function(fig) { aircraftScene.add(fig); });
 
     // Load Boeing 787 model
     var loader = new THREE.GLTFLoader();
