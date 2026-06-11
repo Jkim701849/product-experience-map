@@ -2703,7 +2703,7 @@ function toggleTheme() {
       workflows: [{name:'Customer Check-in & Bag Induction',steps:['Greet customer','Print bag tag','Scan bag tag','Place bag on conveyor belt','Confirm bag entered BHS']}],
       painPoints: ['Manual bag tag scanning can be slow during peak hours','System delays between scan and BHS confirmation']
     }},
-    { id: 'gate-crew', type: 'user', label: 'Gate Crew', x: 2650, y: 950, icon: 'engineering', detail: {
+    { id: 'gate-crew', type: 'user', label: 'Gate Crew', x: 2650, y: 1050, icon: 'engineering', detail: {
       title: 'Gate Crew', subtitle: 'Ramp Operations',
       desc: 'Responsible for offloading arriving bags from aircraft using belt loader vehicles. Uses TrackScan app to scan bags as they are unloaded. Also loads departing bags onto aircraft.',
       hardware: ['Belt loader vehicle', 'Company-issued tablet/phone', 'Safety equipment'],
@@ -2724,7 +2724,7 @@ function toggleTheme() {
       workflows: [{name:'Bag Transport',steps:['Receive bags from gate crew or BHS','Scan bags with T.LINE','Load onto appropriate cart','Drive to destination gate/terminal','Deliver bags for loading']}],
       painPoints: ['Wrong terminal routing requires re-transport','Tight connection times for transfer bags','Tarmac congestion during peak operations']
     }},
-    { id: 'bag-clerk', type: 'user', label: 'Bag Clerk', x: 3750, y: 950, icon: 'inventory_2', detail: {
+    { id: 'bag-clerk', type: 'user', label: 'Bag Clerk', x: 3550, y: 1250, icon: 'inventory_2', detail: {
       title: 'Bag Clerk', subtitle: 'Baggage Operations',
       desc: 'Scans and manages bags at various points in the baggage handling process including BHS make-up units, late piers, and planeside loading. Responsible for ensuring bags reach the correct aircraft.',
       hardware: ['Handheld scanner', 'Desktop workstation', 'Radio'],
@@ -3189,7 +3189,7 @@ function toggleTheme() {
     },
 
     /* ══════ RBO (Baggage Handling) PRODUCTS ══════ */
-    { id: 'trackscan', type: 'product', label: 'TrackScan', x: 3200, y: 900, icon: 'qr_code_scanner', detail: {
+    { id: 'trackscan', type: 'product', label: 'TrackScan', x: 3200, y: 750, icon: 'qr_code_scanner', detail: {
       title: 'TrackScan', subtitle: 'Bag Scanning App',
       desc: 'Mobile application used by ramp and baggage operations staff to scan bag tags during offloading, loading, and transport. Provides real-time bag tracking across the airport.',
       tools: [{name:'TrackScan',color:'var(--cyan)',desc:'Primary bag scanning and tracking app for ramp operations'}],
@@ -3201,7 +3201,7 @@ function toggleTheme() {
       tools: [{name:'T.LINE',color:'var(--cyan)',desc:'Baggage cart loading and tracking application'}],
       dataFlows: []
     }},
-    { id: 'bmas', type: 'product', label: 'BMAS', x: 3400, y: 1250, icon: 'analytics', detail: {
+    { id: 'bmas', type: 'product', label: 'BMAS', x: 3750, y: 1100, icon: 'analytics', detail: {
       title: 'BMAS', subtitle: 'Baggage Management & Analytics',
       desc: 'Baggage Management and Analytics System. Provides oversight and reporting for the entire baggage handling operation including routing, delays, and mishandled bag tracking.',
       tools: [{name:'BMAS',color:'var(--purple)',desc:'Baggage analytics and management platform'}],
@@ -3213,7 +3213,7 @@ function toggleTheme() {
       tools: [{name:'BMS',color:'var(--purple)',desc:'Automated baggage routing and sorting system'}],
       dataFlows: []
     }},
-    { id: 'bhs', type: 'product', label: 'BHS', x: 3100, y: 1200, icon: 'settings_input_component', detail: {
+    { id: 'bhs', type: 'product', label: 'BHS', x: 3200, y: 1100, icon: 'settings_input_component', detail: {
       title: 'BHS', subtitle: 'Baggage Handling System',
       desc: 'Physical conveyor and sorting infrastructure that moves bags from check-in through security screening, sorting, and to the appropriate make-up unit or transfer point. Includes laser scanners, conveyor belts, and automated sorting.',
       tools: [{name:'BHS',color:'var(--purple)',desc:'Physical baggage conveyor and sorting infrastructure'}],
