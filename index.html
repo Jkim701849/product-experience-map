@@ -186,6 +186,7 @@
       cursor: pointer;
       transition: transform 0.25s ease, left 0.6s cubic-bezier(0.4,0,0.2,1), top 0.6s cubic-bezier(0.4,0,0.2,1), opacity 0.4s ease;
     }
+    .node.node-dragging { transition: none; cursor: grabbing; z-index: 100; }
     .node:hover { transform: scale(1.08); }
     .node.active { transform: scale(1.12); }
 
@@ -4347,12 +4348,114 @@ function toggleTheme() {
       });
       nodesInitialized = true;
 
-      /* Event delegation — one listener on canvas instead of per-node */
-      canvas.addEventListener('click', function(e) {
+      /* Node dragging + click selection */
+      var dragNode = null;
+      var dragNodeStart = { x: 0, y: 0 };
+      var dragMouseStart = { x: 0, y: 0 };
+      var dragMoved = false;
+
+      canvas.addEventListener('mousedown', function(e) {
         var nodeEl = e.target.closest('.node');
-        if (nodeEl) {
-          e.stopPropagation();
-          selectNode(nodeEl.dataset.id);
+        if (!nodeEl) return;
+        e.stopPropagation();
+        e.preventDefault();
+        dragNode = nodeEl;
+        dragMoved = false;
+        var nid = nodeEl.dataset.id;
+        var n = nMap[nid];
+        if (!n) return;
+        dragNodeStart.x = n.x;
+        dragNodeStart.y = n.y;
+        dragMouseStart.x = e.clientX;
+        dragMouseStart.y = e.clientY;
+      });
+
+      window.addEventListener('mousemove', function(e) {
+        if (!dragNode) return;
+        var dx = (e.clientX - dragMouseStart.x) / scale;
+        var dy = (e.clientY - dragMouseStart.y) / scale;
+        if (Math.abs(dx) > 3 || Math.abs(dy) > 3) { dragMoved = true; dragNode.classList.add('node-dragging'); }
+        if (!dragMoved) return;
+        var nid = dragNode.dataset.id;
+        var n = nMap[nid];
+        if (!n) return;
+        n.x = dragNodeStart.x + dx;
+        n.y = dragNodeStart.y + dy;
+        dragNode.style.left = n.x + 'px';
+        dragNode.style.top = n.y + 'px';
+        drawLines();
+      });
+
+      window.addEventListener('mouseup', function() {
+        if (dragNode) {
+          dragNode.classList.remove('node-dragging');
+          var nid = dragNode.dataset.id;
+          if (!dragMoved) {
+            selectNode(nid);
+          } else {
+            /* Update original positions so reset preserves new layout */
+            var n = nMap[nid];
+            if (n && originalPositions[nid]) {
+              originalPositions[nid].x = n.x;
+              originalPositions[nid].y = n.y;
+            }
+          }
+          dragNode = null;
+        }
+      });
+
+      /* Touch dragging for mobile */
+      var touchDragNode = null;
+      var touchDragStart = { x: 0, y: 0 };
+      var touchNodeStart = { x: 0, y: 0 };
+      var touchDragMoved = false;
+
+      canvas.addEventListener('touchstart', function(e) {
+        if (e.touches.length !== 1) return;
+        var nodeEl = e.target.closest('.node');
+        if (!nodeEl) return;
+        touchDragNode = nodeEl;
+        touchDragMoved = false;
+        var nid = nodeEl.dataset.id;
+        var n = nMap[nid];
+        if (!n) return;
+        touchNodeStart.x = n.x;
+        touchNodeStart.y = n.y;
+        touchDragStart.x = e.touches[0].clientX;
+        touchDragStart.y = e.touches[0].clientY;
+      }, { passive: true });
+
+      window.addEventListener('touchmove', function(e) {
+        if (!touchDragNode || e.touches.length !== 1) return;
+        var dx = (e.touches[0].clientX - touchDragStart.x) / scale;
+        var dy = (e.touches[0].clientY - touchDragStart.y) / scale;
+        if (Math.abs(dx) > 3 || Math.abs(dy) > 3) { touchDragMoved = true; touchDragNode.classList.add('node-dragging'); }
+        if (!touchDragMoved) return;
+        e.preventDefault();
+        var nid = touchDragNode.dataset.id;
+        var n = nMap[nid];
+        if (!n) return;
+        n.x = touchNodeStart.x + dx;
+        n.y = touchNodeStart.y + dy;
+        touchDragNode.style.left = n.x + 'px';
+        touchDragNode.style.top = n.y + 'px';
+        drawLines();
+      }, { passive: false });
+
+      window.addEventListener('touchend', function() {
+        if (touchDragNode) {
+          touchDragNode.classList.remove('node-dragging');
+          var nid = touchDragNode.dataset.id;
+          if (!touchDragMoved) {
+            selectNode(nid);
+          } else {
+            var n = nMap[nid];
+            if (n && originalPositions[nid]) {
+              originalPositions[nid].x = n.x;
+              originalPositions[nid].y = n.y;
+            }
+          }
+          touchDragNode = null;
         }
       });
     }
