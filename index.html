@@ -261,6 +261,35 @@
     .welcome-card.visible {
       opacity: 1; transform: translateX(0); pointer-events: auto;
     }
+    .wc-close {
+      position: absolute; top: 10px; right: 10px; z-index: 2;
+      background: var(--card-elevated); border: none; cursor: pointer;
+      color: var(--card-text-tertiary); border-radius: 50%;
+      width: 28px; height: 28px; display: flex; align-items: center;
+      justify-content: center; transition: background 0.2s, color 0.2s;
+      padding: 0;
+    }
+    .wc-close .material-symbols-outlined { font-size: 0.9rem; }
+    .wc-close:hover { background: var(--card-hover); color: var(--card-text); }
+
+    /* Floating back button (appears when welcome card dismissed) */
+    .map-back-btn {
+      position: fixed; top: 12px; left: 12px; z-index: 45;
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--card-bg); border: none;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.4);
+      color: var(--card-text-tertiary); cursor: pointer;
+      display: none; align-items: center; justify-content: center;
+      transition: background 0.2s, color 0.2s;
+      padding: 0;
+    }
+    .map-back-btn.visible { display: flex; }
+    .map-back-btn .material-symbols-outlined { font-size: 1.2rem; }
+    .map-back-btn:hover { background: var(--card-hover); color: var(--card-text); }
+    body.pathgraph-active .map-back-btn,
+    body.glossary-active .map-back-btn,
+    body.users-active .map-back-btn { display: none !important; }
+
     .wc-header {
       display: flex; align-items: center; gap: 0.6rem;
       margin-bottom: 1rem;
@@ -1287,7 +1316,8 @@
     }
     .start-overlay:not(.hidden) ~ .toolbar,
     .start-overlay:not(.hidden) ~ .zoom-controls,
-    .start-overlay:not(.hidden) ~ .welcome-card { opacity: 0 !important; pointer-events: none !important; }
+    .start-overlay:not(.hidden) ~ .welcome-card,
+    .start-overlay:not(.hidden) ~ .map-back-btn { opacity: 0 !important; pointer-events: none !important; }
 
     /* 3D Scene */
     .start-scene {
@@ -1838,6 +1868,7 @@
 
   <!-- Welcome Card -->
   <div class="welcome-card" id="welcome-card">
+    <button class="wc-close" id="wc-close"><span class="material-symbols-outlined">close</span></button>
     <div class="wc-header">
       <span class="material-symbols-outlined" style="font-size:1.4rem;color:var(--cyan);">flight_takeoff</span>
       <h2 class="wc-title">Welcome</h2>
@@ -1851,6 +1882,9 @@
       <a class="wc-btn wc-btn-secondary" href="mailto:feedback@example.com" id="wc-feedback-btn"><span class="material-symbols-outlined">mail</span>Send Feedback</a>
     </div>
   </div>
+
+  <!-- Floating back button (replaces welcome card when dismissed) -->
+  <button class="map-back-btn" id="map-back-btn" onclick="backToMenu()"><span class="material-symbols-outlined">arrow_back</span></button>
 
   <!-- Workflow Panel (right of detail panel) -->
   <div class="workflow-panel" id="workflow-panel">
@@ -4076,6 +4110,7 @@ function toggleTheme() {
   function selectNode(id) {
     activeNodeId = id;
     hideWelcomeCard();
+    hideMapBackBtn();
     workflowPanel.classList.remove('open');
     workflowPanel.classList.remove('expanded');
     toolsPanel.classList.remove('open');
@@ -5712,14 +5747,28 @@ function toggleTheme() {
 
   /* ========== WELCOME CARD ========== */
   var welcomeCard = document.getElementById('welcome-card');
+  var mapBackBtn = document.getElementById('map-back-btn');
+  var welcomeDismissed = false;
 
   function showWelcomeCard() {
     if (!startOverlay.classList.contains('hidden')) return;
     if (currentFilter === 'pathgraph' || currentFilter === 'glossary' || currentFilter === 'users') return;
+    if (welcomeDismissed) {
+      mapBackBtn.classList.add('visible');
+      return;
+    }
     welcomeCard.classList.add('visible');
+    mapBackBtn.classList.remove('visible');
   }
   function hideWelcomeCard() {
     welcomeCard.classList.remove('visible');
+    welcomeDismissed = true;
+    if (!activeNodeId && startOverlay.classList.contains('hidden')) {
+      mapBackBtn.classList.add('visible');
+    }
+  }
+  function hideMapBackBtn() {
+    mapBackBtn.classList.remove('visible');
   }
 
   window.backToMenu = function() {
@@ -5727,6 +5776,7 @@ function toggleTheme() {
   };
 
   document.getElementById('wc-back-to-menu').addEventListener('click', backToMenu);
+  document.getElementById('wc-close').addEventListener('click', hideWelcomeCard);
 
   /* ========== INIT ========== */
   drawNodes();
