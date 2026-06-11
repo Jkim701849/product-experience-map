@@ -6400,34 +6400,78 @@ function toggleTheme() {
     mapBackBtn.classList.remove('visible');
   }
 
-  window.backToMenu = function() {
-    /* Hide all full-screen views */
+  /* ========== HASH ROUTER ========== */
+  function navigateTo(page) {
+    var hash = page === 'menu' ? '' : page;
+    if (window.location.hash.replace('#','') !== hash) {
+      window.location.hash = hash;
+    } else {
+      routeTo(hash);
+    }
+  }
+
+  function resetAllViews() {
     var pgView = document.getElementById('pathgraph-view');
     var gView = document.getElementById('glossary-view');
     var uView = document.getElementById('users-view');
     var wvView2 = document.getElementById('workflows-view');
+    var secretRoom = document.getElementById('secret-room');
     if (pgView) { pgView.classList.remove('active'); document.body.classList.remove('pathgraph-active'); }
     if (gView) { gView.classList.remove('active'); document.body.classList.remove('glossary-active'); }
     if (uView) { uView.classList.remove('active'); document.body.classList.remove('users-active'); }
     if (wvView2) { wvView2.classList.remove('active'); document.body.classList.remove('workflows-active'); }
+    if (secretRoom) secretRoom.classList.remove('active');
     document.getElementById('viewport').style.display = '';
-
-    /* Close detail/workflow panels */
     closeDetail();
     hideWelcomeCard();
     hideMapBackBtn();
     welcomeDismissed = false;
-
-    /* Reset filter */
     currentFilter = 'all';
     filterBtn.innerHTML = '<span class="material-symbols-outlined">hub</span> All <span class="material-symbols-outlined" style="font-size:0.8rem;margin-left:2px;">expand_more</span>';
     filterMenu.querySelectorAll('button').forEach(function(b) { b.classList.toggle('active', b.dataset.filter === 'all'); });
+  }
 
-    /* Show start overlay */
-    startOverlay.classList.remove('hidden');
+  function routeTo(hash) {
+    resetAllViews();
 
-    drawNodes();
-    drawLines();
+    switch (hash) {
+      case 'map':
+        startOverlay.classList.add('hidden');
+        drawNodes(); drawLines();
+        showWelcomeCard();
+        break;
+      case 'glossary':
+        startOverlay.classList.add('hidden');
+        triggerFilter('glossary');
+        break;
+      case 'users':
+        startOverlay.classList.add('hidden');
+        triggerFilter('users');
+        break;
+      case 'workflows':
+        startOverlay.classList.add('hidden');
+        triggerFilter('workflows');
+        break;
+      case 'pathgraph':
+        startOverlay.classList.add('hidden');
+        triggerFilter('pathgraph');
+        break;
+      case 'secret':
+        openSecretRoom();
+        break;
+      default: /* menu */
+        startOverlay.classList.remove('hidden');
+        drawNodes(); drawLines();
+        break;
+    }
+  }
+
+  window.addEventListener('hashchange', function() {
+    routeTo(window.location.hash.replace('#',''));
+  });
+
+  window.backToMenu = function() {
+    navigateTo('menu');
   };
 
   document.getElementById('wc-back-to-menu').addEventListener('click', backToMenu);
@@ -6438,6 +6482,12 @@ function toggleTheme() {
   drawLines();
   zoomReset();
   applyTransform();
+
+  /* Route to initial page based on URL hash */
+  var initHash = window.location.hash.replace('#','');
+  if (initHash) {
+    setTimeout(function() { routeTo(initHash); }, 100);
+  }
 
   /* ========== SECRET ROOM ========== */
   function openSecretRoom() {
@@ -6521,28 +6571,10 @@ function toggleTheme() {
   startMenuItems.forEach(function(item) {
     item.addEventListener('click', function() {
       var action = item.dataset.startAction;
-      switch (action) {
-        case 'map':
-          dismissStart();
-          break;
-        case 'users':
-          dismissStart(function() { triggerFilter('users'); });
-          break;
-        case 'workflows':
-          dismissStart(function() { triggerFilter('workflows'); });
-          break;
-        case 'glossary':
-          dismissStart(function() { triggerFilter('glossary'); });
-          break;
-        case 'pathgraph':
-          dismissStart(function() { triggerFilter('pathgraph'); });
-          break;
-        case 'settings':
-          dismissStart(function() { toggleTheme(); });
-          break;
-        case 'secret':
-          openSecretRoom();
-          break;
+      if (action === 'secret') {
+        navigateTo('secret');
+      } else {
+        navigateTo(action);
       }
     });
   });
