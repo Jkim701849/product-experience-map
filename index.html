@@ -1278,6 +1278,9 @@
       .toolbar button span:not(.material-symbols-outlined) { display: none; }
       .tb-dropdown-btn span:not(.material-symbols-outlined):not(:last-child) { display: none; }
 
+      /* Hide toolbar when card is open */
+      .detail-panel.open ~ .toolbar { display: none !important; }
+
       /* Zoom controls */
       .zoom-controls { bottom: 70px; right: 12px; }
 
