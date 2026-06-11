@@ -4464,6 +4464,14 @@ function toggleTheme() {
           touchDragNode = null;
         }
       });
+      /* Prevent viewport click from deselecting after node interaction */
+      var nodeInteracted = false;
+      canvas.addEventListener('mousedown', function(e) {
+        if (e.target.closest('.node')) nodeInteracted = true;
+      });
+      canvas.addEventListener('click', function(e) {
+        if (nodeInteracted) { e.stopPropagation(); nodeInteracted = false; }
+      });
     }
 
     /* Update all nodes: visibility, position, active state */
