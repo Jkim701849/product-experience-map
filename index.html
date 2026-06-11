@@ -2692,7 +2692,7 @@ function toggleTheme() {
     },
 
     /* ══════ RBO (Baggage Handling) USERS ══════ */
-    { id: 'ticket-agent', type: 'user', label: 'Ticket Agent', x: 2698, y: 599, icon: 'badge', detail: {
+    { id: 'ticket-agent', type: 'user', label: 'Ticket Agent', x: 2650, y: 550, icon: 'badge', detail: {
       title: 'Ticket Agent', subtitle: 'Airport Operations',
       desc: 'Handles customer check-in at departure terminal. Takes customer bags, scans bag tags, and places them on the conveyor belt for induction into the Baggage Handling System (BHS).',
       hardware: ['Desktop workstation', 'Bag tag printer', 'Conveyor belt scanner'],
@@ -2703,7 +2703,7 @@ function toggleTheme() {
       workflows: [{name:'Customer Check-in & Bag Induction',steps:['Greet customer','Print bag tag','Scan bag tag','Place bag on conveyor belt','Confirm bag entered BHS']}],
       painPoints: ['Manual bag tag scanning can be slow during peak hours','System delays between scan and BHS confirmation']
     }},
-    { id: 'gate-crew', type: 'user', label: 'Gate Crew', x: 2855, y: 943, icon: 'engineering', detail: {
+    { id: 'gate-crew', type: 'user', label: 'Gate Crew', x: 2650, y: 950, icon: 'engineering', detail: {
       title: 'Gate Crew', subtitle: 'Ramp Operations',
       desc: 'Responsible for offloading arriving bags from aircraft using belt loader vehicles. Uses TrackScan app to scan bags as they are unloaded. Also loads departing bags onto aircraft.',
       hardware: ['Belt loader vehicle', 'Company-issued tablet/phone', 'Safety equipment'],
@@ -2713,7 +2713,7 @@ function toggleTheme() {
       workflows: [{name:'Arriving Bags Offload',steps:['Position belt loader at aircraft','Begin offloading bags','Scan each bag with TrackScan','Place bags on transport cart','Confirm all bags offloaded']}],
       painPoints: ['Belt loader positioning delays','TrackScan app connectivity issues on tarmac','Weather impacts on offloading speed']
     }},
-    { id: 'abr-driver', type: 'user', label: 'ABR Driver', x: 3400, y: 600, icon: 'local_shipping', detail: {
+    { id: 'abr-driver', type: 'user', label: 'ABR Driver', x: 3550, y: 400, icon: 'local_shipping', detail: {
       title: 'ABR Driver', subtitle: 'Ramp Operations',
       desc: 'Drives baggage carts between aircraft and terminals. Scans bags with T.LINE application and loads baggage carts with appropriate cargo for transport to the correct location.',
       hardware: ['Baggage tug/cart', 'Handheld scanner', 'Company-issued device'],
@@ -2724,7 +2724,7 @@ function toggleTheme() {
       workflows: [{name:'Bag Transport',steps:['Receive bags from gate crew or BHS','Scan bags with T.LINE','Load onto appropriate cart','Drive to destination gate/terminal','Deliver bags for loading']}],
       painPoints: ['Wrong terminal routing requires re-transport','Tight connection times for transfer bags','Tarmac congestion during peak operations']
     }},
-    { id: 'bag-clerk', type: 'user', label: 'Bag Clerk', x: 3496, y: 1094, icon: 'inventory_2', detail: {
+    { id: 'bag-clerk', type: 'user', label: 'Bag Clerk', x: 3750, y: 950, icon: 'inventory_2', detail: {
       title: 'Bag Clerk', subtitle: 'Baggage Operations',
       desc: 'Scans and manages bags at various points in the baggage handling process including BHS make-up units, late piers, and planeside loading. Responsible for ensuring bags reach the correct aircraft.',
       hardware: ['Handheld scanner', 'Desktop workstation', 'Radio'],
@@ -2735,7 +2735,7 @@ function toggleTheme() {
       workflows: [{name:'Planeside Loading',steps:['Receive bags at make-up unit','Scan each bag','Load onto baggage cart','Drive planeside','Scan and load onto aircraft']}],
       painPoints: ['Late bags arriving after cutoff time','Manual cross-referencing of bag tags','Late pier routing adds significant time','Bags left on tarmac require sweeper pickup']
     }},
-    { id: 'sweeper', type: 'user', label: 'Sweeper', x: 3571, y: 794, icon: 'search', detail: {
+    { id: 'sweeper', type: 'user', label: 'Sweeper', x: 3750, y: 550, icon: 'search', detail: {
       title: 'Sweeper', subtitle: 'Ramp Operations',
       desc: 'Drives around the service roads looking for bags left on the tarmac. When a bag does not belong to the departing flight or was not transported in time, it is left on the tarmac for an indefinite amount of time to be picked up by the Sweeper and taken to the appropriate location.',
       hardware: ['Service vehicle', 'Handheld scanner', 'Radio'],
@@ -2745,7 +2745,7 @@ function toggleTheme() {
       workflows: [{name:'Tarmac Bag Recovery',steps:['Drive service roads around tarmac','Identify bags left on ground','Scan bag with TrackScan','Determine correct destination','Transport to appropriate location']}],
       painPoints: ['No defined schedule for sweeper routes','Bags can sit on tarmac indefinitely','Weather exposure damages bags','Difficult to locate bags in large ramp areas']
     }},
-    { id: 'encoder', type: 'user', label: 'Encoder', x: 2702, y: 1115, icon: 'qr_code_scanner', detail: {
+    { id: 'encoder', type: 'user', label: 'Encoder', x: 2650, y: 1350, icon: 'qr_code_scanner', detail: {
       title: 'Encoder', subtitle: 'Baggage Operations',
       desc: 'Works at the Encode Station in the Baggage Handling System. Fixes physical problems with bag tags so bags can be properly scanned and re-entered into the BHS routing system.',
       hardware: ['Encode station workstation', 'Bag tag printer', 'Scanner'],
@@ -3189,31 +3189,31 @@ function toggleTheme() {
     },
 
     /* ══════ RBO (Baggage Handling) PRODUCTS ══════ */
-    { id: 'trackscan', type: 'product', label: 'TrackScan', x: 3094, y: 841, icon: 'qr_code_scanner', detail: {
+    { id: 'trackscan', type: 'product', label: 'TrackScan', x: 3200, y: 900, icon: 'qr_code_scanner', detail: {
       title: 'TrackScan', subtitle: 'Bag Scanning App',
       desc: 'Mobile application used by ramp and baggage operations staff to scan bag tags during offloading, loading, and transport. Provides real-time bag tracking across the airport.',
       tools: [{name:'TrackScan',color:'var(--cyan)',desc:'Primary bag scanning and tracking app for ramp operations'}],
       dataFlows: []
     }},
-    { id: 'tline', type: 'product', label: 'T.LINE', x: 3356, y: 877, icon: 'conveyor_belt', detail: {
+    { id: 'tline', type: 'product', label: 'T.LINE', x: 3500, y: 700, icon: 'conveyor_belt', detail: {
       title: 'T.LINE', subtitle: 'Cart Loading App',
       desc: 'Application used by ABR Drivers to scan bags and manage baggage cart loading. Tracks which bags are loaded on which carts for transport between aircraft and terminals.',
       tools: [{name:'T.LINE',color:'var(--cyan)',desc:'Baggage cart loading and tracking application'}],
       dataFlows: []
     }},
-    { id: 'bmas', type: 'product', label: 'BMAS', x: 3317, y: 1242, icon: 'analytics', detail: {
+    { id: 'bmas', type: 'product', label: 'BMAS', x: 3400, y: 1250, icon: 'analytics', detail: {
       title: 'BMAS', subtitle: 'Baggage Management & Analytics',
       desc: 'Baggage Management and Analytics System. Provides oversight and reporting for the entire baggage handling operation including routing, delays, and mishandled bag tracking.',
       tools: [{name:'BMAS',color:'var(--purple)',desc:'Baggage analytics and management platform'}],
       dataFlows: []
     }},
-    { id: 'bms', type: 'product', label: 'BMS', x: 2912, y: 699, icon: 'route', detail: {
+    { id: 'bms', type: 'product', label: 'BMS', x: 2900, y: 650, icon: 'route', detail: {
       title: 'BMS', subtitle: 'Baggage Management System',
       desc: 'Core baggage routing system within the BHS. Scans bags one or more times while traveling through the Baggage Handling System to determine the appropriate make-up unit (MU) for each bag.',
       tools: [{name:'BMS',color:'var(--purple)',desc:'Automated baggage routing and sorting system'}],
       dataFlows: []
     }},
-    { id: 'bhs', type: 'product', label: 'BHS', x: 3199, y: 1045, icon: 'settings_input_component', detail: {
+    { id: 'bhs', type: 'product', label: 'BHS', x: 3100, y: 1200, icon: 'settings_input_component', detail: {
       title: 'BHS', subtitle: 'Baggage Handling System',
       desc: 'Physical conveyor and sorting infrastructure that moves bags from check-in through security screening, sorting, and to the appropriate make-up unit or transfer point. Includes laser scanners, conveyor belts, and automated sorting.',
       tools: [{name:'BHS',color:'var(--purple)',desc:'Physical baggage conveyor and sorting infrastructure'}],
@@ -3780,7 +3780,7 @@ function toggleTheme() {
        This creates the mesh/lattice look. When a node is clicked,
        also draw its actual long-distance connections as highlighted lines. */
     if (currentFilter !== 'datamap' && currentFilter !== 'usermap') {
-      var MAX_MESH_DIST = 500;
+      var MAX_MESH_DIST = 800;
       var drawn = {}; /* avoid duplicate lines */
 
       /* 1. Draw mesh lines: for each CONNECTED pair, only if close enough */
