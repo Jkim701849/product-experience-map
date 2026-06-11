@@ -2462,13 +2462,17 @@
   }
   jarvisAnimate();
 
-  /* Stop when start page dismissed */
+  /* Pause/resume when start page hidden/shown */
   var obs = new MutationObserver(function(muts) {
     muts.forEach(function(m) {
       if (m.target.classList.contains('hidden')) {
         jarvisRunning = false;
-        renderer.dispose();
-        obs.disconnect();
+      } else if (!m.target.classList.contains('hidden')) {
+        if (!jarvisRunning) {
+          jarvisRunning = true;
+          clock.getDelta(); /* reset delta so no time jump */
+          jarvisAnimate();
+        }
       }
     });
   });
@@ -6093,7 +6097,33 @@ function toggleTheme() {
   }
 
   window.backToMenu = function() {
-    location.reload();
+    /* Hide all full-screen views */
+    var pgView = document.getElementById('pathgraph-view');
+    var gView = document.getElementById('glossary-view');
+    var uView = document.getElementById('users-view');
+    var wvView2 = document.getElementById('workflows-view');
+    if (pgView) { pgView.classList.remove('active'); document.body.classList.remove('pathgraph-active'); }
+    if (gView) { gView.classList.remove('active'); document.body.classList.remove('glossary-active'); }
+    if (uView) { uView.classList.remove('active'); document.body.classList.remove('users-active'); }
+    if (wvView2) { wvView2.classList.remove('active'); document.body.classList.remove('workflows-active'); }
+    document.getElementById('viewport').style.display = '';
+
+    /* Close detail/workflow panels */
+    closeDetail();
+    hideWelcomeCard();
+    hideMapBackBtn();
+    welcomeDismissed = false;
+
+    /* Reset filter */
+    currentFilter = 'all';
+    filterBtn.innerHTML = '<span class="material-symbols-outlined">hub</span> All <span class="material-symbols-outlined" style="font-size:0.8rem;margin-left:2px;">expand_more</span>';
+    filterMenu.querySelectorAll('button').forEach(function(b) { b.classList.toggle('active', b.dataset.filter === 'all'); });
+
+    /* Show start overlay */
+    startOverlay.classList.remove('hidden');
+
+    drawNodes();
+    drawLines();
   };
 
   document.getElementById('wc-back-to-menu').addEventListener('click', backToMenu);
