@@ -192,6 +192,7 @@
     .node-circle {
       width: 48px; height: 48px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 1px;
       border: 2px solid var(--dim);
       background: var(--node-default-bg);
       transition: border-color 0.3s, box-shadow 0.3s;
@@ -227,9 +228,6 @@
     .node-icon { font-size: 0.7rem; color: var(--dim); margin-bottom: -2px; }
     .node.product .node-icon { font-size: 0.65rem; color: var(--cyan); }
     .node.user .node-icon { font-size: 1.1rem; color: var(--gold); margin-bottom: 0; }
-    .node-circle {
-      flex-direction: column; gap: 1px;
-    }
     .node-label {
       font-size: 0.42rem; font-weight: 700; color: var(--node-label-color);
       text-align: center; max-width: 46px; line-height: 1.15;
@@ -1271,6 +1269,9 @@
 
       /* Swimlane horizontal scroll */
       .swimlane-container { -webkit-overflow-scrolling: touch; }
+
+      /* Disable expensive backdrop-filter on mobile */
+      .toolbar, .tb-dropdown-menu { backdrop-filter: none; -webkit-backdrop-filter: none; }
 
       /* Toolbar — compact */
       .toolbar { padding: 4px; bottom: 12px; }
@@ -3703,251 +3704,6 @@ function toggleTheme() {
    */
   var pathEdges = [];  /* [{from, to, type}] — the visual connections for "all" view */
 
-  function buildPathGraph() {
-    pathEdges = [];
-
-    /* 1. Build a map: userId → [productIds] from the original connections */
-    var userProducts = {};  /* userId → [prodId, ...] */
-    var productUsers = {};  /* prodId → [userId, ...] */
-    connections.forEach(function(c) {
-      if (c[2] === 'data') return; /* skip data flows */
-      var a = nMap[c[0]], b = nMap[c[1]];
-      if (!a || !b) return;
-      if (a.type === 'user' && b.type === 'product') {
-        if (!userProducts[a.id]) userProducts[a.id] = [];
-        if (userProducts[a.id].indexOf(b.id) === -1) userProducts[a.id].push(b.id);
-        if (!productUsers[b.id]) productUsers[b.id] = [];
-        if (productUsers[b.id].indexOf(a.id) === -1) productUsers[b.id].push(a.id);
-      } else if (b.type === 'user' && a.type === 'product') {
-        if (!userProducts[b.id]) userProducts[b.id] = [];
-        if (userProducts[b.id].indexOf(a.id) === -1) userProducts[b.id].push(a.id);
-        if (!productUsers[a.id]) productUsers[a.id] = [];
-        if (productUsers[a.id].indexOf(b.id) === -1) productUsers[a.id].push(b.id);
-      }
-      /* user-to-user connections (gate-agent is a user connected to pilot) */
-      if (a.type === 'user' && b.type === 'user') {
-        /* These are handled via userRelationships, not path edges in all-view */
-      }
-    });
-
-    /* 2. Identify shared products (connected to 2+ users) */
-    var sharedProducts = {};
-    Object.keys(productUsers).forEach(function(pid) {
-      if (productUsers[pid].length > 1) {
-        sharedProducts[pid] = productUsers[pid];
-      }
-    });
-
-    /* 3. For each user, order products in a ring.
-     *    Strategy: place shared products first (they become bridge/entry points),
-     *    then exclusive products fill the rest of the ring. */
-    var userRings = {}; /* userId → ordered [prodId, ...] */
-
-    Object.keys(userProducts).forEach(function(uid) {
-      var prods = userProducts[uid].slice();
-      var shared = [];
-      var exclusive = [];
-      prods.forEach(function(pid) {
-        if (sharedProducts[pid]) {
-          shared.push(pid);
-        } else {
-          exclusive.push(pid);
-        }
-      });
-
-      /* Order: start with a shared product (entry point), then exclusive, then more shared.
-       * Interleave shared products around the ring so bridge points are spaced out. */
-      var ring = [];
-      var si = 0, ei = 0;
-      /* Place shared products at roughly even intervals */
-      var total = shared.length + exclusive.length;
-      if (total === 0) { userRings[uid] = []; return; }
-
-      if (shared.length === 0) {
-        ring = exclusive;
-      } else if (exclusive.length === 0) {
-        ring = shared;
-      } else {
-        /* Distribute shared products evenly around the ring */
-        var gap = Math.floor(total / shared.length);
-        if (gap < 2) gap = 2;
-        var pos = 0;
-        while (si < shared.length || ei < exclusive.length) {
-          if (si < shared.length && (pos % gap === 0 || ei >= exclusive.length)) {
-            ring.push(shared[si++]);
-          } else if (ei < exclusive.length) {
-            ring.push(exclusive[ei++]);
-          }
-          pos++;
-        }
-      }
-      userRings[uid] = ring;
-    });
-
-    /* 4. Position products in a ring around each user.
-     *    User stays at its current position. Products are placed on a circle. */
-    var RING_RADIUS = 170; /* px from user center to product center */
-    var userCenters = {};  /* userId → {cx, cy} */
-
-    /* First pass: compute user centers (from original positions) */
-    nodes.forEach(function(n) {
-      if (n.type === 'user') {
-        /* User node is 96px wide, center is at x+48, y+48 */
-        userCenters[n.id] = { cx: n.x + 48, cy: n.y + 48 };
-      }
-    });
-
-    /* For shared products: compute their ideal position as the midpoint between
-     * the two user centers (so they serve as visible bridge nodes) */
-    var sharedPositions = {};
-    Object.keys(sharedProducts).forEach(function(pid) {
-      var uids = sharedProducts[pid];
-      var sumX = 0, sumY = 0, count = 0;
-      uids.forEach(function(uid) {
-        if (userCenters[uid]) {
-          sumX += userCenters[uid].cx;
-          sumY += userCenters[uid].cy;
-          count++;
-        }
-      });
-      if (count > 0) {
-        sharedPositions[pid] = { cx: sumX / count, cy: sumY / count };
-      }
-    });
-
-    /* Second pass: position ring products. For each user's ring, place products
-     * on a circle. Shared products get pulled toward their ideal shared position. */
-    var productPositioned = {}; /* prodId → {x, y} final position */
-
-    Object.keys(userRings).forEach(function(uid) {
-      var ring = userRings[uid];
-      if (ring.length === 0) return;
-      var uc = userCenters[uid];
-      if (!uc) return;
-
-      var angleStep = (2 * Math.PI) / ring.length;
-      /* Start angle: point the first product toward -PI/2 (top) */
-      var startAngle = -Math.PI / 2;
-
-      ring.forEach(function(pid, i) {
-        var angle = startAngle + i * angleStep;
-        var rx = uc.cx + RING_RADIUS * Math.cos(angle);
-        var ry = uc.cy + RING_RADIUS * Math.sin(angle);
-
-        if (sharedProducts[pid] && sharedPositions[pid]) {
-          /* Blend: pull shared product 40% toward midpoint between users */
-          var sp = sharedPositions[pid];
-          rx = rx * 0.6 + sp.cx * 0.4;
-          ry = ry * 0.6 + sp.cy * 0.4;
-        }
-
-        /* Product node is 56px wide, so position at top-left = center - 28 */
-        var finalX = Math.round(rx - 28);
-        var finalY = Math.round(ry - 28);
-
-        /* If product is shared and already positioned by first user, average positions */
-        if (productPositioned[pid]) {
-          productPositioned[pid] = {
-            x: Math.round((productPositioned[pid].x + finalX) / 2),
-            y: Math.round((productPositioned[pid].y + finalY) / 2)
-          };
-        } else {
-          productPositioned[pid] = { x: finalX, y: finalY };
-        }
-      });
-    });
-
-    /* Apply computed positions to nodes */
-    Object.keys(productPositioned).forEach(function(pid) {
-      var n = nMap[pid];
-      if (n) {
-        n.x = productPositioned[pid].x;
-        n.y = productPositioned[pid].y;
-      }
-    });
-
-    /* Position products that aren't connected to any user (orphans) — keep original */
-
-    /* 5. Build path edges:
-     *    - User → first product on ring (entry point, max 2 connections to ring)
-     *    - Product → next product on ring (adjacent chain)
-     *    - For shared products: they naturally connect to products on both rings */
-
-    Object.keys(userRings).forEach(function(uid) {
-      var ring = userRings[uid];
-      if (ring.length === 0) return;
-
-      /* Connect user to first shared product on ring (entry point).
-       * If no shared products, connect to first product. Also connect to
-       * the product diametrically opposite for a second entry point if ring > 4. */
-      var entryPoints = [];
-      for (var i = 0; i < ring.length; i++) {
-        if (sharedProducts[ring[i]]) { entryPoints.push(i); }
-      }
-      if (entryPoints.length === 0) entryPoints = [0]; /* fallback: first product */
-      if (entryPoints.length === 1 && ring.length > 4) {
-        /* Add a second entry point on the opposite side */
-        var opposite = (entryPoints[0] + Math.floor(ring.length / 2)) % ring.length;
-        entryPoints.push(opposite);
-      }
-      /* Limit to 2 entry points */
-      entryPoints = entryPoints.slice(0, 2);
-
-      entryPoints.forEach(function(idx) {
-        pathEdges.push({ from: uid, to: ring[idx], type: 'user-product' });
-      });
-
-      /* Connect each product to its neighbor on the ring */
-      for (var j = 0; j < ring.length; j++) {
-        var next = (j + 1) % ring.length;
-        /* For small rings (<=3), connect all; for larger, close the loop */
-        if (ring.length <= 2 && j === ring.length - 1) continue; /* don't loop back for 2 items */
-        pathEdges.push({ from: ring[j], to: ring[next], type: 'ring' });
-      }
-    });
-
-    /* 6. Only add user-to-user connections — NO product-to-product (those create crossings) */
-    connections.forEach(function(c) {
-      if (c[2] === 'data') return;
-      var a = nMap[c[0]], b = nMap[c[1]];
-      if (!a || !b) return;
-      if (a.type === 'user' && b.type === 'user') {
-        pathEdges.push({ from: c[0], to: c[1], type: 'user-user' });
-      }
-    });
-    
-    /* Override pathEdges with nearest-neighbor mesh */
-    pathEdges = [];
-    var allNodeIds = nodes.map(function(n) { return n.id; });
-    
-    /* For each pair of connected nodes, only keep the edge if they are
-       within 250px of each other (nearest neighbors on the mesh) */
-    connections.forEach(function(c) {
-      var a = nMap[c[0]], b = nMap[c[1]];
-      if (!a || !b) return;
-      var dx = (a.x+28) - (b.x+28), dy = (a.y+28) - (b.y+28);
-      var d = Math.sqrt(dx*dx + dy*dy);
-      if (d < 450) {
-        pathEdges.push({ from: c[0], to: c[1], type: c[2] === 'data' ? 'data' : 'link' });
-      }
-    });
-    
-    console.log('pathEdges (nearest-neighbor):', pathEdges.length, 'edges');
-
-
-    /* Deduplicate edges (a shared product might get double ring edges) */
-    var edgeSet = {};
-    var uniqueEdges = [];
-    pathEdges.forEach(function(e) {
-      var key = [e.from, e.to].sort().join('|') + '|' + e.type;
-      if (!edgeSet[key]) {
-        edgeSet[key] = true;
-        uniqueEdges.push(e);
-      }
-    });
-    pathEdges = uniqueEdges;
-  }
-
   /* ========== RENDER ========== */
   var canvas = document.getElementById('canvas');
   var linesSvg = document.getElementById('lines');
@@ -4146,8 +3902,6 @@ function toggleTheme() {
     }
   }
 
-  /* buildPathGraph disabled — using force-directed mesh layout instead */
-  // buildPathGraph();
   nMap = nodeMap();
 
   /* Draw nodes */
@@ -4562,11 +4316,51 @@ function toggleTheme() {
       '</svg>';
   }
 
-  function drawNodes() {
-    /* Remove old nodes */
-    canvas.querySelectorAll('.node').forEach(function(n) { n.remove(); });
+  var nodeElements = {}; /* cache: nodeId -> DOM element */
+  var nodesInitialized = false;
 
+  function drawNodes() {
+    if (!nodesInitialized) {
+      /* First call: create all nodes and cache them */
+      nodes.forEach(function(n) {
+        var el = document.createElement('div');
+        el.className = 'node ' + n.type;
+        el.dataset.id = n.id;
+
+        var circle = document.createElement('div');
+        circle.className = 'node-circle';
+
+        var icon = document.createElement('span');
+        icon.className = 'material-symbols-outlined node-icon';
+        icon.textContent = n.icon || 'circle';
+        circle.appendChild(icon);
+
+        var label = document.createElement('span');
+        label.className = 'node-label';
+        label.textContent = (n.label || '').replace('\\n', ' ');
+        circle.appendChild(label);
+
+        el.appendChild(circle);
+        canvas.appendChild(el);
+        nodeElements[n.id] = el;
+      });
+      nodesInitialized = true;
+
+      /* Event delegation — one listener on canvas instead of per-node */
+      canvas.addEventListener('click', function(e) {
+        var nodeEl = e.target.closest('.node');
+        if (nodeEl) {
+          e.stopPropagation();
+          selectNode(nodeEl.dataset.id);
+        }
+      });
+    }
+
+    /* Update all nodes: visibility, position, active state */
     nodes.forEach(function(n) {
+      var el = nodeElements[n.id];
+      if (!el) return;
+
       var visible;
       if (currentFilter === 'datamap') {
         visible = n.type === 'product';
@@ -4576,33 +4370,11 @@ function toggleTheme() {
         visible = currentFilter === 'all' || n.type === currentFilter;
       }
 
-      var el = document.createElement('div');
-      el.className = 'node ' + n.type + (n.id === activeNodeId ? ' active' : '');
       el.style.left = n.x + 'px';
       el.style.top = n.y + 'px';
-      if (!visible) { el.style.opacity = '0'; el.style.pointerEvents = 'none'; }
-      el.dataset.id = n.id;
-
-      var circle = document.createElement('div');
-      circle.className = 'node-circle';
-
-      var icon = document.createElement('span');
-      icon.className = 'material-symbols-outlined node-icon';
-      icon.textContent = n.icon || 'circle';
-      circle.appendChild(icon);
-
-      var label = document.createElement('span');
-      label.className = 'node-label';
-      label.textContent = (n.label || '').replace('\\n', ' ');
-      circle.appendChild(label);
-
-      el.appendChild(circle);
-      canvas.appendChild(el);
-
-      el.addEventListener('click', function(e) {
-        e.stopPropagation();
-        selectNode(n.id);
-      });
+      el.style.opacity = visible ? '' : '0';
+      el.style.pointerEvents = visible ? '' : 'none';
+      el.classList.toggle('active', n.id === activeNodeId);
     });
   }
 
