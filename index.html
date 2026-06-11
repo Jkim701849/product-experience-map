@@ -2864,7 +2864,7 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'ckp-ip', type: 'user', label: 'Check Pilots\n& Instructor\nPilots', x: 2500, y: 1550, icon: 'person',
+    { id: 'ckp-ip', type: 'user', label: 'Check Pilots\n& Instructor\nPilots', x: 2085, y: 1730, icon: 'person',
       detail: { title: 'Check Pilots & Instructor Pilots', subtitle: 'CKP · IP', desc: 'Check Pilots and Instructor Pilots who can bid on overtime training events. They are qualified to handle CKP and IP events and use the CTP Overtime Proffer to submit bids.',
         hardware: ['Personal phone', 'Company issued tablet'],
         tools: [
@@ -2878,7 +2878,7 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'fcti-simp', type: 'user', label: 'FCTI &\nSim Pilots', x: 1250, y: 2150, icon: 'person',
+    { id: 'fcti-simp', type: 'user', label: 'FCTI &\nSim Pilots', x: 1632, y: 1925, icon: 'person',
       detail: { title: 'Flight Crew Training Instructors & Sim Pilots', subtitle: 'FCTI · SimP', desc: 'Flight Crew Training Instructors and Simulator Pilots. For FCTI and SimP shifts, schedulers look at the MARFFLE to check availability, then check the Equalization Report to decide who should be awarded based on seniority.',
         hardware: ['Personal phone', 'Desktop workstation'],
         tools: [
@@ -3004,7 +3004,7 @@ function toggleTheme() {
     { id: 'comply-365', type: 'product', label: 'Comply 365', x: 1538, y: 1651, icon: 'verified',
       detail: { title: 'Comply 365', subtitle: 'Compliance', desc: 'Digital compliance and documentation platform for flight attendants and crew members. Stores manuals, safety documentation, and regulatory requirements.' }
     },
-    { id: 'atc', type: 'product', label: 'ATC', x: 1312, y: 2123, icon: 'cell_tower',
+    { id: 'atc', type: 'product', label: 'ATC', x: 1226, y: 2038, icon: 'cell_tower',
       detail: { title: 'ATC', subtitle: 'Air Traffic Control', desc: 'External air traffic control communication interface for pilots during flight operations.' }
     },
     { id: 'dispatch', type: 'product', label: 'Dispatch', x: 1089, y: 1821, icon: 'send',
@@ -3016,7 +3016,7 @@ function toggleTheme() {
     { id: 'flight-keys', type: 'product', label: 'Flight Keys', x: 690, y: 2232, icon: 'vpn_key',
       detail: { title: 'Flight Keys', subtitle: 'Operations', desc: 'Flight key management and operational data access tool used by pilots for flight-specific information.' }
     },
-    { id: 'mint', type: 'product', label: 'MINT', x: 1550, y: 1920, icon: 'school',
+    { id: 'mint', type: 'product', label: 'MINT', x: 1754, y: 1888, icon: 'school',
       detail: { title: 'MINT', painPoints: ['MINT prints poorly — teams create PDFs and email them as workaround','FCR Report is so cluttered that the spiral treatment is used fill required and sometimes info is missed','Lost capability from TIMS migration — now need MARFFLE because TIMS would supply lists directly',], subtitle: 'Training Management', desc: 'Training management and instructor scheduling system. Training schedulers look in MINT to find events for the next day that still need instructors. MINT prints poorly so teams create PDFs and email them. Originally had more capability in TIMS — every time they need a MARFFLE, it\'s because TIMS would supply a list of all available sips.',
         hardware: ['Desktop workstation'],
         tools: [
@@ -3030,7 +3030,7 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'marffle', type: 'product', label: 'MARFFLE\n(Excel)', x: 1750, y: 2200, icon: 'table_chart',
+    { id: 'marffle', type: 'product', label: 'MARFFLE\n(Excel)', x: 1862, y: 1975, icon: 'table_chart',
       detail: { title: 'The MARFFLEs', subtitle: 'Excel Spreadsheets', desc: 'Two Excel-based reports used to check instructor availability. The first is a monthly MARFFLE made by the training crew — it has both CKP and IP within it and lists instructor qualifications. The second is a daily MARFFLE pulled from MINT that changes hour by hour (time-stamped), showing current schedule including new sick days that have come up.',
         tools: [
           { name: 'Monthly MARFFLE', color: '#16a34a', desc: 'CKP & IP qualifications, made by training crew' },
@@ -3043,7 +3043,7 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'cpop', type: 'product', label: 'CPOP', x: 2120, y: 1720, icon: 'event_note',
+    { id: 'cpop', type: 'product', label: 'CPOP', x: 1970, y: 1797, icon: 'event_note',
       detail: { title: 'CPOP', subtitle: 'Crew Planning Operations Platform', desc: 'Platform where training schedulers recreate events that need to be filled for overtime bidding. Schedulers "award" events by checking a box (that functionally does nothing). Events from CPOP are sent to the Overtime Proffer in CTP. Bids from CTP are sent back to CPOP.',
         hardware: ['Desktop workstation'],
         tools: [
@@ -3059,7 +3059,7 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'ctp', type: 'product', label: 'CTP', x: 2100, y: 2100, icon: 'assignment',
+    { id: 'ctp', type: 'product', label: 'CTP', x: 1966, y: 1935, icon: 'assignment',
       detail: { title: 'CTP · Overtime Proffer', painPoints: ['No qualification filtering — any instructor can bid on any event regardless of qualification','Bidding window limited to 11am-2pm for next day events',], subtitle: 'Crew Training Platform', desc: 'The Overtime Proffer within CTP allows Check Pilots and Instructor Pilots to bid on overtime training events. Receives events from CPOP and sends bids back. Note: not everything is being filtered to instructors for their specific qualification — any instructor can bid on any event.',
         hardware: ['Desktop workstation', 'Personal phone'],
         tools: [
@@ -3073,7 +3073,7 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'eq-report', type: 'product', label: 'Equalization\nReport (Excel)', x: 1700, y: 1620, icon: 'table_chart',
+    { id: 'eq-report', type: 'product', label: 'Equalization\nReport (Excel)', x: 1826, y: 1735, icon: 'table_chart',
       detail: { title: 'Equalization Report', painPoints: ['Everything on this report is horizontal — team wants it easily accessible as a stand-up view','Schedulers must run bad queries to verify before awarding','Manual seniority-based decisions prone to human error',], subtitle: 'Excel Spreadsheet', desc: 'Excel-based report used to track instructor seniority and work history. Schedulers check a pilot\'s status to manually decide who should be awarded an event based on whether they\'ve worked or their seniority. Everything on this report is horizontal — the team wants it easily accessible as a stand-up view.',
         tools: [
           { name: 'Seniority tracking', color: '#ca8a04', desc: 'Worked or not seniority status' },
