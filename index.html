@@ -2151,6 +2151,33 @@
       margin: 1.5rem 0;
     }
 
+    /* CMS Password Modal */
+    .cms-pw-modal {
+      position: fixed; inset: 0; z-index: 500;
+      background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+      display: none; align-items: center; justify-content: center;
+    }
+    .cms-pw-modal.open { display: flex; }
+    .cms-pw-card {
+      width: 380px; background: var(--card-bg);
+      border-radius: 16px; padding: 2rem;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+    }
+    .cms-pw-title {
+      font-family: var(--sans); font-size: 1.1rem; font-weight: 500;
+      color: var(--text); margin-bottom: 0.5rem;
+    }
+    .cms-pw-hint {
+      font-size: 0.72rem; color: var(--card-text-secondary);
+      margin-bottom: 1rem;
+    }
+    .cms-pw-input { margin-bottom: 0.5rem; }
+    .cms-pw-error {
+      font-size: 0.68rem; color: var(--red); min-height: 1.2em;
+      margin-bottom: 0.75rem;
+    }
+    .cms-pw-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
     /* Workflow image drop zone */
     .cms-wf-dropzone {
       border: 2px dashed var(--card-border); border-radius: 12px;
@@ -2318,6 +2345,20 @@
           <span class="material-symbols-outlined" style="font-size:3rem;opacity:0.2;">edit_note</span>
           <p>Select an item to edit</p>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CMS Password Modal -->
+  <div class="cms-pw-modal" id="cms-pw-modal">
+    <div class="cms-pw-card">
+      <h3 class="cms-pw-title">Authentication Required</h3>
+      <p class="cms-pw-hint">Enter the password to save changes.</p>
+      <input class="cms-input cms-pw-input" id="cms-pw-input" type="password" placeholder="My grandfather's deck has no pathetic cards, Kaiba." autocomplete="off" />
+      <p class="cms-pw-error" id="cms-pw-error"></p>
+      <div class="cms-pw-actions">
+        <button class="cms-btn cms-btn-cancel" id="cms-pw-cancel">Cancel</button>
+        <button class="cms-btn cms-btn-save" id="cms-pw-confirm"><span class="material-symbols-outlined">lock_open</span>Confirm</button>
       </div>
     </div>
   </div>
@@ -6935,15 +6976,15 @@ function toggleTheme() {
     html += '</div>';
     editor.innerHTML = html;
 
-    // Bind save
+    // Bind save (password protected)
     document.getElementById('cms-save').addEventListener('click', function() {
-      saveCMSItem(id);
+      requirePassword(function() { saveCMSItem(id); });
     });
 
-    // Bind delete
+    // Bind delete (password protected)
     document.getElementById('cms-delete').addEventListener('click', function() {
       if (confirm('Delete "' + (d.title || n.label) + '"? This cannot be undone.')) {
-        deleteCMSItem(id);
+        requirePassword(function() { deleteCMSItem(id); });
       }
     });
 
@@ -7236,25 +7277,61 @@ function toggleTheme() {
     editor.innerHTML = html;
 
     document.getElementById('cms-portfolio-save').addEventListener('click', function() {
-      // Remove all existing connections for this user to products
-      for (var c = connections.length - 1; c >= 0; c--) {
-        var isUserConn = (connections[c][0] === userId && nMap[connections[c][1]] && nMap[connections[c][1]].type === 'product') ||
-                         (connections[c][1] === userId && nMap[connections[c][0]] && nMap[connections[c][0]].type === 'product');
-        if (isUserConn && connections[c][2] !== 'data') {
-          connections.splice(c, 1);
+      requirePassword(function() {
+        // Remove all existing connections for this user to products
+        for (var c = connections.length - 1; c >= 0; c--) {
+          var isUserConn = (connections[c][0] === userId && nMap[connections[c][1]] && nMap[connections[c][1]].type === 'product') ||
+                           (connections[c][1] === userId && nMap[connections[c][0]] && nMap[connections[c][0]].type === 'product');
+          if (isUserConn && connections[c][2] !== 'data') {
+            connections.splice(c, 1);
+          }
         }
-      }
-      // Add checked ones
-      document.querySelectorAll('.cms-portfolio-check:checked').forEach(function(cb) {
-        connections.push([userId, cb.dataset.pid]);
+        // Add checked ones
+        document.querySelectorAll('.cms-portfolio-check:checked').forEach(function(cb) {
+          connections.push([userId, cb.dataset.pid]);
+        });
+        saveCMSData();
+        nodesInitialized = false;
+        drawNodes(); drawLines();
+        renderCMSList(document.getElementById('cms-search').value);
+        alert('Connections saved');
       });
-      saveCMSData();
-      nodesInitialized = false;
-      drawNodes(); drawLines();
-      renderCMSList(document.getElementById('cms-search').value);
-      alert('Connections saved');
     });
   }
+
+  /* Password gate for CMS saves */
+  var cmsPwCallback = null;
+  var cmsPwModal = document.getElementById('cms-pw-modal');
+  var cmsPwInput = document.getElementById('cms-pw-input');
+  var cmsPwError = document.getElementById('cms-pw-error');
+
+  function requirePassword(callback) {
+    cmsPwCallback = callback;
+    cmsPwInput.value = '';
+    cmsPwError.textContent = '';
+    cmsPwModal.classList.add('open');
+    setTimeout(function() { cmsPwInput.focus(); }, 100);
+  }
+
+  document.getElementById('cms-pw-confirm').addEventListener('click', function() {
+    if (cmsPwInput.value === 'exodiaobliterate') {
+      cmsPwModal.classList.remove('open');
+      if (cmsPwCallback) { cmsPwCallback(); cmsPwCallback = null; }
+    } else {
+      cmsPwError.textContent = 'Wrong password. Try again.';
+      cmsPwInput.value = '';
+      cmsPwInput.focus();
+    }
+  });
+
+  cmsPwInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') document.getElementById('cms-pw-confirm').click();
+  });
+
+  document.getElementById('cms-pw-cancel').addEventListener('click', function() {
+    cmsPwModal.classList.remove('open');
+    cmsPwCallback = null;
+  });
 
   function saveCMSData() {
     try {
