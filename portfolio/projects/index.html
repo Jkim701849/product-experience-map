@@ -3757,10 +3757,16 @@ function toggleTheme() {
 
         var isData = c[2] === 'data';
         var isActive = activeNodeId && (c[0]===activeNodeId || c[1]===activeNodeId);
+        var activeIsProduct = activeNodeId && nMap[activeNodeId] && nMap[activeNodeId].type === 'product';
+
+        /* If a product is selected, only highlight its data flow lines */
+        if (activeIsProduct && isActive && !isData) {
+          isActive = false; /* demote user→product lines to non-highlighted */
+        }
 
         /* Show data flows only between products the active user directly uses */
         var isRelatedData = false;
-        if (activeNodeId && isData && !isActive) {
+        if (activeNodeId && !activeIsProduct && isData && !isActive) {
           var userProducts = {};
           connections.forEach(function(cc) {
             if (cc[0] === activeNodeId) userProducts[cc[1]] = true;
