@@ -1659,11 +1659,12 @@
       position: relative; padding-bottom: 100px;
     }
     .users-featured-avatar {
-      width: 300px; height: 500px;
-      filter: drop-shadow(0 0 60px rgba(253,214,99,0.1));
+      width: 400px; height: 500px;
+      filter: drop-shadow(0 10px 40px rgba(0,0,0,0.3));
       transition: opacity 0.3s;
     }
     .users-featured-avatar svg { width: 100%; height: 100%; }
+    .users-featured-avatar img { border-radius: 0; }
     .users-featured-name {
       font-family: 'Orbitron', sans-serif; font-size: 2.2rem;
       font-weight: 700; color: var(--text); letter-spacing: 0.06em;
@@ -5379,7 +5380,7 @@ function toggleTheme() {
     // Update featured area
     var featured = document.getElementById('users-featured');
     var fhtml = '';
-    fhtml += '<div class="users-featured-avatar">' + getUserAvatar(uid, 'large') + '</div>';
+    fhtml += '<div class="users-featured-avatar"><img src="user-avatar.png" alt="' + (d.title || n.label).replace(/\n/g,' ') + '" style="width:100%;height:100%;object-fit:contain;object-position:bottom;"/></div>';
     fhtml += '<div class="users-featured-name">' + (d.title || n.label).replace(/\n/g,' ') + '</div>';
     fhtml += '<div class="users-featured-subtitle">' + (d.subtitle || '') + '</div>';
     fhtml += '<div class="users-featured-tags">';
