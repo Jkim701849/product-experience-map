@@ -2171,7 +2171,11 @@
       font-size: 0.72rem; color: var(--card-text-secondary);
       margin-bottom: 1rem;
     }
-    .cms-pw-input { margin-bottom: 0.5rem; }
+    .cms-pw-input { margin-bottom: 0.35rem; }
+    .cms-pw-helper {
+      font-size: 0.65rem; color: var(--dim); font-style: italic;
+      margin-bottom: 0.5rem;
+    }
     .cms-pw-error {
       font-size: 0.68rem; color: var(--red); min-height: 1.2em;
       margin-bottom: 0.75rem;
@@ -2354,7 +2358,8 @@
     <div class="cms-pw-card">
       <h3 class="cms-pw-title">Authentication Required</h3>
       <p class="cms-pw-hint">Enter the password to save changes.</p>
-      <input class="cms-input cms-pw-input" id="cms-pw-input" type="password" placeholder="My grandfather's deck has no pathetic cards, Kaiba." autocomplete="off" />
+      <input class="cms-input cms-pw-input" id="cms-pw-input" type="password" placeholder="Enter password" autocomplete="off" />
+      <p class="cms-pw-helper">My grandfather's deck has no pathetic cards, Kaiba.</p>
       <p class="cms-pw-error" id="cms-pw-error"></p>
       <div class="cms-pw-actions">
         <button class="cms-btn cms-btn-cancel" id="cms-pw-cancel">Cancel</button>
