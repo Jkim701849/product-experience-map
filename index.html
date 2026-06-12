@@ -2141,6 +2141,8 @@
       <button id="glossary-btn"><span class="material-symbols-outlined">menu_book</span> Glossary</button>
       <button id="search-btn"><span class="material-symbols-outlined">search</span> Search</button>
       <button id="workflows-btn"><span class="material-symbols-outlined">account_tree</span> Workflows</button>
+      <div style="width:1px;height:24px;background:var(--toolbar-divider);margin:0 4px;"></div>
+      <button id="editor-btn"><span class="material-symbols-outlined">edit</span> Editor</button>
       <div style="width:1px;height:24px;background:rgba(255,255,255,0.15);margin:0 4px;"></div>
       <div class="theme-switch" onclick="toggleTheme()">
         <div class="theme-switch-track">
@@ -2821,7 +2823,7 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'training-schedulers', type: 'user', label: 'Training\nSchedulers', x: 2827, y: 1182, icon: 'person',
+    { id: 'training-schedulers', type: 'user', label: 'Training\nSchedulers', x: 2136, y: 1240, icon: 'person',
       detail: { title: 'Training Schedulers', painPoints: ['Must manually cross-reference MINT, MARFFLE, CPOP, CTP, and Equalization Report','No single unified system for training scheduling workflow','Before awarding, must run unreliable queries to verify data','Calling instructors directly required for specialized events (Blancord/ADP)',], subtitle: 'Training Operations', desc: 'Coordinates pilot and crew training schedules, certifications, and qualification tracking. Looks in MINT to find events for the next day that still need instructors (on holidays sometimes multiple days out). Awards events in CPOP and assigns bids in MINT, then updates the Equalization Report.',
         hardware: ['Desktop workstation'],
         tools: [
@@ -2868,7 +2870,7 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'ckp-ip', type: 'user', label: 'Check Pilots\n& Instructor\nPilots', x: 3060, y: 1078, icon: 'person',
+    { id: 'ckp-ip', type: 'user', label: 'Check Pilots\n& Instructor\nPilots', x: 2369, y: 1136, icon: 'person',
       detail: { title: 'Check Pilots & Instructor Pilots', subtitle: 'CKP · IP', desc: 'Check Pilots and Instructor Pilots who can bid on overtime training events. They are qualified to handle CKP and IP events and use the CTP Overtime Proffer to submit bids.',
         hardware: ['Personal phone', 'Company issued tablet'],
         tools: [
@@ -2882,7 +2884,7 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'fcti-simp', type: 'user', label: 'FCTI &\nSim Pilots', x: 2540, y: 1295, icon: 'person',
+    { id: 'fcti-simp', type: 'user', label: 'FCTI &\nSim Pilots', x: 1863, y: 1325, icon: 'person',
       detail: { title: 'Flight Crew Training Instructors & Sim Pilots', subtitle: 'FCTI · SimP', desc: 'Flight Crew Training Instructors and Simulator Pilots. For FCTI and SimP shifts, schedulers look at the MARFFLE to check availability, then check the Equalization Report to decide who should be awarded based on seniority.',
         hardware: ['Personal phone', 'Desktop workstation'],
         tools: [
@@ -2909,7 +2911,7 @@ function toggleTheme() {
       workflows: [{name:'Customer Check-in & Bag Induction',steps:['Greet customer','Print bag tag','Scan bag tag','Place bag on conveyor belt','Confirm bag entered BHS']}],
       painPoints: ['Manual bag tag scanning can be slow during peak hours','System delays between scan and BHS confirmation']
     }},
-    { id: 'gate-crew', type: 'user', label: 'Gate Crew', x: 905, y: 948, icon: 'engineering', detail: {
+    { id: 'gate-crew', type: 'user', label: 'Gate Crew', x: 919, y: 941, icon: 'engineering', detail: {
       title: 'Gate Crew', subtitle: 'Ramp Operations',
       desc: 'Responsible for offloading arriving bags from aircraft using belt loader vehicles. Uses TrackScan app to scan bags as they are unloaded. Also loads departing bags onto aircraft.',
       hardware: ['Belt loader vehicle', 'Company-issued tablet/phone', 'Safety equipment'],
@@ -3020,7 +3022,7 @@ function toggleTheme() {
     { id: 'flight-keys', type: 'product', label: 'Flight Keys', x: 708, y: 1455, icon: 'vpn_key',
       detail: { title: 'Flight Keys', subtitle: 'Operations', desc: 'Flight key management and operational data access tool used by pilots for flight-specific information.' }
     },
-    { id: 'mint', type: 'product', label: 'MINT', x: 2729, y: 1236, icon: 'school',
+    { id: 'mint', type: 'product', label: 'MINT', x: 2038, y: 1294, icon: 'school',
       detail: { title: 'MINT', painPoints: ['MINT prints poorly — teams create PDFs and email them as workaround','FCR Report is so cluttered that the spiral treatment is used fill required and sometimes info is missed','Lost capability from TIMS migration — now need MARFFLE because TIMS would supply lists directly',], subtitle: 'Training Management', desc: 'Training management and instructor scheduling system. Training schedulers look in MINT to find events for the next day that still need instructors. MINT prints poorly so teams create PDFs and email them. Originally had more capability in TIMS — every time they need a MARFFLE, it\'s because TIMS would supply a list of all available sips.',
         hardware: ['Desktop workstation'],
         tools: [
@@ -3034,7 +3036,7 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'marffle', type: 'product', label: 'MARFFLE\n(Excel)', x: 2837, y: 1323, icon: 'table_chart',
+    { id: 'marffle', type: 'product', label: 'MARFFLE\n(Excel)', x: 2146, y: 1381, icon: 'table_chart',
       detail: { title: 'The MARFFLEs', subtitle: 'Excel Spreadsheets', desc: 'Two Excel-based reports used to check instructor availability. The first is a monthly MARFFLE made by the training crew — it has both CKP and IP within it and lists instructor qualifications. The second is a daily MARFFLE pulled from MINT that changes hour by hour (time-stamped), showing current schedule including new sick days that have come up.',
         tools: [
           { name: 'Monthly MARFFLE', color: '#16a34a', desc: 'CKP & IP qualifications, made by training crew' },
@@ -3047,7 +3049,7 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'cpop', type: 'product', label: 'CPOP', x: 2945, y: 1145, icon: 'event_note',
+    { id: 'cpop', type: 'product', label: 'CPOP', x: 2254, y: 1203, icon: 'event_note',
       detail: { title: 'CPOP', subtitle: 'Crew Planning Operations Platform', desc: 'Platform where training schedulers recreate events that need to be filled for overtime bidding. Schedulers "award" events by checking a box (that functionally does nothing). Events from CPOP are sent to the Overtime Proffer in CTP. Bids from CTP are sent back to CPOP.',
         hardware: ['Desktop workstation'],
         tools: [
@@ -3063,7 +3065,7 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'ctp', type: 'product', label: 'CTP', x: 2941, y: 1283, icon: 'assignment',
+    { id: 'ctp', type: 'product', label: 'CTP', x: 2250, y: 1341, icon: 'assignment',
       detail: { title: 'CTP · Overtime Proffer', painPoints: ['No qualification filtering — any instructor can bid on any event regardless of qualification','Bidding window limited to 11am-2pm for next day events',], subtitle: 'Crew Training Platform', desc: 'The Overtime Proffer within CTP allows Check Pilots and Instructor Pilots to bid on overtime training events. Receives events from CPOP and sends bids back. Note: not everything is being filtered to instructors for their specific qualification — any instructor can bid on any event.',
         hardware: ['Desktop workstation', 'Personal phone'],
         tools: [
@@ -3077,7 +3079,7 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'eq-report', type: 'product', label: 'Equalization\nReport (Excel)', x: 2801, y: 1083, icon: 'table_chart',
+    { id: 'eq-report', type: 'product', label: 'Equalization\nReport (Excel)', x: 2110, y: 1141, icon: 'table_chart',
       detail: { title: 'Equalization Report', painPoints: ['Everything on this report is horizontal — team wants it easily accessible as a stand-up view','Schedulers must run bad queries to verify before awarding','Manual seniority-based decisions prone to human error',], subtitle: 'Excel Spreadsheet', desc: 'Excel-based report used to track instructor seniority and work history. Schedulers check a pilot\'s status to manually decide who should be awarded an event based on whether they\'ve worked or their seniority. Everything on this report is horizontal — the team wants it easily accessible as a stand-up view.',
         tools: [
           { name: 'Seniority tracking', color: '#ca8a04', desc: 'Worked or not seniority status' },
@@ -3235,7 +3237,7 @@ function toggleTheme() {
       }
     },
     /* ══════ NEW NODES FROM FLIGHT & CREW OPS ARCHITECTURE ══════ */
-    { id: 'opshub', type: 'product', label: 'OpsHub', x: 1836, y: 346, icon: 'hub',
+    { id: 'opshub', type: 'product', label: 'OpsHub', x: 1331, y: 986, icon: 'hub',
       detail: { title: 'OpsHub', subtitle: 'Data Integration Hub', desc: 'Central data integration hub connecting FOS, IOC Decision Platform, Crew Hub, and downstream systems. Routes crew data, flight data, and operational messages between systems. Appears in multiple points in the architecture as the primary data broker.',
         hardware: ['Server infrastructure'],
         tools: [
@@ -3255,7 +3257,7 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'crew-hub', type: 'product', label: 'Crew Hub', x: 1642, y: 516, icon: 'groups',
+    { id: 'crew-hub', type: 'product', label: 'Crew Hub', x: 1122, y: 1072, icon: 'groups',
       detail: { title: 'Crew Hub', subtitle: 'Crew Data Aggregation', desc: 'Aggregates crew data from multiple sources — scheduling, tracking, training, pay and benefits. Feeds into FOS and downstream crew-facing applications. Central repository for crew records, qualifications, and availability.',
         hardware: ['Server infrastructure'],
         tools: [
@@ -3311,7 +3313,7 @@ function toggleTheme() {
     { id: 'lrd', type: 'product', label: 'LRD', x: 1188, y: 1173, icon: 'how_to_vote',
       detail: { title: 'LRD · Lineholder/Reserve Designation', subtitle: 'FA Bidding', desc: 'Allows flight attendants to cast their ballot on whether they are lineholder or reserve. Awards are given based on seniority. This is the first step in the monthly bidding cycle — FAs must choose their designation before PBS bidding opens.' }
     },
-    { id: 'lpd', type: 'product', label: 'LPD', x: 1657, y: 854, icon: 'admin_panel_settings',
+    { id: 'lpd', type: 'product', label: 'LPD', x: 1347, y: 1130, icon: 'admin_panel_settings',
       detail: { title: 'LPD · Planning Admin', subtitle: 'Crew Planning', desc: 'Planning administration tool used by Crew Planning to process LRD bids and manage planning workflows. Handles the administrative side of lineholder/reserve designation processing.' }
     },
     { id: 'rota', type: 'product', label: 'ROTA', x: 1525, y: 1715, icon: 'event_available',
@@ -4357,7 +4359,8 @@ function toggleTheme() {
       nodesInitialized = true;
 
       /* Node dragging + click selection */
-      /* Group selection + dragging */
+      /* Editor mode + group selection + dragging */
+      var editorMode = false;
       var selectedGroup = {}; /* nodeId -> true */
       var dragNode = null;
       var dragMouseStart = { x: 0, y: 0 };
@@ -4387,6 +4390,12 @@ function toggleTheme() {
         e.stopPropagation();
         e.preventDefault();
         var nid = nodeEl.dataset.id;
+
+        if (!editorMode) {
+          /* Normal mode: just select on click */
+          selectNode(nid);
+          return;
+        }
 
         /* Shift+click toggles group selection */
         if (e.shiftKey) {
@@ -4466,6 +4475,7 @@ function toggleTheme() {
         if (e.touches.length !== 1) return;
         var nodeEl = e.target.closest('.node');
         if (!nodeEl) return;
+        if (!editorMode) return; /* only drag in editor mode */
         touchDragNode = nodeEl;
         touchDragMoved = false;
         var nid = nodeEl.dataset.id;
@@ -5293,8 +5303,8 @@ function toggleTheme() {
     if (e.key === '+' || e.key === '=') { scale = Math.min(2, scale + 0.1); moved = true; }
     if (e.key === '-') { scale = Math.max(0.3, scale - 0.1); moved = true; }
     if (moved) { e.preventDefault(); applyTransform(); }
-    /* Press 'P' to export current node positions to clipboard */
-    if (e.key === 'p' || e.key === 'P') {
+    /* Press 'P' to export current node positions to clipboard (editor mode only) */
+    if (editorMode && (e.key === 'p' || e.key === 'P')) {
       var out = {};
       nodes.forEach(function(n) { out[n.id] = { x: Math.round(n.x), y: Math.round(n.y) }; });
       var json = JSON.stringify(out);
@@ -5303,6 +5313,17 @@ function toggleTheme() {
       }).catch(function() {
         prompt('Copy these positions:', json);
       });
+    }
+  });
+
+  /* Editor mode toggle */
+  var editorBtn = document.getElementById('editor-btn');
+  editorBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    editorMode = !editorMode;
+    editorBtn.classList.toggle('active', editorMode);
+    if (!editorMode) {
+      clearGroupSelection();
     }
   });
 
