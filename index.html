@@ -1716,13 +1716,14 @@
 
     /* Bottom card strip — single horizontal row */
     .users-card-rows {
-      position: absolute; bottom: 0; left: 0; right: 0;
-      z-index: 5; padding: 16px 40px 20px;
+      position: absolute; bottom: 40px; left: 0; right: 0;
+      z-index: 5; padding: 0 40px;
     }
 
     .ucr-scroll {
       display: flex; gap: 12px; overflow-x: auto;
-      padding-bottom: 8px; scroll-snap-type: x mandatory;
+      padding-bottom: 10px; scroll-snap-type: x mandatory;
+      align-items: flex-end;
     }
     .ucr-scroll::-webkit-scrollbar { height: 4px; }
     .ucr-scroll::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
@@ -1766,16 +1767,23 @@
     }
     .ucr-card-meta span { opacity: 0.5; }
 
-    .ucr-divider {
-      width: 100px; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      padding: 0 8px;
+    /* Group wrapper: label on top, cards below */
+    .ucr-group {
+      display: flex; flex-direction: column; flex-shrink: 0;
+      gap: 6px;
     }
-    .ucr-divider span {
-      font-family: 'Orbitron', sans-serif; font-size: 0.55rem;
-      font-weight: 700; color: var(--dim); text-transform: uppercase;
-      letter-spacing: 0.12em; writing-mode: vertical-rl;
-      text-orientation: mixed; white-space: nowrap;
+    .ucr-group-label {
+      font-family: var(--sans); font-size: 0.68rem;
+      font-weight: 700; color: var(--text);
+      padding-left: 2px; white-space: nowrap;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .ucr-group-label::after {
+      content: ''; flex: 1; height: 1px;
+      background: var(--card-border);
+    }
+    .ucr-group-cards {
+      display: flex; gap: 10px;
     }
 
     @media (max-width: 768px) {
@@ -1786,12 +1794,10 @@
       }
       .uic-grid { grid-template-columns: 1fr; }
       .users-categories { display: none; }
-      .users-card-rows { padding: 12px 16px 16px; }
+      .users-card-rows { padding: 0 16px; bottom: 24px; }
       .ucr-card { width: 150px; }
       .ucr-card-img { height: 110px; }
-      .users-card-rows { max-height: 280px; }
-      .ucr-divider { width: 60px; }
-      .ucr-divider span { font-size: 0.48rem; }
+      .ucr-group-label { font-size: 0.58rem; }
     }
 
     /* ====== WORKFLOWS VIEW ====== */
@@ -5401,14 +5407,15 @@ function toggleTheme() {
     });
     catNav.innerHTML = chtml;
 
-    // Build single row of all user cards with group dividers
+    // Build single row with grouped cards, labels on top
     var rhtml = '<div class="ucr-scroll">';
     var groupOrder = ['Flight Crew', 'IOC Staff', 'Training', 'Ramp Operations', 'Airport Operations'];
     groupOrder.forEach(function(gname) {
       var gnodes = groups[gname];
       if (!gnodes || gnodes.length === 0) return;
-      // Add a label card as divider
-      rhtml += '<div class="ucr-divider"><span>' + gname + '</span></div>';
+      rhtml += '<div class="ucr-group">';
+      rhtml += '<div class="ucr-group-label">' + gname + '</div>';
+      rhtml += '<div class="ucr-group-cards">';
       gnodes.forEach(function(n) {
         var d = n.detail || {};
         var name = (d.title || n.label).replace(/\n/g,' ');
@@ -5420,6 +5427,7 @@ function toggleTheme() {
         rhtml += '<div class="ucr-card-meta"><span>AA-' + n.id.replace(/[^a-zA-Z]/g,'').substring(0,3).toUpperCase() + '</span><span>\u00b7</span><span>' + (d.tools ? d.tools.length : 0) + ' tools</span></div>';
         rhtml += '</div></div>';
       });
+      rhtml += '</div></div>';
     });
     rhtml += '</div>';
     cardRows.innerHTML = rhtml;
@@ -5430,6 +5438,17 @@ function toggleTheme() {
         selectUserTile(card.dataset.userId);
       });
     });
+
+    // Mousewheel horizontal scroll on the card row
+    var scrollEl = cardRows.querySelector('.ucr-scroll');
+    if (scrollEl) {
+      scrollEl.addEventListener('wheel', function(e) {
+        if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+          e.preventDefault();
+          scrollEl.scrollLeft += e.deltaY * 2;
+        }
+      }, { passive: false });
+    }
 
     // Auto-select first
     if (userNodes.length > 0) selectUserTile(userNodes[0].id);
