@@ -1685,25 +1685,39 @@
       flex: 1; position: relative; overflow: hidden;
     }
 
-    /* Blurred background layer */
+    /* Blurred photo background — fills content area */
     .users-bg {
-      position: absolute; inset: 0; z-index: 0;
-      background-size: cover; background-position: center;
-      filter: blur(30px) brightness(0.4);
-      transform: scale(1.1); /* prevent blur edges */
-      transition: background 0.5s ease;
+      position: absolute; inset: -40px; z-index: 0;
+      background-size: cover; background-position: center top;
+      filter: blur(40px) brightness(0.5) saturate(1.2);
+      transform: scale(1.15);
+      transition: background-image 0.6s ease;
     }
 
-    /* Large hero photo — centered in content area */
-    .users-hero {
-      position: absolute; bottom: 0; left: 50%; transform: translateX(-55%);
-      width: 900px; height: 95vh; max-height: 1100px;
-      z-index: 1; pointer-events: none;
+    /* Animated gradient overlay on top of blurred photo */
+    .users-bg-gradient {
+      position: absolute; inset: 0; z-index: 1;
+      background: linear-gradient(
+        135deg,
+        rgba(0,0,0,0.6) 0%,
+        rgba(0,0,0,0.2) 30%,
+        rgba(0,0,0,0.1) 50%,
+        rgba(0,0,0,0.3) 70%,
+        rgba(0,0,0,0.7) 100%
+      );
+      background-size: 200% 200%;
+      animation: users-gradient-shift 8s ease-in-out infinite;
     }
-    .users-hero img {
-      width: 100%; height: 100%;
-      object-fit: contain; object-position: bottom;
+    @keyframes users-gradient-shift {
+      0% { background-position: 0% 0%; }
+      25% { background-position: 100% 0%; }
+      50% { background-position: 100% 100%; }
+      75% { background-position: 0% 100%; }
+      100% { background-position: 0% 0%; }
     }
+
+    /* Hero removed — background IS the photo now */
+    .users-hero { display: none; }
 
     /* Floating info card — top right */
     /* Material elevated card — level 3 */
@@ -2037,9 +2051,7 @@
       </div>
       <div class="users-content">
         <div class="users-bg" id="users-bg"></div>
-        <div class="users-hero" id="users-hero">
-          <img src="user-avatar.png" alt="User" />
-        </div>
+        <div class="users-bg-gradient"></div>
         <div class="users-info-card" id="users-info-card"></div>
       </div>
     </div>
@@ -5470,15 +5482,9 @@ function toggleTheme() {
     else if (['crew-tracker','crew-scheduler','crew-planner','encoder'].indexOf(uid) >= 0) bgCat = 'ioc';
     else if (['training-schedulers'].indexOf(uid) >= 0) bgCat = 'training';
     else bgCat = 'airport';
-    bgEl.style.background = bgGradients[bgCat];
-
-    // Update hero image to match selected user
-    var heroImg = document.querySelector('#users-hero img');
-    if (heroImg) {
-      var bigPhoto = getUserPhoto(uid).replace('w=400&h=400', 'w=800&h=1200').replace('fit=crop&crop=face', 'fit=crop&crop=top');
-      heroImg.src = bigPhoto;
-      heroImg.alt = (d.title || n.label).replace(/\n/g,' ');
-    }
+    // Set blurred photo background
+    var bigPhoto = getUserPhoto(uid).replace('w=400&h=400', 'w=1200&h=800').replace('crop=face', 'crop=center');
+    bgEl.style.backgroundImage = 'url(' + bigPhoto + ')';
 
     // Reuse the exact same card rendering as the product experience map
     var card = document.getElementById('users-info-card');
