@@ -1696,31 +1696,18 @@
     .users-cat-item:hover { color: var(--text); }
     .users-cat-item.active { color: var(--cyan); }
 
-    /* Bottom card rows */
+    /* Bottom card strip — single horizontal row */
     .users-card-rows {
       position: absolute; bottom: 0; left: 0; right: 0;
-      z-index: 5; padding: 0 0 20px;
-      max-height: 300px; overflow-y: auto;
+      z-index: 5; padding: 16px 40px 20px;
     }
-    .users-card-rows::-webkit-scrollbar { width: 0; }
-
-    .ucr-group {
-      padding: 0 40px; margin-bottom: 12px;
-    }
-    .ucr-header {
-      display: flex; align-items: center; gap: 12px;
-      margin-bottom: 8px;
-    }
-    .ucr-header-label {
-      font-family: var(--sans); font-size: 0.78rem; font-weight: 700;
-      color: var(--text); white-space: nowrap;
-    }
-    .ucr-header-line { flex: 1; height: 1px; background: var(--card-border); }
 
     .ucr-scroll {
-      display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px;
+      display: flex; gap: 12px; overflow-x: auto;
+      padding-bottom: 8px; scroll-snap-type: x mandatory;
     }
-    .ucr-scroll::-webkit-scrollbar { height: 0; }
+    .ucr-scroll::-webkit-scrollbar { height: 4px; }
+    .ucr-scroll::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
 
     /* Individual user card */
     .ucr-card {
@@ -1729,6 +1716,7 @@
       overflow: hidden; border: 2px solid transparent;
       transition: border-color 0.2s, transform 0.2s;
       box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+      scroll-snap-align: start;
     }
     .ucr-card:hover { border-color: rgba(255,255,255,0.2); transform: translateY(-4px); }
     .ucr-card.selected { border-color: var(--cyan); box-shadow: 0 4px 24px rgba(138,180,248,0.3); }
@@ -1764,7 +1752,7 @@
       .users-hero { width: 280px; height: 380px; bottom: 240px; }
       .users-info-card { top: 10px; right: 10px; left: 10px; width: auto; }
       .users-categories { display: none; }
-      .ucr-group { padding: 0 16px; }
+      .users-card-rows { padding: 12px 16px 16px; }
       .ucr-card { width: 150px; }
       .ucr-card-img { height: 110px; }
       .users-card-rows { max-height: 280px; }
@@ -5376,27 +5364,20 @@ function toggleTheme() {
     });
     catNav.innerHTML = chtml;
 
-    // Build card rows
-    var rhtml = '';
-    Object.keys(groups).forEach(function(gname) {
-      var gnodes = groups[gname];
-      if (gnodes.length === 0) return;
-      rhtml += '<div class="ucr-group">';
-      rhtml += '<div class="ucr-header"><span class="ucr-header-label">' + gname + '</span><div class="ucr-header-line"></div></div>';
-      rhtml += '<div class="ucr-scroll">';
-      gnodes.forEach(function(n) {
-        var d = n.detail || {};
-        var name = (d.title || n.label).replace(/\n/g,' ');
-        rhtml += '<div class="ucr-card" data-user-id="' + n.id + '">';
-        rhtml += '<div class="ucr-card-img"><img src="user-avatar.png" alt="' + name + '" /></div>';
-        rhtml += '<div class="ucr-card-label">';
-        rhtml += '<div class="ucr-card-name">' + name + '</div>';
-        rhtml += '<div class="ucr-card-role">' + (d.subtitle || '') + '</div>';
-        rhtml += '<div class="ucr-card-meta"><span>AA-' + n.id.replace(/[^a-zA-Z]/g,'').substring(0,3).toUpperCase() + '</span><span>•</span><span>' + (d.tools ? d.tools.length : 0) + ' tools</span></div>';
-        rhtml += '</div></div>';
-      });
+    // Build single row of all user cards
+    var rhtml = '<div class="ucr-scroll">';
+    userNodes.forEach(function(n) {
+      var d = n.detail || {};
+      var name = (d.title || n.label).replace(/\n/g,' ');
+      rhtml += '<div class="ucr-card" data-user-id="' + n.id + '">';
+      rhtml += '<div class="ucr-card-img"><img src="user-avatar.png" alt="' + name + '" /></div>';
+      rhtml += '<div class="ucr-card-label">';
+      rhtml += '<div class="ucr-card-name">' + name + '</div>';
+      rhtml += '<div class="ucr-card-role">' + (d.subtitle || '') + '</div>';
+      rhtml += '<div class="ucr-card-meta"><span>AA-' + n.id.replace(/[^a-zA-Z]/g,'').substring(0,3).toUpperCase() + '</span><span>\u00b7</span><span>' + (d.tools ? d.tools.length : 0) + ' tools</span></div>';
       rhtml += '</div></div>';
     });
+    rhtml += '</div>';
     cardRows.innerHTML = rhtml;
 
     // Bind clicks
