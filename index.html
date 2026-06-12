@@ -1620,32 +1620,50 @@
       flex: 1; position: relative; overflow: hidden;
     }
 
+    /* Blurred background layer */
+    .users-bg {
+      position: absolute; inset: 0; z-index: 0;
+      background-size: cover; background-position: center;
+      filter: blur(30px) brightness(0.4);
+      transform: scale(1.1); /* prevent blur edges */
+      transition: background 0.5s ease;
+    }
+
     /* Large hero photo — centered, bleeds off top */
     .users-hero {
-      position: absolute; bottom: 180px; left: 50%; transform: translateX(-50%);
-      width: 500px; height: 600px;
+      position: absolute; bottom: 280px; left: 50%; transform: translateX(-50%);
+      width: 600px; height: 75vh; max-height: 800px;
       z-index: 1; pointer-events: none;
     }
     .users-hero img {
       width: 100%; height: 100%;
       object-fit: contain; object-position: bottom;
-      filter: drop-shadow(0 10px 40px rgba(0,0,0,0.2));
     }
 
     /* Floating info card — top right */
     .users-info-card {
-      position: absolute; top: 20px; right: 40px;
-      width: 320px; z-index: 5;
-      background: var(--card-bg); border: 1px solid var(--card-border);
+      position: absolute; top: 20px; right: 30px;
+      width: 480px; max-height: 75vh;
+      background: rgba(30,30,30,0.92);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
       border-radius: 16px; padding: 1.5rem;
-      box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+      box-shadow: 0 8px 48px rgba(0,0,0,0.5);
+      overflow-y: auto; z-index: 5;
       opacity: 0; transform: translateY(10px);
       transition: opacity 0.3s, transform 0.3s;
       pointer-events: none;
-      max-height: 70vh;
-      overflow-y: auto;
     }
     .users-info-card.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .users-info-card::-webkit-scrollbar { width: 4px; }
+    .users-info-card::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
+
+    /* 2-column grid inside */
+    .uic-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 0 1.5rem;
+    }
+    .uic-full { grid-column: 1 / -1; } /* spans both columns */
     .uic-title {
       font-family: 'Orbitron', sans-serif; font-size: 1.1rem;
       font-weight: 700; color: var(--text); margin-bottom: 0.5rem;
@@ -1748,14 +1766,32 @@
     }
     .ucr-card-meta span { opacity: 0.5; }
 
+    .ucr-divider {
+      width: 100px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      padding: 0 8px;
+    }
+    .ucr-divider span {
+      font-family: 'Orbitron', sans-serif; font-size: 0.55rem;
+      font-weight: 700; color: var(--dim); text-transform: uppercase;
+      letter-spacing: 0.12em; writing-mode: vertical-rl;
+      text-orientation: mixed; white-space: nowrap;
+    }
+
     @media (max-width: 768px) {
-      .users-hero { width: 280px; height: 380px; bottom: 240px; }
-      .users-info-card { top: 10px; right: 10px; left: 10px; width: auto; }
+      .users-hero { width: 300px; height: 50vh; bottom: 260px; }
+      .users-info-card {
+        position: fixed; top: auto; bottom: 280px; right: 10px; left: 10px;
+        width: auto; max-height: 40vh;
+      }
+      .uic-grid { grid-template-columns: 1fr; }
       .users-categories { display: none; }
       .users-card-rows { padding: 12px 16px 16px; }
       .ucr-card { width: 150px; }
       .ucr-card-img { height: 110px; }
       .users-card-rows { max-height: 280px; }
+      .ucr-divider { width: 60px; }
+      .ucr-divider span { font-size: 0.48rem; }
     }
 
     /* ====== WORKFLOWS VIEW ====== */
@@ -2007,6 +2043,7 @@
       <span class="users-page-title">Select a User</span>
     </div>
     <div class="users-stage">
+      <div class="users-bg" id="users-bg"></div>
       <div class="users-hero" id="users-hero">
         <img src="user-avatar.png" alt="User" />
       </div>
@@ -5364,18 +5401,25 @@ function toggleTheme() {
     });
     catNav.innerHTML = chtml;
 
-    // Build single row of all user cards
+    // Build single row of all user cards with group dividers
     var rhtml = '<div class="ucr-scroll">';
-    userNodes.forEach(function(n) {
-      var d = n.detail || {};
-      var name = (d.title || n.label).replace(/\n/g,' ');
-      rhtml += '<div class="ucr-card" data-user-id="' + n.id + '">';
-      rhtml += '<div class="ucr-card-img"><img src="user-avatar.png" alt="' + name + '" /></div>';
-      rhtml += '<div class="ucr-card-label">';
-      rhtml += '<div class="ucr-card-name">' + name + '</div>';
-      rhtml += '<div class="ucr-card-role">' + (d.subtitle || '') + '</div>';
-      rhtml += '<div class="ucr-card-meta"><span>AA-' + n.id.replace(/[^a-zA-Z]/g,'').substring(0,3).toUpperCase() + '</span><span>\u00b7</span><span>' + (d.tools ? d.tools.length : 0) + ' tools</span></div>';
-      rhtml += '</div></div>';
+    var groupOrder = ['Flight Crew', 'IOC Staff', 'Training', 'Ramp Operations', 'Airport Operations'];
+    groupOrder.forEach(function(gname) {
+      var gnodes = groups[gname];
+      if (!gnodes || gnodes.length === 0) return;
+      // Add a label card as divider
+      rhtml += '<div class="ucr-divider"><span>' + gname + '</span></div>';
+      gnodes.forEach(function(n) {
+        var d = n.detail || {};
+        var name = (d.title || n.label).replace(/\n/g,' ');
+        rhtml += '<div class="ucr-card" data-user-id="' + n.id + '">';
+        rhtml += '<div class="ucr-card-img"><img src="user-avatar.png" alt="' + name + '" /></div>';
+        rhtml += '<div class="ucr-card-label">';
+        rhtml += '<div class="ucr-card-name">' + name + '</div>';
+        rhtml += '<div class="ucr-card-role">' + (d.subtitle || '') + '</div>';
+        rhtml += '<div class="ucr-card-meta"><span>AA-' + n.id.replace(/[^a-zA-Z]/g,'').substring(0,3).toUpperCase() + '</span><span>\u00b7</span><span>' + (d.tools ? d.tools.length : 0) + ' tools</span></div>';
+        rhtml += '</div></div>';
+      });
     });
     rhtml += '</div>';
     cardRows.innerHTML = rhtml;
@@ -5400,31 +5444,55 @@ function toggleTheme() {
       c.classList.toggle('selected', c.dataset.userId === uid);
     });
 
+    // Set dynamic blurred background based on user category
+    var bgEl = document.getElementById('users-bg');
+    var bgGradients = {
+      'flight': 'linear-gradient(135deg, #1a3a5c 0%, #0a1e3a 40%, #2a4a6a 100%)',
+      'ramp': 'linear-gradient(135deg, #3a2a1a 0%, #5a4020 40%, #2a1a0a 100%)',
+      'ioc': 'linear-gradient(135deg, #1a2040 0%, #0a1530 40%, #2a3050 100%)',
+      'training': 'linear-gradient(135deg, #2a1a40 0%, #1a0a30 40%, #3a2050 100%)',
+      'airport': 'linear-gradient(135deg, #2a2520 0%, #3a3025 40%, #1a1510 100%)',
+    };
+    var bgCat = 'ioc';
+    if (['pilot','fa','cpo','ckp-ip','fcti-simp'].indexOf(uid) >= 0) bgCat = 'flight';
+    else if (['gate-crew','abr-driver','bag-clerk','sweeper'].indexOf(uid) >= 0) bgCat = 'ramp';
+    else if (['crew-tracker','crew-scheduler','crew-planner','encoder'].indexOf(uid) >= 0) bgCat = 'ioc';
+    else if (['training-schedulers'].indexOf(uid) >= 0) bgCat = 'training';
+    else bgCat = 'airport';
+    bgEl.style.background = bgGradients[bgCat];
+
     var card = document.getElementById('users-info-card');
     var toolCount = d.tools ? d.tools.length : 0;
     var wfCount = d.workflows ? d.workflows.length : 0;
     var ppCount = d.painPoints ? d.painPoints.length : 0;
 
-    var html = '';
+    var html = '<div class="uic-grid">';
+
+    // Full-width header
+    html += '<div class="uic-full">';
     html += '<div class="uic-title">' + (d.title || n.label).replace(/\n/g,' ') + '</div>';
     html += '<div class="uic-subtitle">' + (d.subtitle || '') + '</div>';
-
     html += '<div class="uic-stats">';
     html += '<div class="uic-stat"><div class="uic-stat-num">' + toolCount + '</div><div class="uic-stat-label">Tools</div></div>';
     html += '<div class="uic-stat"><div class="uic-stat-num">' + wfCount + '</div><div class="uic-stat-label">Workflows</div></div>';
     html += '<div class="uic-stat"><div class="uic-stat-num">' + ppCount + '</div><div class="uic-stat-label">Pain Pts</div></div>';
     html += '</div>';
+    html += '</div>';
 
+    // Left column
+    html += '<div>';
     html += '<div class="uic-section">Description</div>';
     html += '<div class="uic-desc">' + (d.desc || '') + '</div>';
-
     if (d.hardware && d.hardware.length) {
       html += '<div class="uic-section">Hardware</div>';
       d.hardware.forEach(function(hw) {
         html += '<div class="uic-hw-item"><span class="material-symbols-outlined" style="font-size:0.75rem;color:var(--dim);">devices</span>' + hw + '</div>';
       });
     }
+    html += '</div>';
 
+    // Right column
+    html += '<div>';
     if (d.tools && d.tools.length) {
       html += '<div class="uic-section">Tools & Services</div>';
       html += '<div class="uic-tools">';
@@ -5433,22 +5501,26 @@ function toggleTheme() {
       });
       html += '</div>';
     }
-
     if (d.workflows && d.workflows.length) {
       html += '<div class="uic-section">Workflows</div>';
       d.workflows.forEach(function(wf) {
         html += '<div class="uic-wf-item"><span class="material-symbols-outlined" style="font-size:0.75rem;color:var(--cyan);">account_tree</span>' + wf.name + ' <span style="color:var(--dim);">(' + wf.steps.length + ' steps)</span></div>';
       });
     }
-
     if (d.painPoints && d.painPoints.length) {
       html += '<div class="uic-section">Pain Points</div>';
       d.painPoints.forEach(function(pp) {
         html += '<div class="uic-pp-item"><span class="material-symbols-outlined" style="font-size:0.75rem;color:var(--red);">warning</span>' + pp + '</div>';
       });
     }
+    html += '</div>';
 
+    // Full-width button
+    html += '<div class="uic-full" style="margin-top:1rem;">';
     html += '<button class="uic-btn" onclick="navigateTo(\'map\');setTimeout(function(){selectNode(\'' + uid + '\');},400);"><span class="material-symbols-outlined">arrow_forward</span>View on Map</button>';
+    html += '</div>';
+
+    html += '</div>';
 
     card.innerHTML = html;
     card.classList.add('visible');
