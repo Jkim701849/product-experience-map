@@ -2222,10 +2222,12 @@
       .cms-editor { padding: 1rem; }
     }
 
-    /* ====== PEM V2 ====== */
+    /* ====== PEM V2 — Microchip Layout ====== */
     .mapv2-view {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      z-index: 40; display: none; background: var(--bg); overflow: hidden;
+      z-index: 40; display: none;
+      background: #0d0f14;
+      overflow: hidden;
     }
     .mapv2-view.active { display: block; z-index: 60; }
     body.mapv2-active .zoom-controls, body.mapv2-active .toolbar,
@@ -2233,6 +2235,11 @@
 
     .mapv2-viewport {
       width: 100%; height: 100%; position: relative; cursor: grab;
+      /* Silicon grid background */
+      background-image:
+        linear-gradient(rgba(50,60,80,0.15) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(50,60,80,0.15) 1px, transparent 1px);
+      background-size: 20px 20px;
     }
     .mapv2-viewport.dragging { cursor: grabbing; }
     .mapv2-canvas {
@@ -2242,67 +2249,84 @@
     .mapv2-back {
       position: fixed; top: 12px; left: 12px; z-index: 65;
       width: 40px; height: 40px; border-radius: 50%;
-      background: var(--card-bg); border: none;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.4);
-      color: var(--card-text-tertiary); cursor: pointer;
+      background: rgba(20,24,35,0.9); border: 1px solid rgba(60,70,90,0.4);
+      color: rgba(180,190,210,0.6); cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       transition: background 0.2s; padding: 0;
     }
     .mapv2-back .material-symbols-outlined { font-size: 1.2rem; }
-    .mapv2-back:hover { background: var(--card-hover); color: var(--card-text); }
+    .mapv2-back:hover { background: rgba(30,35,50,0.95); color: rgba(200,210,230,0.9); }
 
     .mapv2-title-bar {
-      position: fixed; top: 14px; left: 64px; z-index: 65;
-      font-family: 'Orbitron', sans-serif; font-size: 0.8rem;
-      font-weight: 700; color: var(--text); letter-spacing: 0.1em;
+      position: fixed; top: 16px; left: 64px; z-index: 65;
+      font-family: 'Orbitron', sans-serif; font-size: 0.7rem;
+      font-weight: 700; color: rgba(130,150,180,0.5); letter-spacing: 0.15em;
+      text-transform: uppercase;
     }
 
-    /* V2 Nodes — rectangles */
+    /* Chip blocks — tight rectangles */
     .v2-node {
       position: absolute; cursor: pointer;
-      transition: box-shadow 0.2s, outline-color 0.2s;
-      outline: 2px solid transparent; outline-offset: -2px;
+      transition: outline-color 0.15s;
+      outline: 1px solid transparent; outline-offset: -1px;
     }
-    .v2-node:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.3); }
-    .v2-node.active { outline-color: var(--cyan); }
+    .v2-node:hover { outline-color: rgba(138,180,248,0.4); }
+    .v2-node.active { outline-color: rgba(138,180,248,0.8); outline-width: 2px; }
 
     .v2-node.user {
-      width: 180px; min-height: 70px; padding: 12px 14px;
-      background: var(--card-bg); border-radius: 12px;
-      border-left: 4px solid var(--gold);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 1px 2px rgba(0,0,0,0.15);
+      width: 160px; height: 64px; padding: 8px 10px;
+      background: #1a1e2a;
+      border: 1px solid rgba(80,90,110,0.3);
+      border-left: 3px solid rgba(200,170,80,0.6);
+      border-radius: 1px;
     }
     .v2-node.product {
-      width: 130px; min-height: 55px; padding: 10px 12px;
-      background: var(--card-elevated); border-radius: 8px;
-      border-left: 3px solid var(--cyan);
-      box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+      width: 120px; height: 50px; padding: 6px 8px;
+      background: #151820;
+      border: 1px solid rgba(60,70,90,0.3);
+      border-left: 2px solid rgba(100,140,200,0.4);
+      border-radius: 1px;
     }
 
     .v2-node-header {
-      display: flex; align-items: center; gap: 8px;
+      display: flex; align-items: center; gap: 6px;
+      height: 100%;
     }
     .v2-node-icon {
-      font-size: 1rem; flex-shrink: 0;
+      font-size: 0.85rem; flex-shrink: 0; opacity: 0.5;
     }
-    .v2-node.user .v2-node-icon { color: var(--gold); }
-    .v2-node.product .v2-node-icon { color: var(--cyan); }
+    .v2-node.user .v2-node-icon { color: rgba(200,170,80,0.8); }
+    .v2-node.product .v2-node-icon { color: rgba(100,140,200,0.7); }
 
     .v2-node-name {
-      font-family: var(--sans); font-weight: 600; line-height: 1.2;
-      color: var(--text);
+      font-family: var(--sans); font-weight: 500; line-height: 1.15;
+      color: rgba(200,210,230,0.85);
+      overflow: hidden; text-overflow: ellipsis;
     }
-    .v2-node.user .v2-node-name { font-size: 0.78rem; }
-    .v2-node.product .v2-node-name { font-size: 0.68rem; }
+    .v2-node.user .v2-node-name { font-size: 0.68rem; }
+    .v2-node.product .v2-node-name { font-size: 0.58rem; }
 
     .v2-node-sub {
-      font-size: 0.55rem; color: var(--dim); margin-top: 2px;
+      font-size: 0.45rem; color: rgba(130,140,170,0.5); margin-top: 1px;
+      text-transform: uppercase; letter-spacing: 0.05em;
     }
 
-    .v2-line { stroke: var(--conn-line-color); stroke-width: 1.5; fill: none; stroke-linejoin: round; opacity: 0.5; }
-    .v2-line.data { stroke: var(--conn-line-data); stroke-width: 2; stroke-dasharray: 8 4; opacity: 0.7; }
-    .v2-line.highlight { stroke: var(--cyan); stroke-width: 2.5; opacity: 1; }
-    .v2-line.dimmed { opacity: 0.06; }
+    /* Trace lines — orthogonal bus routing */
+    .v2-line {
+      stroke: rgba(80,110,160,0.3); stroke-width: 1; fill: none;
+      stroke-linejoin: miter;
+    }
+    .v2-line.data {
+      stroke: rgba(160,100,200,0.4); stroke-width: 1;
+      stroke-dasharray: 4 2;
+    }
+    .v2-line.highlight {
+      stroke: rgba(138,180,248,0.7); stroke-width: 1.5; opacity: 1;
+    }
+    .v2-line.data.highlight {
+      stroke: rgba(180,130,240,0.8); stroke-width: 1.5;
+    }
+    .v2-line.dimmed { opacity: 0.04; }
 
   </style>
 </head>
@@ -7483,19 +7507,27 @@ function toggleTheme() {
     var viewport = document.getElementById('mapv2-viewport');
     var linesSvg = document.getElementById('mapv2-lines');
 
-    // Compute grid layout — no overlaps
+    // Microchip grid layout — tight packing
+    var GRID = 4; // snap to 4px grid
+    var GAP = 4; // gap between blocks
+    function snap(v) { return Math.round(v / GRID) * GRID; }
+
     var userNodes = nodes.filter(function(n) { return n.type === 'user'; });
     var prodNodes = nodes.filter(function(n) { return n.type === 'product'; });
-    var v2Pos = {}; // nodeId -> {x, y, w, h}
+    var v2Pos = {};
 
-    // Place users in a column on the left
-    var uw = 190, uh = 80, uGapY = 30;
-    var startX = 50, startY = 50;
-    userNodes.forEach(function(n, i) {
-      v2Pos[n.id] = { x: startX, y: startY + i * (uh + uGapY), w: uw, h: uh };
+    var UW = 160, UH = 64;
+    var PW = 120, PH = 50;
+
+    // Place users in a tight column
+    var ux = snap(40);
+    var uy = snap(40);
+    userNodes.forEach(function(n) {
+      v2Pos[n.id] = { x: ux, y: uy, w: UW, h: UH };
+      uy = snap(uy + UH + GAP);
     });
 
-    // For each product, find which users connect to it
+    // Build product-user connection map
     var prodUsers = {};
     prodNodes.forEach(function(p) { prodUsers[p.id] = []; });
     connections.forEach(function(c) {
@@ -7509,39 +7541,41 @@ function toggleTheme() {
       }
     });
 
-    // Place products in columns to the right, grouped by how many users share them
-    var pw = 140, ph = 60, pGapX = 40, pGapY = 20;
-    var colX = startX + uw + 80;
-    var placed = {};
-    var colSlots = {}; // colIndex -> next Y
-
-    // Sort products: most connected first (shared products go in earlier columns)
+    // Sort products by connection count (most shared first)
     var sortedProds = prodNodes.slice().sort(function(a, b) {
       return (prodUsers[b.id] || []).length - (prodUsers[a.id] || []).length;
     });
 
-    sortedProds.forEach(function(p) {
-      var users = prodUsers[p.id] || [];
-      // Determine column based on connection count
-      var col = users.length > 2 ? 0 : users.length > 1 ? 1 : 2;
-      if (!colSlots[col]) colSlots[col] = startY;
+    // Pack products into columns — fill each column top-to-bottom
+    var COLS = 5;
+    var colX = snap(ux + UW + 24); // trace channel gap
+    var colTops = [];
+    for (var ci = 0; ci < COLS; ci++) colTops.push(snap(40));
 
-      // Average Y of connected users for vertical positioning
-      var avgY = startY;
+    sortedProds.forEach(function(p) {
+      // Find column with lowest bottom (pack tightest)
+      var bestCol = 0, bestY = colTops[0];
+      for (var c = 1; c < COLS; c++) {
+        if (colTops[c] < bestY) { bestCol = c; bestY = colTops[c]; }
+      }
+
+      // Position near average Y of connected users if possible
+      var users = prodUsers[p.id] || [];
+      var targetY = bestY;
       if (users.length > 0) {
         var sumY = 0;
         users.forEach(function(uid) {
-          if (v2Pos[uid]) sumY += v2Pos[uid].y + uh / 2;
+          if (v2Pos[uid]) sumY += v2Pos[uid].y + UH / 2;
         });
-        avgY = sumY / users.length - ph / 2;
+        targetY = snap(sumY / users.length - PH / 2);
+        targetY = Math.max(targetY, colTops[bestCol]);
       }
 
-      // Use avg Y but ensure no overlap with previous in same column
-      var y = Math.max(avgY, colSlots[col]);
-      var x = colX + col * (pw + pGapX);
+      var x = snap(colX + bestCol * (PW + GAP));
+      var y = snap(targetY);
 
-      v2Pos[p.id] = { x: x, y: y, w: pw, h: ph };
-      colSlots[col] = y + ph + pGapY;
+      v2Pos[p.id] = { x: x, y: y, w: PW, h: PH };
+      colTops[bestCol] = snap(y + PH + GAP);
     });
 
     // Render nodes
