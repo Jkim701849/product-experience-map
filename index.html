@@ -3113,7 +3113,7 @@ function toggleTheme() {
     },
 
     /* ══════ ADDITIONAL USERS ══════ */
-    { id: 'hotel-limo', type: 'user', label: 'Hotel/Limo\nCoordinator', x: 1365, y: 570, icon: 'person',
+    { id: 'hotel-limo', type: 'user', label: 'Hotel/Limo\nCoordinator', x: 1400, y: 1400, icon: 'person',
       detail: { title: 'Hotel/Limo Coordinator', subtitle: 'IOC Support', desc: 'Handles overnight hotel bookings and ground transportation for crew during layovers. Receives Hotel/Limo Issue requests via ECS 2-Way Comms (routed by 4-Part Bid Status). Marks requests as complete, rejected, or approved.',
         hardware: ['Desktop workstation', 'Phone (Call)'],
         tools: [
@@ -4226,14 +4226,13 @@ function toggleTheme() {
         var nodeEl = e.target.closest('.node');
         if (!nodeEl) return;
         e.stopPropagation();
-        e.preventDefault();
         var nid = nodeEl.dataset.id;
 
         if (!editorMode) {
-          /* Normal mode: just select on click */
-          selectNode(nid);
+          /* Normal mode: select handled by click event */
           return;
         }
+        e.preventDefault();
 
         /* Shift+click toggles group selection */
         if (e.shiftKey) {
@@ -4371,7 +4370,14 @@ function toggleTheme() {
         if (e.target.closest('.node')) nodeInteracted = true;
       });
       canvas.addEventListener('click', function(e) {
-        if (nodeInteracted) { e.stopPropagation(); nodeInteracted = false; }
+        if (nodeInteracted) {
+          e.stopPropagation();
+          nodeInteracted = false;
+          if (!editorMode) {
+            var nodeEl = e.target.closest('.node');
+            if (nodeEl) selectNode(nodeEl.dataset.id);
+          }
+        }
       });
     }
 
