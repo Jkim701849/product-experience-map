@@ -10,48 +10,49 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #080a0f; --surface: #12151c; --border: #1e2230;
-      --text: #e0e0e8; --muted: #b0b0c4; --dim: #a0a0b8;
-      --cyan: #00ccff; --cyan-dim: rgba(0,204,255,0.15); --cyan-glow: rgba(0,204,255,0.35);
-      --gold: #ffcc33; --gold-dim: rgba(255,204,51,0.15); --gold-glow: rgba(255,204,51,0.3);
-      --purple: #b88aff; --purple-dim: rgba(153,102,255,0.12);
-      --green: #16a34a; --red: #f87171;
+      /* Material Design 3 Dark Theme */
+      --bg: #121212; --surface: #121212; --border: rgba(255,255,255,0.12);
+      --text: rgba(255,255,255,0.87); --muted: rgba(255,255,255,0.60); --dim: rgba(255,255,255,0.38);
+      --cyan: #8ab4f8; --cyan-dim: rgba(138,180,248,0.12); --cyan-glow: rgba(138,180,248,0.30);
+      --gold: #fdd663; --gold-dim: rgba(253,214,99,0.12); --gold-glow: rgba(253,214,99,0.25);
+      --purple: #d7aefb; --purple-dim: rgba(215,174,251,0.12);
+      --green: #81c995; --red: #f28b82;
       --sans: 'DM Sans', system-ui, sans-serif;
-      /* Card / panel colors (dark default) */
-      --card-bg: #202124; --card-border: #3c4043;
-      --card-text: #e8eaed; --card-text-secondary: #bdc1c6;
-      --card-text-tertiary: #9aa0a6; --card-accent: #8ab4f8;
-      --card-hover: #2d2e31; --card-elevated: #303134;
+      /* Card / panel — Material surface + elevation overlays */
+      --card-bg: #1e1e1e; --card-border: rgba(255,255,255,0.12);
+      --card-text: rgba(255,255,255,0.87); --card-text-secondary: rgba(255,255,255,0.60);
+      --card-text-tertiary: rgba(255,255,255,0.38); --card-accent: #8ab4f8;
+      --card-hover: rgba(255,255,255,0.08); --card-elevated: #2c2c2c;
       /* Viewport background */
-      --viewport-bg: radial-gradient(ellipse at center, #0d1018 0%, #060810 70%);
+      --viewport-bg: #121212;
       /* Node styles */
-      --node-product-bg: radial-gradient(circle at 35% 35%, #0a1e2a, #060e14);
-      --node-product-border: rgba(0,204,255,0.25);
-      --node-user-bg: radial-gradient(circle at 40% 35%, #2a2210 0%, #1a1508 50%, #0e0a04 100%);
-      --node-user-border: rgba(255,204,51,0.4);
-      --node-default-bg: radial-gradient(circle at 35% 35%, #1a1e2a, #0c0e14);
-      --node-label-color: rgba(224,224,232,0.88);
-      --node-label-shadow: 0 0 8px rgba(0,0,0,0.8);
+      --node-product-bg: #1e1e1e;
+      --node-product-border: rgba(138,180,248,0.30);
+      --node-user-bg: #1e1e1e;
+      --node-user-border: rgba(253,214,99,0.45);
+      --node-default-bg: #1e1e1e;
+      --node-label-color: rgba(255,255,255,0.87);
+      --node-label-shadow: 0 0 8px rgba(0,0,0,0.6);
       /* Connection lines */
-      --conn-line-color: rgba(0,204,255,0.3);
-      --conn-line-data: rgba(217,70,239,0.45);
-      --conn-line-user: rgba(255,204,51,0.5);
-      /* Toolbar */
-      --toolbar-bg: rgba(255,255,255,0.12);
-      --toolbar-border: rgba(255,255,255,0.2);
-      --toolbar-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(255,255,255,0.05);
-      --toolbar-text: rgba(255,255,255,0.9);
-      --toolbar-hover: rgba(255,255,255,0.12);
-      --toolbar-active-bg: rgba(255,255,255,0.9);
-      --toolbar-active-text: #080a0f;
-      --toolbar-input-text: #fff;
-      --toolbar-input-placeholder: rgba(255,255,255,0.72);
-      --toolbar-divider: rgba(255,255,255,0.25);
+      --conn-line-color: rgba(138,180,248,0.35);
+      --conn-line-data: rgba(215,174,251,0.50);
+      --conn-line-user: rgba(253,214,99,0.50);
+      /* Toolbar — Material surface at elevation 8 */
+      --toolbar-bg: #2c2c2c;
+      --toolbar-border: rgba(255,255,255,0.12);
+      --toolbar-shadow: 0 4px 16px rgba(0,0,0,0.4);
+      --toolbar-text: rgba(255,255,255,0.87);
+      --toolbar-hover: rgba(255,255,255,0.08);
+      --toolbar-active-bg: #8ab4f8;
+      --toolbar-active-text: #121212;
+      --toolbar-input-text: rgba(255,255,255,0.87);
+      --toolbar-input-placeholder: rgba(255,255,255,0.38);
+      --toolbar-divider: rgba(255,255,255,0.12);
       /* Scrollbar */
-      --scrollbar-thumb: rgba(255,255,255,0.1);
-      --scrollbar-thumb-hover: rgba(255,255,255,0.2);
+      --scrollbar-thumb: rgba(255,255,255,0.12);
+      --scrollbar-thumb-hover: rgba(255,255,255,0.20);
       /* Label backgrounds */
-      --label-bg: rgba(8,10,15,0.92);
+      --label-bg: rgba(18,18,18,0.92);
     }
     [data-theme="light"] {
       --bg: #f8f9fa; --surface: #ffffff; --border: #dadce0;
