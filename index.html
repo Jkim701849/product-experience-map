@@ -5368,6 +5368,30 @@ function toggleTheme() {
   /* ========== USERS VIEW (Character Select) ========== */
   var usersSelectedId = null;
 
+  var userPhotos = {
+    'pilot': 'https://images.unsplash.com/photo-1741617799358-1b62d1d69e3a?w=400&h=400&fit=crop&crop=face',
+    'fa': 'https://images.unsplash.com/photo-1510634047060-93a4747e85c4?w=400&h=400&fit=crop&crop=face',
+    'crew-tracker': 'https://images.unsplash.com/photo-1719400471588-575b23e27bd7?w=400&h=400&fit=crop&crop=face',
+    'crew-scheduler': 'https://images.unsplash.com/photo-1553775282-20af80779df7?w=400&h=400&fit=crop&crop=face',
+    'training-schedulers': 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=400&h=400&fit=crop&crop=face',
+    'ckp-ip': 'https://images.unsplash.com/photo-1503468120394-03d29a34a0bf?w=400&h=400&fit=crop&crop=face',
+    'fcti-simp': 'https://images.unsplash.com/photo-1494264274944-1ba7d9b73135?w=400&h=400&fit=crop&crop=face',
+    'ticket-agent': 'https://images.unsplash.com/photo-1769745280792-c9c16b553af0?w=400&h=400&fit=crop&crop=face',
+    'gate-crew': 'https://images.unsplash.com/photo-1757030689155-7f534034cfae?w=400&h=400&fit=crop&crop=face',
+    'abr-driver': 'https://images.unsplash.com/photo-1743964131759-241f27517056?w=400&h=400&fit=crop&crop=face',
+    'bag-clerk': 'https://images.unsplash.com/photo-1534483650102-4796c5e8f822?w=400&h=400&fit=crop&crop=face',
+    'sweeper': 'https://images.unsplash.com/photo-1603712725038-e9334ae8f39f?w=400&h=400&fit=crop&crop=face',
+    'encoder': 'https://images.unsplash.com/photo-1536148935331-408321065b18?w=400&h=400&fit=crop&crop=face',
+    'hotel-limo': 'https://images.unsplash.com/photo-1759038085950-1234ca8f5fed?w=400&h=400&fit=crop&crop=face',
+    'cpo': 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=400&fit=crop&crop=face',
+    'gate-agent': 'https://images.unsplash.com/photo-1561101904-da649fcbf03f?w=400&h=400&fit=crop&crop=face',
+    'crew-planner': 'https://images.unsplash.com/photo-1513128034602-7814ccaddd4e?w=400&h=400&fit=crop&crop=face'
+  };
+
+  function getUserPhoto(uid) {
+    return userPhotos[uid] || 'user-avatar.png';
+  }
+
   function renderUsersView() {
     var sidesheet = document.getElementById('users-sidesheet');
     var userNodes = nodes.filter(function(n) { return n.type === 'user'; });
@@ -5401,7 +5425,7 @@ function toggleTheme() {
         var d = n.detail || {};
         var name = (d.title || n.label).replace(/\n/g,' ');
         html += '<div class="uss-card" data-user-id="' + n.id + '">';
-        html += '<div class="uss-card-img"><img src="user-avatar.png" alt="' + name + '" /></div>';
+        html += '<div class="uss-card-img"><img src="' + getUserPhoto(n.id) + '" alt="' + name + '" loading="lazy" /></div>';
         html += '<div class="uss-card-body">';
         html += '<div class="uss-card-name">' + name + '</div>';
         html += '<div class="uss-card-role">' + (d.subtitle || '') + '</div>';
@@ -5447,6 +5471,14 @@ function toggleTheme() {
     else if (['training-schedulers'].indexOf(uid) >= 0) bgCat = 'training';
     else bgCat = 'airport';
     bgEl.style.background = bgGradients[bgCat];
+
+    // Update hero image to match selected user
+    var heroImg = document.querySelector('#users-hero img');
+    if (heroImg) {
+      var bigPhoto = getUserPhoto(uid).replace('w=400&h=400', 'w=800&h=1200').replace('fit=crop&crop=face', 'fit=crop&crop=top');
+      heroImg.src = bigPhoto;
+      heroImg.alt = (d.title || n.label).replace(/\n/g,' ');
+    }
 
     // Reuse the exact same card rendering as the product experience map
     var card = document.getElementById('users-info-card');
