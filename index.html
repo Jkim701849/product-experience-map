@@ -1631,8 +1631,8 @@
 
     /* Large hero photo — centered, bleeds off top */
     .users-hero {
-      position: absolute; bottom: 300px; left: 50%; transform: translateX(-50%);
-      width: 800px; height: 85vh; max-height: 1000px;
+      position: absolute; bottom: 280px; left: 50%; transform: translateX(-50%);
+      width: 1000px; height: 90vh; max-height: 1100px;
       z-index: 1; pointer-events: none;
     }
     .users-hero img {
@@ -1642,19 +1642,19 @@
 
     /* Floating info card — top right */
     .users-info-card {
-      position: absolute; top: 20px; right: 30px;
-      width: 480px; max-height: 75vh;
-      background: rgba(30,30,30,0.92);
-      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      position: absolute; top: 10px; right: 30px;
+      bottom: 350px; /* never overlap card row */
+      width: 420px;
+      background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 16px; padding: 1.5rem;
-      box-shadow: 0 8px 48px rgba(0,0,0,0.5);
+      border-radius: 12px; padding: 0;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.4);
       overflow-y: auto; z-index: 5;
-      opacity: 0; transform: translateY(10px);
+      opacity: 0; transform: translateX(20px);
       transition: opacity 0.3s, transform 0.3s;
       pointer-events: none;
     }
-    .users-info-card.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .users-info-card.visible { opacity: 1; transform: translateX(0); pointer-events: auto; }
     .users-info-card::-webkit-scrollbar { width: 4px; }
     .users-info-card::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
 
@@ -1789,12 +1789,11 @@
     }
 
     @media (max-width: 768px) {
-      .users-hero { width: 350px; height: 55vh; bottom: 320px; }
+      .users-hero { width: 400px; height: 55vh; bottom: 300px; }
       .users-info-card {
-        position: fixed; top: auto; bottom: 280px; right: 10px; left: 10px;
-        width: auto; max-height: 40vh;
+        position: fixed; top: 60px; bottom: 320px; right: 10px; left: 10px;
+        width: auto;
       }
-      .uic-grid { grid-template-columns: 1fr; }
       .users-categories { display: none; }
       .users-card-rows { padding: 0 16px; bottom: 24px; }
       .ucr-card { width: 160px; height: 260px; }
@@ -5483,67 +5482,66 @@ function toggleTheme() {
     else bgCat = 'airport';
     bgEl.style.background = bgGradients[bgCat];
 
+    // Reuse the exact same card rendering as the product experience map
     var card = document.getElementById('users-info-card');
-    var toolCount = d.tools ? d.tools.length : 0;
-    var wfCount = d.workflows ? d.workflows.length : 0;
-    var ppCount = d.painPoints ? d.painPoints.length : 0;
+    var id = uid;
 
-    var html = '<div class="uic-grid">';
-
-    // Full-width header
-    html += '<div class="uic-full">';
-    html += '<div class="uic-title">' + (d.title || n.label).replace(/\n/g,' ') + '</div>';
-    html += '<div class="uic-subtitle">' + (d.subtitle || '') + '</div>';
-    html += '<div class="uic-stats">';
-    html += '<div class="uic-stat"><div class="uic-stat-num">' + toolCount + '</div><div class="uic-stat-label">Tools</div></div>';
-    html += '<div class="uic-stat"><div class="uic-stat-num">' + wfCount + '</div><div class="uic-stat-label">Workflows</div></div>';
-    html += '<div class="uic-stat"><div class="uic-stat-num">' + ppCount + '</div><div class="uic-stat-label">Pain Pts</div></div>';
+    var html = '<div class="dp-header-band">';
+    html += '<p class="dp-title">' + (d.title || n.label).replace(/\n/g,' ') + '</p>';
+    if (d.subtitle) html += '<p class="dp-subtitle">' + d.subtitle + '</p>';
     html += '</div>';
-    html += '</div>';
+    html += '<div class="dp-body">';
 
-    // Left column
-    html += '<div>';
-    html += '<div class="uic-section">Description</div>';
-    html += '<div class="uic-desc">' + (d.desc || '') + '</div>';
-    if (d.hardware && d.hardware.length) {
-      html += '<div class="uic-section">Hardware</div>';
-      d.hardware.forEach(function(hw) {
-        html += '<div class="uic-hw-item"><span class="material-symbols-outlined" style="font-size:0.75rem;color:var(--dim);">devices</span>' + hw + '</div>';
-      });
+    if (d.desc) {
+      html += '<div class="dp-section">';
+      html += '<p class="dp-desc" style="max-height:none;-webkit-line-clamp:unset;">' + d.desc + '</p>';
+      html += '</div>';
     }
-    html += '</div>';
 
-    // Right column
-    html += '<div>';
-    if (d.tools && d.tools.length) {
-      html += '<div class="uic-section">Tools & Services</div>';
-      html += '<div class="uic-tools">';
-      d.tools.forEach(function(t) {
-        html += '<span class="uic-tool" style="border-color:' + t.color + ';color:' + t.color + ';">' + t.name + '</span>';
+    if (d.painPoints && d.painPoints.length > 0) {
+      html += '<div class="dp-section"><p class="dp-section-title">Pain Points</p>';
+      d.painPoints.forEach(function(pp) {
+        html += '<div style="display:flex;align-items:flex-start;gap:0.4rem;padding:0.3rem 0;font-size:0.68rem;color:var(--card-text-secondary);">';
+        html += '<span class="material-symbols-outlined" style="font-size:0.8rem;color:var(--red);flex-shrink:0;">warning</span>' + pp + '</div>';
       });
       html += '</div>';
     }
-    if (d.workflows && d.workflows.length) {
-      html += '<div class="uic-section">Workflows</div>';
-      d.workflows.forEach(function(wf) {
-        html += '<div class="uic-wf-item"><span class="material-symbols-outlined" style="font-size:0.75rem;color:var(--cyan);">account_tree</span>' + wf.name + ' <span style="color:var(--dim);">(' + wf.steps.length + ' steps)</span></div>';
-      });
+
+    if ((d.workflows && d.workflows.length > 0) || d.workflow) {
+      html += '<div class="dp-section"><p class="dp-section-title">Workflows</p><div class="wf-thumbs">';
+      if (d.workflows) {
+        d.workflows.forEach(function(wf, wi) {
+          html += '<div class="wf-thumb"><span class="material-symbols-outlined">' + (wf.icon || 'play_arrow') + '</span>';
+          html += '<span class="wf-thumb-name">' + wf.name + '</span>';
+          html += '<span class="wf-thumb-count">' + wf.steps.length + ' steps</span></div>';
+        });
+      }
+      html += '</div></div>';
     }
-    if (d.painPoints && d.painPoints.length) {
-      html += '<div class="uic-section">Pain Points</div>';
-      d.painPoints.forEach(function(pp) {
-        html += '<div class="uic-pp-item"><span class="material-symbols-outlined" style="font-size:0.75rem;color:var(--red);">warning</span>' + pp + '</div>';
+
+    if (d.hardware) {
+      var hwIcons = {'mobile':'smartphone','phone':'smartphone','tablet':'tablet','efb':'tablet','desktop':'computer','workstation':'computer','scanner':'qr_code_scanner','handheld':'qr_code_scanner','call':'phone_in_talk'};
+      function getHwIcon2(name) { var l=name.toLowerCase(); for(var k in hwIcons){if(l.indexOf(k)!==-1)return hwIcons[k];} return 'devices'; }
+      html += '<div class="dp-section"><p class="dp-section-title">Hardware</p>';
+      html += '<div style="display:flex;flex-wrap:wrap;gap:0.35rem;">';
+      d.hardware.forEach(function(h) {
+        html += '<div style="display:inline-flex;align-items:center;gap:0.3rem;padding:0.2rem 0.5rem;background:var(--card-hover);border:1px solid var(--card-border);border-radius:6px;font-size:0.65rem;color:var(--card-text-secondary);">';
+        html += '<span class="material-symbols-outlined" style="font-size:0.8rem;color:var(--dim);">' + getHwIcon2(h) + '</span>' + h + '</div>';
       });
+      html += '</div></div>';
     }
-    html += '</div>';
 
-    // Full-width button
-    html += '<div class="uic-full" style="margin-top:1rem;">';
-    html += '<button class="uic-btn" onclick="navigateTo(\'map\');setTimeout(function(){selectNode(\'' + uid + '\');},400);"><span class="material-symbols-outlined">arrow_forward</span>View on Map</button>';
-    html += '</div>';
+    if (d.tools) {
+      html += '<div class="dp-section"><p class="dp-section-title">Tools &amp; Services</p>';
+      d.tools.forEach(function(t) {
+        html += '<div class="dp-tool-row">';
+        html += '<div class="dp-tool-name-col"><span class="dp-badge" style="background:' + t.color + ';">' + t.name + '</span></div>';
+        html += '<span class="dp-tool-desc">' + t.desc + '</span></div>';
+      });
+      html += '</div>';
+    }
 
     html += '</div>';
-
     card.innerHTML = html;
     card.classList.add('visible');
   }
