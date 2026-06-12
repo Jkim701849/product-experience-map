@@ -1642,6 +1642,8 @@
       opacity: 0; transform: translateY(10px);
       transition: opacity 0.3s, transform 0.3s;
       pointer-events: none;
+      max-height: 70vh;
+      overflow-y: auto;
     }
     .users-info-card.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
     .uic-title {
@@ -1666,6 +1668,19 @@
     }
     .uic-btn:hover { background: rgba(138,180,248,0.2); }
     .uic-btn .material-symbols-outlined { font-size: 0.85rem; }
+    .uic-section {
+      font-size: 0.55rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--cyan); margin: 1rem 0 0.35rem;
+    }
+    .uic-hw-item, .uic-wf-item, .uic-pp-item {
+      font-size: 0.68rem; color: var(--card-text-secondary); line-height: 1.5;
+      padding: 0.2rem 0; display: flex; align-items: flex-start; gap: 0.4rem;
+    }
+    .uic-tools { display: flex; flex-wrap: wrap; gap: 4px; }
+    .uic-tool {
+      font-size: 0.58rem; font-weight: 600; padding: 0.15rem 0.5rem;
+      border: 1px solid; border-radius: 4px; background: rgba(255,255,255,0.03);
+    }
 
     /* Left side category nav */
     .users-categories {
@@ -1685,7 +1700,7 @@
     .users-card-rows {
       position: absolute; bottom: 0; left: 0; right: 0;
       z-index: 5; padding: 0 0 20px;
-      max-height: 260px; overflow-y: auto;
+      max-height: 300px; overflow-y: auto;
     }
     .users-card-rows::-webkit-scrollbar { width: 0; }
 
@@ -1709,43 +1724,50 @@
 
     /* Individual user card */
     .ucr-card {
-      width: 140px; flex-shrink: 0; cursor: pointer;
-      background: var(--card-bg); border-radius: 10px;
+      width: 180px; flex-shrink: 0; cursor: pointer;
+      background: var(--card-bg); border-radius: 12px;
       overflow: hidden; border: 2px solid transparent;
       transition: border-color 0.2s, transform 0.2s;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
     }
-    .ucr-card:hover { border-color: rgba(255,255,255,0.2); transform: translateY(-3px); }
-    .ucr-card.selected { border-color: var(--cyan); box-shadow: 0 4px 20px rgba(138,180,248,0.25); }
+    .ucr-card:hover { border-color: rgba(255,255,255,0.2); transform: translateY(-4px); }
+    .ucr-card.selected { border-color: var(--cyan); box-shadow: 0 4px 24px rgba(138,180,248,0.3); }
 
     .ucr-card-img {
-      width: 100%; height: 100px;
+      width: 100%; height: 140px;
       overflow: hidden; background: var(--card-elevated);
     }
     .ucr-card-img img {
       width: 100%; height: 100%;
-      object-fit: cover; object-position: top;
+      object-fit: cover; object-position: top center;
     }
 
     .ucr-card-label {
-      padding: 8px 10px;
+      padding: 10px 12px 12px; position: relative;
     }
     .ucr-card-name {
-      font-family: var(--sans); font-size: 0.78rem;
-      font-weight: 700; color: var(--text);
+      font-family: var(--sans); font-size: 0.9rem;
+      font-weight: 700; color: var(--text); line-height: 1.2;
     }
     .ucr-card-role {
-      font-size: 0.55rem; color: var(--dim);
-      margin-top: 2px;
+      font-size: 0.58rem; color: var(--dim);
+      margin-top: 3px; letter-spacing: 0.03em;
     }
+    .ucr-card-meta {
+      display: flex; gap: 6px; margin-top: 6px;
+      font-family: 'Orbitron', monospace; font-size: 0.42rem;
+      color: var(--dim);
+    }
+    .ucr-card-meta span { opacity: 0.5; }
 
     @media (max-width: 768px) {
       .users-hero { width: 280px; height: 380px; bottom: 240px; }
       .users-info-card { top: 10px; right: 10px; left: 10px; width: auto; }
       .users-categories { display: none; }
       .ucr-group { padding: 0 16px; }
-      .ucr-card { width: 120px; }
-      .ucr-card-img { height: 80px; }
+      .ucr-card { width: 150px; }
+      .ucr-card-img { height: 110px; }
+      .users-card-rows { max-height: 280px; }
     }
 
     /* ====== WORKFLOWS VIEW ====== */
@@ -5370,6 +5392,7 @@ function toggleTheme() {
         rhtml += '<div class="ucr-card-label">';
         rhtml += '<div class="ucr-card-name">' + name + '</div>';
         rhtml += '<div class="ucr-card-role">' + (d.subtitle || '') + '</div>';
+        rhtml += '<div class="ucr-card-meta"><span>AA-' + n.id.replace(/[^a-zA-Z]/g,'').substring(0,3).toUpperCase() + '</span><span>•</span><span>' + (d.tools ? d.tools.length : 0) + ' tools</span></div>';
         rhtml += '</div></div>';
       });
       rhtml += '</div></div>';
@@ -5392,12 +5415,10 @@ function toggleTheme() {
     if (!n || !n.detail) return;
     var d = n.detail;
 
-    // Highlight card
     document.querySelectorAll('.ucr-card').forEach(function(c) {
       c.classList.toggle('selected', c.dataset.userId === uid);
     });
 
-    // Update info card
     var card = document.getElementById('users-info-card');
     var toolCount = d.tools ? d.tools.length : 0;
     var wfCount = d.workflows ? d.workflows.length : 0;
@@ -5406,12 +5427,46 @@ function toggleTheme() {
     var html = '';
     html += '<div class="uic-title">' + (d.title || n.label).replace(/\n/g,' ') + '</div>';
     html += '<div class="uic-subtitle">' + (d.subtitle || '') + '</div>';
+
     html += '<div class="uic-stats">';
     html += '<div class="uic-stat"><div class="uic-stat-num">' + toolCount + '</div><div class="uic-stat-label">Tools</div></div>';
     html += '<div class="uic-stat"><div class="uic-stat-num">' + wfCount + '</div><div class="uic-stat-label">Workflows</div></div>';
     html += '<div class="uic-stat"><div class="uic-stat-num">' + ppCount + '</div><div class="uic-stat-label">Pain Pts</div></div>';
     html += '</div>';
-    html += '<div class="uic-desc">' + (d.desc || '').substring(0, 200) + (d.desc && d.desc.length > 200 ? '...' : '') + '</div>';
+
+    html += '<div class="uic-section">Description</div>';
+    html += '<div class="uic-desc">' + (d.desc || '') + '</div>';
+
+    if (d.hardware && d.hardware.length) {
+      html += '<div class="uic-section">Hardware</div>';
+      d.hardware.forEach(function(hw) {
+        html += '<div class="uic-hw-item"><span class="material-symbols-outlined" style="font-size:0.75rem;color:var(--dim);">devices</span>' + hw + '</div>';
+      });
+    }
+
+    if (d.tools && d.tools.length) {
+      html += '<div class="uic-section">Tools & Services</div>';
+      html += '<div class="uic-tools">';
+      d.tools.forEach(function(t) {
+        html += '<span class="uic-tool" style="border-color:' + t.color + ';color:' + t.color + ';">' + t.name + '</span>';
+      });
+      html += '</div>';
+    }
+
+    if (d.workflows && d.workflows.length) {
+      html += '<div class="uic-section">Workflows</div>';
+      d.workflows.forEach(function(wf) {
+        html += '<div class="uic-wf-item"><span class="material-symbols-outlined" style="font-size:0.75rem;color:var(--cyan);">account_tree</span>' + wf.name + ' <span style="color:var(--dim);">(' + wf.steps.length + ' steps)</span></div>';
+      });
+    }
+
+    if (d.painPoints && d.painPoints.length) {
+      html += '<div class="uic-section">Pain Points</div>';
+      d.painPoints.forEach(function(pp) {
+        html += '<div class="uic-pp-item"><span class="material-symbols-outlined" style="font-size:0.75rem;color:var(--red);">warning</span>' + pp + '</div>';
+      });
+    }
+
     html += '<button class="uic-btn" onclick="navigateTo(\'map\');setTimeout(function(){selectNode(\'' + uid + '\');},400);"><span class="material-symbols-outlined">arrow_forward</span>View on Map</button>';
 
     card.innerHTML = html;
