@@ -1828,8 +1828,11 @@
     .wv-group-title {
       font-family: var(--sans); font-size: 0.65rem; font-weight: 700;
       color: var(--dim); text-transform: uppercase; letter-spacing: 0.08em;
-      padding: 0.75rem 0.5rem 0.35rem; display: flex; align-items: center; gap: 0.4rem;
+      padding: 1.25rem 0.5rem 0.4rem; margin-top: 0.75rem;
+      border-top: 1px solid var(--card-border);
+      display: flex; align-items: center; gap: 0.4rem;
     }
+    .wv-group-title:first-child { border-top: none; margin-top: 0; }
     .wv-group-title .material-symbols-outlined { font-size: 0.85rem; }
 
     .wv-thumb {
