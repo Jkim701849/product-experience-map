@@ -7507,100 +7507,119 @@ function toggleTheme() {
     var viewport = document.getElementById('mapv2-viewport');
     var linesSvg = document.getElementById('mapv2-lines');
 
-    // Microchip grid layout — tight packing
-    var GRID = 4; // snap to 4px grid
-    var GAP = 4; // gap between blocks
+    // Per-user cluster layout — each user centered among its products
+    var GRID = 4;
+    var GAP = 4;
     function snap(v) { return Math.round(v / GRID) * GRID; }
 
     var userNodes = nodes.filter(function(n) { return n.type === 'user'; });
-    var prodNodes = nodes.filter(function(n) { return n.type === 'product'; });
-    var v2Pos = {};
+    var UW = 160, UH = 64, PW = 120, PH = 50;
+    var CLUSTER_GAP = 40; // gap between clusters
 
-    var UW = 160, UH = 64;
-    var PW = 120, PH = 50;
-
-    // Place users in a tight column
-    var ux = snap(40);
-    var uy = snap(40);
-    userNodes.forEach(function(n) {
-      v2Pos[n.id] = { x: ux, y: uy, w: UW, h: UH };
-      uy = snap(uy + UH + GAP);
-    });
-
-    // Build product-user connection map
-    var prodUsers = {};
-    prodNodes.forEach(function(p) { prodUsers[p.id] = []; });
+    // Build per-user product lists
+    var userProducts = {};
+    userNodes.forEach(function(u) { userProducts[u.id] = []; });
     connections.forEach(function(c) {
-      if (nMap[c[0]] && nMap[c[0]].type === 'user' && nMap[c[1]] && nMap[c[1]].type === 'product') {
-        if (!prodUsers[c[1]]) prodUsers[c[1]] = [];
-        prodUsers[c[1]].push(c[0]);
-      }
-      if (nMap[c[1]] && nMap[c[1]].type === 'user' && nMap[c[0]] && nMap[c[0]].type === 'product') {
-        if (!prodUsers[c[0]]) prodUsers[c[0]] = [];
-        prodUsers[c[0]].push(c[1]);
-      }
+      if (c[2] === 'data') return; // skip data flows
+      var uid = null, pid = null;
+      if (nMap[c[0]] && nMap[c[0]].type === 'user' && nMap[c[1]] && nMap[c[1]].type === 'product') { uid = c[0]; pid = c[1]; }
+      if (nMap[c[1]] && nMap[c[1]].type === 'user' && nMap[c[0]] && nMap[c[0]].type === 'product') { uid = c[1]; pid = c[0]; }
+      if (uid && pid && userProducts[uid]) userProducts[uid].push(pid);
     });
 
-    // Sort products by connection count (most shared first)
-    var sortedProds = prodNodes.slice().sort(function(a, b) {
-      return (prodUsers[b.id] || []).length - (prodUsers[a.id] || []).length;
+    // v2Pos stores all blocks (including duplicated products)
+    // v2Conns stores connections for v2 (using v2 IDs)
+    var v2Pos = {};
+    var v2Conns = [];
+    var v2NodeData = {}; // v2Id -> { origId, type, detail, icon, label }
+
+    var clusterX = snap(40);
+
+    userNodes.forEach(function(u) {
+      var prods = userProducts[u.id] || [];
+      var prodCount = prods.length;
+      if (prodCount === 0) prodCount = 1; // still need space
+
+      // Grid: products in rows of 3 columns around the user
+      var PCOLS = 3;
+      var rows = Math.ceil(prodCount / PCOLS);
+      var clusterW = PCOLS * (PW + GAP) - GAP;
+      var prodBlockH = rows * (PH + GAP) - GAP;
+      var totalH = UH + GAP + prodBlockH;
+
+      // User centered at top of cluster
+      var userX = snap(clusterX + (clusterW - UW) / 2);
+      var userY = snap(40);
+      var v2UserId = u.id;
+      v2Pos[v2UserId] = { x: userX, y: userY, w: UW, h: UH };
+      v2NodeData[v2UserId] = { origId: u.id, type: 'user', detail: u.detail, icon: u.icon, label: u.label };
+
+      // Products below user in grid
+      var prodStartY = snap(userY + UH + GAP * 3);
+      prods.forEach(function(pid, pi) {
+        var col = pi % PCOLS;
+        var row = Math.floor(pi / PCOLS);
+        var px = snap(clusterX + col * (PW + GAP));
+        var py = snap(prodStartY + row * (PH + GAP));
+
+        var v2ProdId = u.id + '::' + pid; // unique per cluster
+        v2Pos[v2ProdId] = { x: px, y: py, w: PW, h: PH };
+
+        var origProd = nMap[pid];
+        v2NodeData[v2ProdId] = {
+          origId: pid, type: 'product',
+          detail: origProd ? origProd.detail : null,
+          icon: origProd ? origProd.icon : 'widgets',
+          label: origProd ? origProd.label : pid
+        };
+
+        // Connection from user to this product
+        v2Conns.push({ from: v2UserId, to: v2ProdId, data: false });
+      });
+
+      // Also add data flow connections between products within this cluster
+      var clusterProdIds = prods.map(function(pid) { return u.id + '::' + pid; });
+      var clusterOrigIds = {};
+      prods.forEach(function(pid, pi) { clusterOrigIds[pid] = clusterProdIds[pi]; });
+
+      connections.forEach(function(c) {
+        if (c[2] !== 'data') return;
+        if (clusterOrigIds[c[0]] && clusterOrigIds[c[1]]) {
+          v2Conns.push({ from: clusterOrigIds[c[0]], to: clusterOrigIds[c[1]], data: true });
+        }
+      });
+
+      clusterX = snap(clusterX + clusterW + CLUSTER_GAP);
     });
 
-    // Pack products into columns — fill each column top-to-bottom
-    var COLS = 5;
-    var colX = snap(ux + UW + 24); // trace channel gap
-    var colTops = [];
-    for (var ci = 0; ci < COLS; ci++) colTops.push(snap(40));
+    // Render all v2 nodes
+    function renderV2Node(v2Id) {
+      var pos = v2Pos[v2Id];
+      var data = v2NodeData[v2Id];
+      if (!pos || !data) return;
 
-    sortedProds.forEach(function(p) {
-      // Find column with lowest bottom (pack tightest)
-      var bestCol = 0, bestY = colTops[0];
-      for (var c = 1; c < COLS; c++) {
-        if (colTops[c] < bestY) { bestCol = c; bestY = colTops[c]; }
-      }
-
-      // Position near average Y of connected users if possible
-      var users = prodUsers[p.id] || [];
-      var targetY = bestY;
-      if (users.length > 0) {
-        var sumY = 0;
-        users.forEach(function(uid) {
-          if (v2Pos[uid]) sumY += v2Pos[uid].y + UH / 2;
-        });
-        targetY = snap(sumY / users.length - PH / 2);
-        targetY = Math.max(targetY, colTops[bestCol]);
-      }
-
-      var x = snap(colX + bestCol * (PW + GAP));
-      var y = snap(targetY);
-
-      v2Pos[p.id] = { x: x, y: y, w: PW, h: PH };
-      colTops[bestCol] = snap(y + PH + GAP);
-    });
-
-    // Render nodes
-    nodes.forEach(function(n) {
-      var pos = v2Pos[n.id];
-      if (!pos) return;
       var el = document.createElement('div');
-      el.className = 'v2-node ' + n.type;
-      el.dataset.id = n.id;
+      el.className = 'v2-node ' + data.type;
+      el.dataset.id = v2Id;
+      el.dataset.origId = data.origId;
       el.style.left = pos.x + 'px';
       el.style.top = pos.y + 'px';
 
-      var d = n.detail || {};
-      var name = (d.title || n.label || '').replace(/\n/g, ' ');
+      var d = data.detail || {};
+      var name = (d.title || data.label || '').replace(/\n/g, ' ');
       var sub = d.subtitle || '';
 
       var html = '<div class="v2-node-header">';
-      html += '<span class="material-symbols-outlined v2-node-icon">' + (n.icon || 'circle') + '</span>';
+      html += '<span class="material-symbols-outlined v2-node-icon">' + (data.icon || 'circle') + '</span>';
       html += '<div><div class="v2-node-name">' + name + '</div>';
       if (sub) html += '<div class="v2-node-sub">' + sub + '</div>';
       html += '</div></div>';
 
       el.innerHTML = html;
       canvas.appendChild(el);
-    });
+    }
+
+    Object.keys(v2Pos).forEach(renderV2Node);
 
     // Draw lines
     drawV2Lines();
@@ -7684,47 +7703,45 @@ function toggleTheme() {
 
     function drawV2Lines() {
       linesSvg.innerHTML = '';
-      connections.forEach(function(c) {
-        var a = v2Pos[c[0]], b = v2Pos[c[1]];
+      v2Conns.forEach(function(c) {
+        var a = v2Pos[c.from], b = v2Pos[c.to];
         if (!a || !b) return;
-        var isData = c[2] === 'data';
 
-        // Connect from right edge of left node to left edge of right node
-        var leftNode = a.x < b.x ? a : b;
-        var rightNode = a.x < b.x ? b : a;
-        var x1 = leftNode.x + leftNode.w;
-        var y1 = leftNode.y + leftNode.h / 2;
-        var x2 = rightNode.x;
-        var y2 = rightNode.y + rightNode.h / 2;
+        // Route: from bottom of top node to top of bottom node (user→products below)
+        var topNode = a.y < b.y ? a : b;
+        var botNode = a.y < b.y ? b : a;
+        var x1 = topNode.x + topNode.w / 2;
+        var y1 = topNode.y + topNode.h;
+        var x2 = botNode.x + botNode.w / 2;
+        var y2 = botNode.y;
 
-        // If same column, connect bottom to top
-        if (Math.abs(a.x - b.x) < 50) {
-          var topNode = a.y < b.y ? a : b;
-          var botNode = a.y < b.y ? b : a;
-          x1 = topNode.x + topNode.w / 2;
-          y1 = topNode.y + topNode.h;
-          x2 = botNode.x + botNode.w / 2;
-          y2 = botNode.y;
+        // If side-by-side (same row), route right edge to left edge
+        if (Math.abs(a.y - b.y) < 20) {
+          var leftN = a.x < b.x ? a : b;
+          var rightN = a.x < b.x ? b : a;
+          x1 = leftN.x + leftN.w;
+          y1 = leftN.y + leftN.h / 2;
+          x2 = rightN.x;
+          y2 = rightN.y + rightN.h / 2;
         }
 
-        // Midpoint for right-angle routing
-        var midX = x1 + (x2 - x1) / 2;
+        var midY = y1 + (y2 - y1) / 2;
 
-        var isActive = v2ActiveNode && (c[0] === v2ActiveNode || c[1] === v2ActiveNode);
+        var isActive = v2ActiveNode && (c.from === v2ActiveNode || c.to === v2ActiveNode);
         var cls = 'v2-line';
-        if (isData) cls += ' data';
+        if (c.data) cls += ' data';
         if (isActive) cls += ' highlight';
         else if (v2ActiveNode) cls += ' dimmed';
 
-        // Draw orthogonal path: horizontal → vertical → horizontal
         var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         var d;
-        if (Math.abs(a.x - b.x) < 50) {
-          // Vertical: straight down
+        if (Math.abs(x1 - x2) < 4) {
           d = 'M' + x1 + ',' + y1 + ' L' + x2 + ',' + y2;
+        } else if (Math.abs(a.y - b.y) < 20) {
+          var mx = x1 + (x2 - x1) / 2;
+          d = 'M' + x1 + ',' + y1 + ' L' + mx + ',' + y1 + ' L' + mx + ',' + y2 + ' L' + x2 + ',' + y2;
         } else {
-          // Right-angle: go right to midpoint, then vertical, then right to target
-          d = 'M' + x1 + ',' + y1 + ' L' + midX + ',' + y1 + ' L' + midX + ',' + y2 + ' L' + x2 + ',' + y2;
+          d = 'M' + x1 + ',' + y1 + ' L' + x1 + ',' + midY + ' L' + x2 + ',' + midY + ' L' + x2 + ',' + y2;
         }
         path.setAttribute('d', d);
         path.setAttribute('class', cls);
