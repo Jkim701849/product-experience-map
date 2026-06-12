@@ -1622,46 +1622,58 @@
 
     /* Left sidesheet with user cards */
     .users-sidesheet {
-      width: 280px; flex-shrink: 0; overflow-y: auto;
-      padding: 1rem; z-index: 5; position: relative;
+      width: 240px; flex-shrink: 0; overflow-y: auto;
+      padding: 0.75rem; z-index: 5; position: relative;
       border-right: 1px solid var(--card-border);
       background: var(--card-bg);
     }
     .users-sidesheet::-webkit-scrollbar { width: 4px; }
     .users-sidesheet::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
 
-    .uss-group { margin-bottom: 1.25rem; }
+    .uss-group { margin-bottom: 1rem; }
     .uss-group-label {
-      font-family: var(--sans); font-size: 0.68rem; font-weight: 700;
-      color: var(--text); padding: 0 0 0.4rem; margin-bottom: 0.4rem;
+      font-family: var(--sans); font-size: 0.65rem; font-weight: 700;
+      color: var(--text); padding: 0.5rem 0.25rem 0.35rem;
+      margin-bottom: 0.35rem;
       border-bottom: 1px solid var(--card-border);
-      display: flex; align-items: center; gap: 8px;
     }
-    .uss-group-cards { display: flex; flex-direction: column; gap: 6px; }
+    .uss-group-cards {
+      display: flex; flex-direction: column; gap: 8px;
+    }
 
     .uss-card {
-      display: flex; align-items: center; gap: 10px;
-      padding: 8px 10px; border-radius: 10px;
-      cursor: pointer; transition: background 0.15s;
-      border: 1.5px solid transparent;
+      border-radius: 10px; overflow: hidden;
+      cursor: pointer; border: 2px solid transparent;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      background: var(--card-elevated);
     }
-    .uss-card:hover { background: var(--card-hover); }
+    .uss-card:hover { border-color: rgba(255,255,255,0.15); }
     .uss-card.selected {
-      background: var(--cyan-dim); border-color: rgba(138,180,248,0.25);
+      border-color: var(--cyan);
+      box-shadow: 0 2px 16px rgba(138,180,248,0.25);
     }
     .uss-card-img {
-      width: 44px; height: 44px; border-radius: 8px;
-      overflow: hidden; flex-shrink: 0; background: var(--card-elevated);
+      width: 100%; height: 120px;
+      overflow: hidden; background: var(--card-bg);
     }
     .uss-card-img img {
-      width: 100%; height: 100%; object-fit: cover; object-position: top;
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: top center;
+    }
+    .uss-card-body {
+      padding: 8px 10px 10px;
     }
     .uss-card-name {
-      font-family: var(--sans); font-size: 0.78rem;
-      font-weight: 600; color: var(--text); line-height: 1.2;
+      font-family: var(--sans); font-size: 0.82rem;
+      font-weight: 700; color: var(--text); line-height: 1.2;
     }
     .uss-card-role {
-      font-size: 0.58rem; color: var(--dim); margin-top: 2px;
+      font-size: 0.58rem; color: var(--dim); margin-top: 3px;
+    }
+    .uss-card-meta {
+      display: flex; gap: 6px; margin-top: 5px;
+      font-family: 'Orbitron', monospace; font-size: 0.42rem;
+      color: var(--dim); opacity: 0.6;
     }
 
     /* Right content area (hero + info card) */
@@ -1752,9 +1764,11 @@
     @media (max-width: 768px) {
       .users-stage { flex-direction: column; }
       .users-sidesheet {
-        width: 100%; max-height: 35vh; flex-shrink: 0;
+        width: 100%; max-height: 40vh; flex-shrink: 0;
         border-right: none; border-bottom: 1px solid var(--card-border);
+        overflow-y: auto;
       }
+      .uss-card-img { height: 90px; }
       .users-hero { width: 350px; height: 50vh; }
       .users-info-card {
         position: fixed; top: auto; bottom: 0; right: 0; left: 0;
@@ -5381,9 +5395,11 @@ function toggleTheme() {
         var name = (d.title || n.label).replace(/\n/g,' ');
         html += '<div class="uss-card" data-user-id="' + n.id + '">';
         html += '<div class="uss-card-img"><img src="user-avatar.png" alt="' + name + '" /></div>';
-        html += '<div><div class="uss-card-name">' + name + '</div>';
-        html += '<div class="uss-card-role">' + (d.subtitle || '') + '</div></div>';
-        html += '</div>';
+        html += '<div class="uss-card-body">';
+        html += '<div class="uss-card-name">' + name + '</div>';
+        html += '<div class="uss-card-role">' + (d.subtitle || '') + '</div>';
+        html += '<div class="uss-card-meta"><span>AA-' + n.id.replace(/[^a-zA-Z]/g,'').substring(0,3).toUpperCase() + '</span><span>\u00b7</span><span>' + (d.tools ? d.tools.length : 0) + ' tools</span></div>';
+        html += '</div></div>';
       });
       html += '</div></div>';
     });
