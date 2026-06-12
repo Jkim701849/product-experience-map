@@ -2222,6 +2222,88 @@
       .cms-editor { padding: 1rem; }
     }
 
+    /* ====== PEM V2 ====== */
+    .mapv2-view {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 40; display: none; background: var(--bg); overflow: hidden;
+    }
+    .mapv2-view.active { display: block; z-index: 60; }
+    body.mapv2-active .zoom-controls, body.mapv2-active .toolbar,
+    body.mapv2-active .detail-panel, body.mapv2-active .welcome-card { display: none !important; }
+
+    .mapv2-viewport {
+      width: 100%; height: 100%; position: relative; cursor: grab;
+    }
+    .mapv2-viewport.dragging { cursor: grabbing; }
+    .mapv2-canvas {
+      position: absolute; top: 0; left: 0; transform-origin: 0 0;
+    }
+
+    .mapv2-back {
+      position: fixed; top: 12px; left: 12px; z-index: 65;
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--card-bg); border: none;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.4);
+      color: var(--card-text-tertiary); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s; padding: 0;
+    }
+    .mapv2-back .material-symbols-outlined { font-size: 1.2rem; }
+    .mapv2-back:hover { background: var(--card-hover); color: var(--card-text); }
+
+    .mapv2-title-bar {
+      position: fixed; top: 14px; left: 64px; z-index: 65;
+      font-family: 'Orbitron', sans-serif; font-size: 0.8rem;
+      font-weight: 700; color: var(--text); letter-spacing: 0.1em;
+    }
+
+    /* V2 Nodes — rectangles */
+    .v2-node {
+      position: absolute; cursor: pointer;
+      transition: box-shadow 0.2s, outline-color 0.2s;
+      outline: 2px solid transparent; outline-offset: -2px;
+    }
+    .v2-node:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.3); }
+    .v2-node.active { outline-color: var(--cyan); }
+
+    .v2-node.user {
+      width: 180px; min-height: 70px; padding: 12px 14px;
+      background: var(--card-bg); border-radius: 12px;
+      border-left: 4px solid var(--gold);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 1px 2px rgba(0,0,0,0.15);
+    }
+    .v2-node.product {
+      width: 130px; min-height: 55px; padding: 10px 12px;
+      background: var(--card-elevated); border-radius: 8px;
+      border-left: 3px solid var(--cyan);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    }
+
+    .v2-node-header {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .v2-node-icon {
+      font-size: 1rem; flex-shrink: 0;
+    }
+    .v2-node.user .v2-node-icon { color: var(--gold); }
+    .v2-node.product .v2-node-icon { color: var(--cyan); }
+
+    .v2-node-name {
+      font-family: var(--sans); font-weight: 600; line-height: 1.2;
+      color: var(--text);
+    }
+    .v2-node.user .v2-node-name { font-size: 0.78rem; }
+    .v2-node.product .v2-node-name { font-size: 0.68rem; }
+
+    .v2-node-sub {
+      font-size: 0.55rem; color: var(--dim); margin-top: 2px;
+    }
+
+    .v2-line { stroke: var(--conn-line-color); stroke-width: 1.5; fill: none; }
+    .v2-line.data { stroke: var(--conn-line-data); stroke-dasharray: 6 4; }
+    .v2-line.highlight { stroke: var(--cyan); stroke-width: 2.5; opacity: 1; }
+    .v2-line.dimmed { opacity: 0.08; }
+
   </style>
 </head>
 <body>
@@ -2239,6 +2321,7 @@
 
     <nav class="start-menu">
       <a class="start-menu-item active" data-start-action="map"><span class="smi-label">Product Experience Map</span></a>
+      <a class="start-menu-item" data-start-action="mapv2"><span class="smi-label">PEM v2</span></a>
       <a class="start-menu-item" data-start-action="users"><span class="smi-label">Users</span></a>
       <a class="start-menu-item" data-start-action="workflows"><span class="smi-label">Workflows</span></a>
       <a class="start-menu-item" data-start-action="glossary"><span class="smi-label">Glossary</span></a>
@@ -2260,6 +2343,17 @@
       <svg class="lines-layer" id="lines" width="10000" height="10000"></svg>
       <!-- Nodes injected by JS -->
     </div>
+  </div>
+
+  <!-- PEM V2 View -->
+  <div class="mapv2-view" id="mapv2-view">
+    <div class="mapv2-viewport" id="mapv2-viewport">
+      <div class="mapv2-canvas" id="mapv2-canvas">
+        <svg class="mapv2-lines" id="mapv2-lines" width="10000" height="10000"></svg>
+      </div>
+    </div>
+    <button class="mapv2-back" id="mapv2-back"><span class="material-symbols-outlined">arrow_back</span></button>
+    <div class="mapv2-title-bar">PEM v2</div>
   </div>
 
   <!-- Path Graph View -->
@@ -6172,8 +6266,8 @@ function toggleTheme() {
   /* ========== FILTER DROPDOWN ========== */
   var filterBtn = document.getElementById('filter-btn');
   var filterMenu = document.getElementById('filter-menu');
-  var filterLabels = { all: 'All', usermap: 'Relationships', datamap: 'Data Map', pathgraph: 'Path Graph', glossary: 'Glossary', users: 'Users', workflows: 'Workflows', cms: 'CMS' };
-  var filterIcons = { all: 'hub', usermap: 'group', product: 'widgets', datamap: 'share', pathgraph: 'timeline', glossary: 'menu_book', users: 'group', workflows: 'account_tree', cms: 'edit_note' };
+  var filterLabels = { all: 'All', usermap: 'Relationships', datamap: 'Data Map', pathgraph: 'Path Graph', glossary: 'Glossary', users: 'Users', workflows: 'Workflows', cms: 'CMS', mapv2: 'PEM v2' };
+  var filterIcons = { all: 'hub', usermap: 'group', product: 'widgets', datamap: 'share', pathgraph: 'timeline', glossary: 'menu_book', users: 'group', workflows: 'account_tree', cms: 'edit_note', mapv2: 'grid_view' };
 
   filterBtn.addEventListener('click', function(e) {
     e.stopPropagation();
@@ -6591,6 +6685,8 @@ function toggleTheme() {
     if (uView) { uView.classList.remove('active'); document.body.classList.remove('users-active'); }
     if (wvView2) { wvView2.classList.remove('active'); document.body.classList.remove('workflows-active'); }
     if (secretRoom) secretRoom.classList.remove('active');
+    var mv2 = document.getElementById('mapv2-view');
+    if (mv2) { mv2.classList.remove('active'); document.body.classList.remove('mapv2-active'); }
     var cmsView = document.getElementById('cms-view');
     if (cmsView) { cmsView.classList.remove('active'); document.body.classList.remove('cms-active'); }
     document.getElementById('viewport').style.display = '';
@@ -6633,6 +6729,12 @@ function toggleTheme() {
         document.getElementById('cms-view').classList.add('active');
         document.body.classList.add('cms-active');
         initCMS();
+        break;
+      case 'mapv2':
+        startOverlay.classList.add('hidden');
+        document.getElementById('mapv2-view').classList.add('active');
+        document.body.classList.add('mapv2-active');
+        initMapV2();
         break;
       case 'secret':
         openSecretRoom();
@@ -7366,6 +7468,147 @@ function toggleTheme() {
       }
     } catch(e) { console.warn('CMS load failed:', e); }
   })();
+
+  /* ====== PEM V2 ====== */
+  var mapv2Initialized = false;
+  var v2Pan = { x: 0, y: 0 };
+  var v2Scale = 0.6;
+  var v2ActiveNode = null;
+
+  function initMapV2() {
+    if (mapv2Initialized) return;
+    mapv2Initialized = true;
+
+    var canvas = document.getElementById('mapv2-canvas');
+    var viewport = document.getElementById('mapv2-viewport');
+    var linesSvg = document.getElementById('mapv2-lines');
+
+    // Render nodes as rectangles
+    nodes.forEach(function(n) {
+      var el = document.createElement('div');
+      el.className = 'v2-node ' + n.type;
+      el.dataset.id = n.id;
+      el.style.left = n.x + 'px';
+      el.style.top = n.y + 'px';
+
+      var d = n.detail || {};
+      var name = (d.title || n.label || '').replace(/\n/g, ' ');
+      var sub = d.subtitle || '';
+
+      var html = '<div class="v2-node-header">';
+      html += '<span class="material-symbols-outlined v2-node-icon">' + (n.icon || 'circle') + '</span>';
+      html += '<div><div class="v2-node-name">' + name + '</div>';
+      if (sub) html += '<div class="v2-node-sub">' + sub + '</div>';
+      html += '</div></div>';
+
+      el.innerHTML = html;
+      canvas.appendChild(el);
+    });
+
+    // Draw lines
+    drawV2Lines();
+
+    // Pan/zoom
+    var isDragging = false;
+    var dragStart = { x: 0, y: 0 };
+
+    function applyV2Transform() {
+      canvas.style.transform = 'translate(' + v2Pan.x + 'px,' + v2Pan.y + 'px) scale(' + v2Scale + ')';
+    }
+
+    viewport.addEventListener('mousedown', function(e) {
+      if (e.target.closest('.v2-node')) return;
+      isDragging = true;
+      dragStart.x = e.clientX - v2Pan.x;
+      dragStart.y = e.clientY - v2Pan.y;
+      viewport.classList.add('dragging');
+    });
+    window.addEventListener('mousemove', function(e) {
+      if (!isDragging) return;
+      v2Pan.x = e.clientX - dragStart.x;
+      v2Pan.y = e.clientY - dragStart.y;
+      applyV2Transform();
+    });
+    window.addEventListener('mouseup', function() {
+      isDragging = false;
+      viewport.classList.remove('dragging');
+    });
+    viewport.addEventListener('wheel', function(e) {
+      e.preventDefault();
+      var oldScale = v2Scale;
+      v2Scale = Math.max(0.2, Math.min(2, v2Scale - e.deltaY * 0.001));
+      var rect = viewport.getBoundingClientRect();
+      var mx = e.clientX - rect.left;
+      var my = e.clientY - rect.top;
+      v2Pan.x = mx - (mx - v2Pan.x) * (v2Scale / oldScale);
+      v2Pan.y = my - (my - v2Pan.y) * (v2Scale / oldScale);
+      applyV2Transform();
+    }, { passive: false });
+
+    // Click to select
+    canvas.addEventListener('click', function(e) {
+      var nodeEl = e.target.closest('.v2-node');
+      if (nodeEl) {
+        e.stopPropagation();
+        v2ActiveNode = nodeEl.dataset.id;
+        canvas.querySelectorAll('.v2-node').forEach(function(n) {
+          n.classList.toggle('active', n.dataset.id === v2ActiveNode);
+        });
+        drawV2Lines();
+      }
+    });
+    viewport.addEventListener('click', function(e) {
+      if (e.target.closest('.v2-node')) return;
+      v2ActiveNode = null;
+      canvas.querySelectorAll('.v2-node.active').forEach(function(n) { n.classList.remove('active'); });
+      drawV2Lines();
+    });
+
+    // Initial zoom to fit
+    var allX = nodes.map(function(n) { return n.x; });
+    var allY = nodes.map(function(n) { return n.y; });
+    var minX = Math.min.apply(null, allX) - 100;
+    var minY = Math.min.apply(null, allY) - 100;
+    var maxX = Math.max.apply(null, allX) + 300;
+    var maxY = Math.max.apply(null, allY) + 200;
+    var contentW = maxX - minX;
+    var contentH = maxY - minY;
+    v2Scale = Math.min(window.innerWidth / contentW, window.innerHeight / contentH) * 0.85;
+    v2Pan.x = (window.innerWidth - contentW * v2Scale) / 2 - minX * v2Scale;
+    v2Pan.y = (window.innerHeight - contentH * v2Scale) / 2 - minY * v2Scale;
+    applyV2Transform();
+
+    // Back button
+    document.getElementById('mapv2-back').addEventListener('click', backToMenu);
+
+    function drawV2Lines() {
+      linesSvg.innerHTML = '';
+      connections.forEach(function(c) {
+        var a = nMap[c[0]], b = nMap[c[1]];
+        if (!a || !b) return;
+        var isData = c[2] === 'data';
+        var aw = a.type === 'user' ? 180 : 130;
+        var ah = a.type === 'user' ? 70 : 55;
+        var bw = b.type === 'user' ? 180 : 130;
+        var bh = b.type === 'user' ? 70 : 55;
+
+        var x1 = a.x + aw / 2, y1 = a.y + ah / 2;
+        var x2 = b.x + bw / 2, y2 = b.y + bh / 2;
+
+        var isActive = v2ActiveNode && (c[0] === v2ActiveNode || c[1] === v2ActiveNode);
+        var cls = 'v2-line';
+        if (isData) cls += ' data';
+        if (isActive) cls += ' highlight';
+        else if (v2ActiveNode) cls += ' dimmed';
+
+        var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+        line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+        line.setAttribute('class', cls);
+        linesSvg.appendChild(line);
+      });
+    }
+  }
 
 })();
 </script>
