@@ -1586,8 +1586,7 @@
     .users-view {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
       z-index: 40; display: none;
-      background: var(--viewport-bg);
-      overflow: hidden; color: var(--text);
+      background: var(--bg); overflow: hidden;
     }
     .users-view.active { display: flex; flex-direction: column; z-index: 60; }
     body.users-active .zoom-controls,
@@ -1599,267 +1598,157 @@
     body.pathgraph-active .users-view,
     body.glossary-active .users-view { display: none !important; }
 
-    .users-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 1.25rem 2rem; border-bottom: 1px solid var(--border); flex-shrink: 0;
-    }
-    .users-title {
-      font-family: 'Orbitron', sans-serif; font-size: 1.2rem;
-      font-weight: 700; color: var(--text); letter-spacing: 0.08em;
-      text-transform: uppercase;
+    .users-top-bar {
+      display: flex; align-items: center; padding: 0.75rem 1.25rem;
+      flex-shrink: 0;
     }
     .users-close {
-      background: var(--card-elevated); border: none; cursor: pointer;
-      color: var(--card-text-tertiary); border-radius: 8px;
-      padding: 0.4rem 0.75rem; display: flex; align-items: center;
-      gap: 0.3rem; font-family: 'DM Sans', sans-serif; font-size: 0.72rem; font-weight: 600;
-      transition: background 0.2s, color 0.2s;
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--card-bg); border: none;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.4);
+      color: var(--card-text-tertiary); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s, color 0.2s; padding: 0;
     }
-    .users-close .material-symbols-outlined { font-size: 1rem; }
+    .users-close .material-symbols-outlined { font-size: 1.2rem; }
     .users-close:hover { background: var(--card-hover); color: var(--card-text); }
+    .users-page-title {
+      font-family: 'Orbitron', sans-serif; font-size: 0.85rem;
+      font-weight: 700; color: var(--text); letter-spacing: 0.12em;
+      text-transform: uppercase; margin-left: auto; margin-right: auto;
+    }
 
-    .users-layout {
+    /* Main content area */
+    .users-main {
       flex: 1; display: flex; overflow: hidden;
     }
 
-    /* Left portrait */
-    .users-portrait {
-      width: 280px; flex-shrink: 0; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; padding: 2rem 1.5rem;
-      border-right: 1px solid var(--border);
-      background: linear-gradient(180deg, rgba(255,204,51,0.03) 0%, transparent 60%);
+    /* Left details panel */
+    .users-side {
+      width: 320px; flex-shrink: 0; padding: 1.5rem;
+      overflow-y: auto; border-right: 1px solid var(--card-border);
     }
-    .users-portrait-empty {
-      color: var(--dim); font-size: 0.8rem; text-align: center;
+    .users-side::-webkit-scrollbar { width: 4px; }
+    .users-side::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
+    .users-side-empty {
+      height: 100%; display: flex; align-items: center; justify-content: center;
+      color: var(--dim); font-size: 0.8rem;
     }
-    .users-portrait-circle {
-      width: 120px; height: 120px; border-radius: 50%;
-      background: var(--node-user-bg);
-      border: 3px solid var(--node-user-border);
-      box-shadow: 0 0 30px rgba(255,204,51,0.15), 0 0 60px rgba(255,204,51,0.08);
-      display: flex; align-items: center; justify-content: center;
-      margin-bottom: 1rem;
-      transition: border-color 0.3s, box-shadow 0.3s;
+    .us-name { font-size: 1.2rem; font-weight: 700; color: var(--gold); margin-bottom: 0.15rem; }
+    .us-subtitle { font-size: 0.7rem; color: var(--card-text-tertiary); margin-bottom: 1rem; }
+    .us-section-title {
+      font-size: 0.55rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--cyan); margin: 1.25rem 0 0.4rem;
     }
-    .users-portrait-circle .material-symbols-outlined {
-      font-size: 2.5rem; color: var(--gold);
+    .us-section-title:first-child { margin-top: 0; }
+    .us-desc { font-size: 0.72rem; color: var(--card-text-secondary); line-height: 1.6; }
+    .us-stats {
+      display: flex; gap: 8px; margin: 0.75rem 0;
     }
-    .users-portrait-name {
-      font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 700;
-      color: var(--gold); text-align: center; letter-spacing: 0.06em;
-      margin-bottom: 0.25rem;
+    .us-stat {
+      flex: 1; padding: 0.5rem; text-align: center;
+      background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 6px;
     }
-    .users-portrait-subtitle {
-      font-size: 0.72rem; color: var(--card-text-tertiary); text-align: center;
+    .us-stat-num { font-family: 'Orbitron'; font-size: 1rem; font-weight: 700; color: var(--cyan); }
+    .us-stat-label { font-size: 0.5rem; color: var(--dim); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
+    .us-hw-list { list-style: none; }
+    .us-hw-list li {
+      font-size: 0.68rem; color: var(--card-text-secondary);
+      padding: 0.25rem 0; display: flex; align-items: center; gap: 0.4rem;
+    }
+    .us-hw-list li .material-symbols-outlined { font-size: 0.8rem; color: var(--dim); }
+    .us-enter-btn {
+      display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+      width: 100%; padding: 0.7rem; margin-top: 1.25rem;
+      background: var(--cyan-dim); border: 1px solid rgba(138,180,248,0.2);
+      border-radius: 8px; color: var(--cyan); font-family: var(--sans);
+      font-size: 0.72rem; font-weight: 700; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .us-enter-btn:hover { background: rgba(138,180,248,0.2); }
+    .us-enter-btn .material-symbols-outlined { font-size: 0.9rem; }
+
+    /* Center featured character */
+    .users-featured {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      position: relative; padding-bottom: 120px;
+    }
+    .users-featured-avatar {
+      width: 200px; height: 200px; margin-bottom: 1rem;
+      filter: drop-shadow(0 0 40px rgba(253,214,99,0.15));
+      transition: transform 0.3s;
+    }
+    .users-featured-avatar .user-avatar-svg { border-radius: 50%; }
+    .users-featured-avatar .user-avatar-svg svg { width: 200px; height: 200px; }
+    .users-featured-name {
+      font-family: 'Orbitron', sans-serif; font-size: 2rem;
+      font-weight: 700; color: var(--text); letter-spacing: 0.06em;
+      text-transform: uppercase; text-align: center;
+    }
+    .users-featured-subtitle {
+      font-size: 0.75rem; color: var(--card-text-tertiary);
+      letter-spacing: 0.15em; text-transform: uppercase; text-align: center;
+      margin-top: 0.25rem;
+    }
+    .users-featured-tags {
+      display: flex; gap: 8px; margin-top: 0.75rem;
+    }
+    .users-featured-tag {
+      padding: 0.25rem 0.75rem; border-radius: 4px;
+      font-size: 0.6rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .users-featured-tag.cat-crew { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(253,214,99,0.3); }
+    .users-featured-tag.cat-ramp { background: rgba(242,139,130,0.12); color: #f28b82; border: 1px solid rgba(242,139,130,0.3); }
+    .users-featured-tag.cat-ioc { background: var(--cyan-dim); color: var(--cyan); border: 1px solid rgba(138,180,248,0.3); }
+    .users-featured-tag.cat-training { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(215,174,251,0.3); }
+    .users-featured-tag.cat-airport { background: rgba(129,201,149,0.12); color: #81c995; border: 1px solid rgba(129,201,149,0.3); }
+    .users-featured-empty {
+      color: var(--dim); font-size: 1rem; text-align: center;
     }
 
-    /* Center grid */
-    .users-grid-area {
-      flex: 1; overflow-y: auto; padding: 1.5rem;
-      display: flex; flex-direction: column;
-      -webkit-overflow-scrolling: touch;
+    /* Bottom character roster */
+    .users-roster {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: rgba(0,0,0,0.3);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      padding: 12px 16px;
+      display: flex; gap: 8px; overflow-x: auto;
+      justify-content: center;
+      border-top: 1px solid var(--card-border);
     }
-    .users-grid-area::-webkit-scrollbar { width: 6px; }
-    .users-grid-area::-webkit-scrollbar-track { background: transparent; }
-    .users-grid-area::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
-    .users-grid {
-      display: flex; flex-wrap: wrap; gap: 12px;
-      justify-content: center; padding: 1.5rem;
-      flex: 1; align-content: start;
+    .users-roster::-webkit-scrollbar { height: 0; }
+    .ur-thumb {
+      width: 64px; height: 64px; flex-shrink: 0;
+      border-radius: 8px; overflow: hidden;
+      border: 2px solid transparent;
+      cursor: pointer; transition: border-color 0.2s, transform 0.2s;
+      background: var(--card-bg); position: relative;
     }
-    .users-tile {
-      width: 220px; height: 160px;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 2px;
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-      transition: border-color 0.2s, box-shadow 0.2s;
-      padding: 0;
-      font-family: 'DM Sans', monospace;
-    }
-    .users-tile:hover {
-      border-color: var(--cyan);
-      box-shadow: 0 0 12px rgba(138,180,248,0.15);
-    }
-    .users-tile.selected {
-      border-color: var(--cyan);
-      box-shadow: 0 0 20px rgba(138,180,248,0.25);
-    }
-    /* Accent stripe on left edge */
-    .users-tile::before {
-      content: ''; position: absolute; left: 0; top: 0; bottom: 0;
-      width: 3px; background: var(--gold);
-    }
-    .users-tile[data-category="ramp"]::before { background: #f28b82; }
-    .users-tile[data-category="ioc"]::before { background: var(--cyan); }
-    .users-tile[data-category="training"]::before { background: var(--purple); }
-    .users-tile[data-category="airport"]::before { background: #81c995; }
-    /* Registration marks in corners */
-    .users-tile::after {
-      content: '+'; position: absolute; top: 4px; right: 6px;
-      font-size: 0.55rem; color: var(--dim); font-family: monospace;
-      line-height: 1;
-    }
-    /* Top section: ID code + category */
-    .ut-header {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 6px 8px 4px 10px;
-      border-bottom: 1px solid var(--card-border);
-    }
-    .ut-code {
-      font-family: 'Orbitron', monospace; font-size: 0.5rem;
-      font-weight: 700; letter-spacing: 0.12em;
-      color: var(--dim); text-transform: uppercase;
-    }
-    .ut-category {
-      font-size: 0.42rem; font-weight: 600;
-      letter-spacing: 0.1em; text-transform: uppercase;
-      color: var(--card-text-tertiary);
-      padding: 1px 4px; border: 1px solid var(--card-border);
-      border-radius: 1px;
-    }
-    /* Main area: avatar + name */
-    .ut-body {
-      display: flex; gap: 8px; padding: 8px 10px;
-      align-items: center;
-    }
-    .ut-avatar {
-      width: 40px; height: 40px; flex-shrink: 0;
-      border-radius: 2px; overflow: hidden;
-    }
-    .ut-avatar .user-avatar-svg { border-radius: 2px; width: 40px; height: 40px; }
-    .ut-avatar .user-avatar-svg svg { width: 40px; height: 40px; }
-    .ut-info { flex: 1; min-width: 0; }
-    .ut-name {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.78rem; font-weight: 700;
-      color: var(--card-text); line-height: 1.2;
-      margin-bottom: 2px;
-    }
-    .ut-role {
-      font-size: 0.5rem; color: var(--card-text-tertiary);
-      letter-spacing: 0.04em;
-    }
-    /* Bottom data fields */
-    .ut-data {
-      display: flex; border-top: 1px solid var(--card-border);
-    }
-    .ut-field {
-      flex: 1; padding: 4px 8px 5px 10px;
-      border-right: 1px solid var(--card-border);
-    }
-    .ut-field:last-child { border-right: none; }
-    .ut-field-label {
-      font-size: 0.38rem; font-weight: 600;
-      letter-spacing: 0.1em; text-transform: uppercase;
-      color: var(--dim); margin-bottom: 1px;
-    }
-    .ut-field-value {
-      font-family: 'Orbitron', monospace; font-size: 0.6rem;
-      font-weight: 700; color: var(--cyan);
-    }
-    /* Barcode-like decoration */
-    .ut-barcode {
-      position: absolute; bottom: 4px; right: 6px;
-      display: flex; gap: 1px; align-items: flex-end;
-      opacity: 0.15;
-    }
-    .ut-barcode span {
-      display: block; width: 1px; background: var(--text);
-    }
-    .users-tile-name { display: none; }
-    .users-hint {
-      text-align: center; padding: 0.75rem; font-size: 0.7rem;
-      color: var(--dim); letter-spacing: 0.05em;
+    .ur-thumb:hover { border-color: rgba(255,255,255,0.3); transform: scale(1.05); }
+    .ur-thumb.selected { border-color: var(--cyan); box-shadow: 0 0 12px rgba(138,180,248,0.3); transform: scale(1.1); }
+    .ur-thumb .user-avatar-svg { border-radius: 6px; }
+    .ur-thumb .user-avatar-svg svg { width: 60px; height: 60px; }
+    .ur-thumb-label {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: rgba(0,0,0,0.7); padding: 1px 3px;
+      font-size: 0.38rem; color: rgba(255,255,255,0.8);
+      text-align: center; font-weight: 600;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
 
-    /* Right details */
-    .users-details {
-      width: 320px; flex-shrink: 0; overflow-y: auto; padding: 1.5rem;
-      border-left: 1px solid var(--border);
-      background: linear-gradient(180deg, rgba(0,204,255,0.02) 0%, transparent 60%);
-    }
-    .users-details::-webkit-scrollbar { width: 6px; }
-    .users-details::-webkit-scrollbar-track { background: transparent; }
-    .users-details::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
-    .users-details-empty {
-      display: flex; align-items: center; justify-content: center;
-      height: 100%; color: var(--dim); font-size: 0.8rem;
-    }
-    .users-detail-section { margin-bottom: 1.25rem; }
-    .users-detail-label {
-      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em;
-      text-transform: uppercase; color: var(--card-accent); margin-bottom: 0.4rem;
-    }
-    .users-detail-desc {
-      font-size: 0.75rem; color: var(--card-text-secondary); line-height: 1.6;
-    }
-    .users-detail-hw {
-      list-style: none; margin: 0; padding: 0;
-    }
-    .users-detail-hw li {
-      display: flex; align-items: center; gap: 0.5rem;
-      font-size: 0.75rem; color: var(--card-text-secondary); padding: 0.25rem 0;
-    }
-    .users-detail-hw li .material-symbols-outlined {
-      font-size: 0.9rem; color: var(--card-text-tertiary);
-    }
-    .users-stat-row {
-      display: flex; gap: 0.75rem; flex-wrap: wrap;
-    }
-    .users-stat {
-      flex: 1; min-width: 80px; padding: 0.6rem;
-      background: var(--card-bg); border: 1px solid var(--card-border);
-      border-radius: 8px; text-align: center;
-    }
-    .users-stat-num {
-      font-family: 'Orbitron', sans-serif; font-size: 1.2rem;
-      font-weight: 700; color: var(--cyan);
-    }
-    .users-stat-label {
-      font-size: 0.55rem; color: var(--card-text-tertiary); text-transform: uppercase;
-      letter-spacing: 0.06em; margin-top: 0.15rem;
-    }
-    .users-enter-btn {
-      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
-      width: 100%; padding: 0.7rem 1rem; margin-top: 1rem;
-      background: rgba(0,204,255,0.12); border: 1px solid rgba(0,204,255,0.25);
-      border-radius: 8px; color: var(--cyan);
-      font-family: var(--sans); font-size: 0.78rem; font-weight: 700;
-      cursor: pointer; transition: background 0.2s, border-color 0.2s;
-      letter-spacing: 0.04em; text-transform: uppercase;
-    }
-    .users-enter-btn:hover {
-      background: rgba(0,204,255,0.22); border-color: rgba(0,204,255,0.5);
-    }
-    .users-enter-btn .material-symbols-outlined { font-size: 1rem; }
-
-    @media (max-width: 1024px) {
-      .users-portrait { width: 200px; padding: 1.5rem 1rem; }
-      .users-details { width: 260px; }
-      .users-portrait-circle { width: 90px; height: 90px; }
-      .users-portrait-circle .material-symbols-outlined { font-size: 2rem; }
-    }
     @media (max-width: 768px) {
-      .users-layout { flex-direction: column; }
-      .users-portrait { display: none; }
-      .users-details {
-        width: 100%; border-left: none; border-top: 1px solid var(--border);
-        max-height: 40vh; flex-shrink: 0;
+      .users-main { flex-direction: column; }
+      .users-side { width: 100%; max-height: 40vh; border-right: none; border-bottom: 1px solid var(--card-border); padding: 1rem; }
+      .users-featured { display: none; }
+      .users-roster {
+        position: relative; flex-wrap: wrap; justify-content: center;
+        max-height: 50vh; overflow-y: auto;
       }
-      .users-grid { gap: 8px; padding: 1rem; }
-      .users-tile { width: 180px; height: 145px; }
-      .ut-name { font-size: 0.7rem; }
-      .ut-body { padding: 6px 8px; }
-      .ut-avatar { width: 34px; height: 34px; }
-      .ut-avatar .user-avatar-svg, .ut-avatar .user-avatar-svg svg { width: 34px; height: 34px; }
-      .users-header { padding: 0.75rem 1rem; }
-      .users-header h2 { font-size: 0.9rem; }
-      .users-grid-container { padding: 1rem; }
-      .ut-field-label { font-size: 0.36rem; }
-      .users-details { padding: 1rem; }
+      .ur-thumb { width: 56px; height: 56px; }
+      .ur-thumb .user-avatar-svg svg { width: 52px; height: 52px; }
+      .users-featured-name { font-size: 1.2rem; }
     }
 
     /* ====== WORKFLOWS VIEW ====== */
@@ -2034,8 +1923,6 @@
     /* User avatar SVG */
     .user-avatar-svg { border-radius: 50%; overflow: hidden; display: inline-block; }
     .user-avatar-svg svg { width: 100%; height: 100%; display: block; }
-    .users-tile .user-avatar-svg { width: 40px; height: 40px; border-radius: 2px; }
-    .users-portrait-circle .user-avatar-svg { width: 100%; height: 100%; }
 
   </style>
 </head>
@@ -2108,22 +1995,20 @@
 
   <!-- Users View (Character Select) -->
   <div class="users-view" id="users-view">
-    <div class="users-header">
-      <span class="users-title">Select User</span>
-      <button class="users-close" id="users-view-close"><span class="material-symbols-outlined">arrow_back</span> Menu</button>
+    <div class="users-top-bar">
+      <button class="users-close" id="users-view-close"><span class="material-symbols-outlined">arrow_back</span></button>
+      <span class="users-page-title">Select a User</span>
     </div>
-    <div class="users-layout">
-      <div class="users-portrait" id="users-portrait">
-        <p class="users-portrait-empty">No user selected</p>
+    <div class="users-main">
+      <div class="users-side" id="users-side">
+        <div class="users-side-empty">Select a user to view details</div>
       </div>
-      <div class="users-grid-area">
-        <div class="users-grid" id="users-grid">
-          <!-- Rendered by JS -->
+      <div class="users-featured" id="users-featured">
+        <div class="users-featured-empty">
+          <span class="material-symbols-outlined" style="font-size:3rem;opacity:0.2;display:block;margin-bottom:0.5rem;">person</span>
+          Choose a crew member
         </div>
-        <p class="users-hint">Select a user to view details</p>
-      </div>
-      <div class="users-details" id="users-details">
-        <div class="users-details-empty">Select a user to view details</div>
+        <div class="users-roster" id="users-roster"></div>
       </div>
     </div>
   </div>
@@ -5626,160 +5511,93 @@ function toggleTheme() {
   var usersSelectedId = null;
 
   function renderUsersView() {
-    var grid = document.getElementById('users-grid');
+    var roster = document.getElementById('users-roster');
     var userNodes = nodes.filter(function(n) { return n.type === 'user'; });
-    usersSelectedId = null;
 
     var html = '';
-    userNodes.forEach(function(n, idx) {
-      var nid = n.id;
-      var d = n.detail || {};
-      var displayName = (d.title) || n.label.replace(/\n/g, ' ');
-      var subtitle = d.subtitle || '';
-
-      // Category
-      var category = 'crew';
-      if (['ticket-agent','gate-crew','abr-driver','bag-clerk','sweeper','encoder'].indexOf(nid) >= 0) category = 'ramp';
-      if (['crew-tracker','crew-scheduler'].indexOf(nid) >= 0) category = 'ioc';
-      if (['training-schedulers','ckp-ip','fcti-simp'].indexOf(nid) >= 0) category = 'training';
-      if (['gate-agent','hotel-limo'].indexOf(nid) >= 0) category = 'airport';
-
-      // AA code
-      var aaCode = 'AA-' + (nid.replace(/[^a-zA-Z]/g,'').substring(0,3).toUpperCase()) + String(100 + idx).substring(1);
-
-      // Counts
-      var toolsCount = d.tools ? d.tools.length : 0;
-      var wfCount = 0;
-      if (d.workflows) wfCount = d.workflows.length;
-      else if (d.workflow) wfCount = 1;
-      var painCount = d.painPoints ? d.painPoints.length : 0;
-
-      // Barcode
-      var barcode = '<div class="ut-barcode">';
-      for (var bi = 0; bi < 20; bi++) {
-        var bh = 4 + Math.floor(Math.random() * 8);
-        var bw = Math.random() > 0.5 ? 2 : 1;
-        barcode += '<span style="height:' + bh + 'px;width:' + bw + 'px;"></span>';
-      }
-      barcode += '</div>';
-
-      html += '<div class="users-tile" data-user-id="' + nid + '" data-category="' + category + '">';
-      html += '<div class="ut-header">';
-      html += '<span class="ut-code">' + aaCode + '</span>';
-      html += '<span class="ut-category">' + category + '</span>';
-      html += '</div>';
-      html += '<div class="ut-body">';
-      html += '<div class="ut-avatar"><div class="user-avatar-svg">' + getUserAvatar(nid) + '</div></div>';
-      html += '<div class="ut-info">';
-      html += '<div class="ut-name">' + displayName + '</div>';
-      html += '<div class="ut-role">' + subtitle + '</div>';
-      html += '</div></div>';
-      html += '<div class="ut-data">';
-      html += '<div class="ut-field"><div class="ut-field-label">Tools</div><div class="ut-field-value">' + toolsCount + '</div></div>';
-      html += '<div class="ut-field"><div class="ut-field-label">Workflows</div><div class="ut-field-value">' + wfCount + '</div></div>';
-      html += '<div class="ut-field"><div class="ut-field-label">Pain Pts</div><div class="ut-field-value">' + painCount + '</div></div>';
-      html += '</div>';
-      html += barcode;
+    userNodes.forEach(function(n) {
+      html += '<div class="ur-thumb" data-user-id="' + n.id + '">';
+      html += '<div class="user-avatar-svg">' + getUserAvatar(n.id) + '</div>';
+      html += '<div class="ur-thumb-label">' + (n.detail ? n.detail.title : n.label).replace(/\n/g,' ') + '</div>';
       html += '</div>';
     });
-    grid.innerHTML = html;
+    roster.innerHTML = html;
 
-    /* Reset portrait and details */
-    document.getElementById('users-portrait').innerHTML = '<p class="users-portrait-empty">No user selected</p>';
-    document.getElementById('users-details').innerHTML = '<div class="users-details-empty">Select a user to view details</div>';
-
-    /* Bind tile clicks */
-    grid.querySelectorAll('.users-tile').forEach(function(tile) {
-      tile.addEventListener('click', function() {
-        var uid = tile.dataset.userId;
-        selectUserTile(uid);
+    roster.querySelectorAll('.ur-thumb').forEach(function(thumb) {
+      thumb.addEventListener('click', function() {
+        selectUserTile(thumb.dataset.userId);
       });
     });
+
+    // Auto-select first user
+    if (userNodes.length > 0) selectUserTile(userNodes[0].id);
   }
 
   function selectUserTile(uid) {
-    usersSelectedId = uid;
-    var grid = document.getElementById('users-grid');
-    grid.querySelectorAll('.users-tile').forEach(function(t) {
+    var n = nMap[uid];
+    if (!n || !n.detail) return;
+    var d = n.detail;
+
+    // Highlight roster thumb
+    document.querySelectorAll('.ur-thumb').forEach(function(t) {
       t.classList.toggle('selected', t.dataset.userId === uid);
     });
 
-    var node = null;
-    for (var i = 0; i < nodes.length; i++) {
-      if (nodes[i].id === uid) { node = nodes[i]; break; }
-    }
-    if (!node || !node.detail) return;
-    var d = node.detail;
-    var displayName = d.title || node.label.replace(/\n/g, ' ');
+    // Determine category
+    var category = 'crew';
+    if (['ticket-agent','gate-crew','abr-driver','bag-clerk','sweeper','encoder'].indexOf(uid) >= 0) category = 'ramp';
+    if (['crew-tracker','crew-scheduler'].indexOf(uid) >= 0) category = 'ioc';
+    if (['training-schedulers','ckp-ip','fcti-simp'].indexOf(uid) >= 0) category = 'training';
+    if (['gate-agent','hotel-limo'].indexOf(uid) >= 0) category = 'airport';
 
-    /* Portrait */
-    var portrait = document.getElementById('users-portrait');
-    portrait.innerHTML =
-      '<div class="users-portrait-circle"><div class="user-avatar-svg">' + getUserAvatar(node.id) + '</div></div>' +
-      '<div class="users-portrait-name">' + displayName + '</div>' +
-      '<div class="users-portrait-subtitle">' + (d.subtitle || '') + '</div>';
+    var catLabels = { crew: 'Flight Crew', ramp: 'Ramp Operations', ioc: 'IOC Staff', training: 'Training', airport: 'Airport Ops' };
 
-    /* Details */
-    var details = document.getElementById('users-details');
-    var html = '';
+    // Update featured area
+    var featured = document.getElementById('users-featured');
+    var fhtml = '';
+    fhtml += '<div class="users-featured-avatar"><div class="user-avatar-svg">' + getUserAvatar(uid) + '</div></div>';
+    fhtml += '<div class="users-featured-name">' + (d.title || n.label).replace(/\n/g,' ') + '</div>';
+    fhtml += '<div class="users-featured-subtitle">' + (d.subtitle || '') + '</div>';
+    fhtml += '<div class="users-featured-tags">';
+    fhtml += '<span class="users-featured-tag cat-' + category + '">' + catLabels[category] + '</span>';
+    fhtml += '</div>';
 
-    /* Description */
-    if (d.desc) {
-      html += '<div class="users-detail-section">';
-      html += '<div class="users-detail-label">Description</div>';
-      html += '<div class="users-detail-desc">' + d.desc + '</div>';
-      html += '</div>';
-    }
+    // Keep the roster at the bottom
+    var rosterEl = document.getElementById('users-roster');
+    featured.innerHTML = fhtml;
+    featured.appendChild(rosterEl);
 
-    /* Hardware */
+    // Update side panel
+    var side = document.getElementById('users-side');
+    var shtml = '';
+    shtml += '<div class="us-name">' + (d.title || n.label).replace(/\n/g,' ') + '</div>';
+    shtml += '<div class="us-subtitle">' + (d.subtitle || '') + '</div>';
+
+    var toolCount = d.tools ? d.tools.length : 0;
+    var wfCount = d.workflows ? d.workflows.length : 0;
+    var ppCount = d.painPoints ? d.painPoints.length : 0;
+
+    shtml += '<div class="us-stats">';
+    shtml += '<div class="us-stat"><div class="us-stat-num">' + toolCount + '</div><div class="us-stat-label">Tools</div></div>';
+    shtml += '<div class="us-stat"><div class="us-stat-num">' + wfCount + '</div><div class="us-stat-label">Workflows</div></div>';
+    shtml += '<div class="us-stat"><div class="us-stat-num">' + ppCount + '</div><div class="us-stat-label">Pain Pts</div></div>';
+    shtml += '</div>';
+
+    shtml += '<p class="us-section-title">Description</p>';
+    shtml += '<p class="us-desc">' + (d.desc || '') + '</p>';
+
     if (d.hardware && d.hardware.length) {
-      html += '<div class="users-detail-section">';
-      html += '<div class="users-detail-label">Hardware</div>';
-      html += '<ul class="users-detail-hw">';
+      shtml += '<p class="us-section-title">Hardware</p>';
+      shtml += '<ul class="us-hw-list">';
       d.hardware.forEach(function(hw) {
-        var hwIcon = 'devices';
-        if (hw.toLowerCase().indexOf('phone') !== -1) hwIcon = 'smartphone';
-        else if (hw.toLowerCase().indexOf('tablet') !== -1) hwIcon = 'tablet';
-        else if (hw.toLowerCase().indexOf('desktop') !== -1) hwIcon = 'computer';
-        else if (hw.toLowerCase().indexOf('call') !== -1) hwIcon = 'call';
-        html += '<li><span class="material-symbols-outlined">' + hwIcon + '</span>' + hw + '</li>';
+        shtml += '<li><span class="material-symbols-outlined">devices</span>' + hw + '</li>';
       });
-      html += '</ul></div>';
+      shtml += '</ul>';
     }
 
-    /* Stats */
-    var toolsCount = d.tools ? d.tools.length : 0;
-    var wfCount = 0;
-    if (d.workflows) wfCount = d.workflows.length;
-    else if (d.workflow) wfCount = 1;
-    var painCount = d.painPoints ? d.painPoints.length : 0;
+    shtml += '<button class="us-enter-btn" onclick="navigateTo(\'map\');setTimeout(function(){selectNode(\'' + uid + '\');},400);"><span class="material-symbols-outlined">arrow_forward</span>View on Map</button>';
 
-    html += '<div class="users-detail-section">';
-    html += '<div class="users-detail-label">Stats</div>';
-    html += '<div class="users-stat-row">';
-    html += '<div class="users-stat"><div class="users-stat-num">' + toolsCount + '</div><div class="users-stat-label">Tools</div></div>';
-    html += '<div class="users-stat"><div class="users-stat-num">' + wfCount + '</div><div class="users-stat-label">Workflows</div></div>';
-    html += '<div class="users-stat"><div class="users-stat-num">' + painCount + '</div><div class="users-stat-label">Pain Points</div></div>';
-    html += '</div></div>';
-
-    /* Enter Map button */
-    html += '<button class="users-enter-btn" id="users-enter-map">';
-    html += '<span class="material-symbols-outlined">map</span> Enter Map';
-    html += '</button>';
-
-    details.innerHTML = html;
-
-    /* Bind enter map */
-    document.getElementById('users-enter-map').addEventListener('click', function() {
-      hideUsersView();
-      currentFilter = 'all';
-      filterBtn.innerHTML = '<span class="material-symbols-outlined">hub</span> All <span class="material-symbols-outlined" style="font-size:0.8rem;margin-left:2px;">expand_more</span>';
-      filterMenu.querySelectorAll('button').forEach(function(b) { b.classList.toggle('active', b.dataset.filter === 'all'); });
-      drawNodes();
-      drawLines();
-      zoomReset();
-      selectNode(uid);
-    });
+    side.innerHTML = shtml;
   }
 
   /* ========== PATH GRAPH ========== */
