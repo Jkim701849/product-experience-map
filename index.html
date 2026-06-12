@@ -1620,9 +1620,9 @@
       flex: 1; display: flex; position: relative; overflow: hidden;
     }
 
-    /* Left sidesheet with user cards */
+    /* Left sidesheet with user cards — fits 3 cards wide */
     .users-sidesheet {
-      width: 240px; flex-shrink: 0; overflow-y: auto;
+      width: 520px; flex-shrink: 0; overflow-y: auto;
       padding: 0.75rem; z-index: 5; position: relative;
       border-right: 1px solid var(--card-border);
       background: var(--card-bg);
@@ -1630,30 +1630,35 @@
     .users-sidesheet::-webkit-scrollbar { width: 4px; }
     .users-sidesheet::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
 
-    .uss-group { margin-bottom: 1rem; }
+    .uss-group { margin-bottom: 1.25rem; }
     .uss-group-label {
-      font-family: var(--sans); font-size: 0.65rem; font-weight: 700;
-      color: var(--text); padding: 0.5rem 0.25rem 0.35rem;
-      margin-bottom: 0.35rem;
-      border-bottom: 1px solid var(--card-border);
+      font-family: var(--sans); font-size: 0.72rem; font-weight: 500;
+      color: var(--card-text-secondary); letter-spacing: 0.01em;
+      padding: 0.6rem 0.25rem 0.4rem;
+      margin-bottom: 0.5rem;
     }
     .uss-group-cards {
-      display: flex; flex-direction: column; gap: 8px;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
     }
 
+    /* Material card — elevated surface with state layer */
     .uss-card {
-      border-radius: 10px; overflow: hidden;
-      cursor: pointer; border: 2px solid transparent;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      border-radius: 12px; overflow: hidden;
+      cursor: pointer; border: none;
+      transition: box-shadow 0.2s, outline-color 0.2s;
       background: var(--card-elevated);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.3), 0 1px 3px 1px rgba(0,0,0,0.15);
+      outline: 2px solid transparent; outline-offset: -2px;
     }
-    .uss-card:hover { border-color: rgba(255,255,255,0.15); }
+    .uss-card:hover {
+      box-shadow: 0 1px 2px rgba(0,0,0,0.3), 0 2px 6px 2px rgba(0,0,0,0.15);
+    }
     .uss-card.selected {
-      border-color: var(--cyan);
-      box-shadow: 0 2px 16px rgba(138,180,248,0.25);
+      outline-color: var(--cyan);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 8px 3px rgba(0,0,0,0.15);
     }
     .uss-card-img {
-      width: 100%; height: 120px;
+      width: 100%; height: 100px;
       overflow: hidden; background: var(--card-bg);
     }
     .uss-card-img img {
@@ -1661,19 +1666,18 @@
       object-fit: cover; object-position: top center;
     }
     .uss-card-body {
-      padding: 8px 10px 10px;
+      padding: 10px 12px 12px;
     }
     .uss-card-name {
       font-family: var(--sans); font-size: 0.82rem;
-      font-weight: 700; color: var(--text); line-height: 1.2;
+      font-weight: 500; color: var(--text); line-height: 1.3;
     }
     .uss-card-role {
-      font-size: 0.58rem; color: var(--dim); margin-top: 3px;
+      font-size: 0.65rem; color: var(--card-text-secondary); margin-top: 2px;
     }
     .uss-card-meta {
-      display: flex; gap: 6px; margin-top: 5px;
-      font-family: 'Orbitron', monospace; font-size: 0.42rem;
-      color: var(--dim); opacity: 0.6;
+      display: flex; gap: 6px; margin-top: 6px;
+      font-size: 0.55rem; color: var(--dim);
     }
 
     /* Right content area (hero + info card) */
@@ -1702,14 +1706,14 @@
     }
 
     /* Floating info card — top right */
+    /* Material elevated card — level 3 */
     .users-info-card {
       position: absolute; top: 10px; right: 20px;
       bottom: 20px;
       width: 400px;
       background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 12px; padding: 0;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+      border-radius: 16px; padding: 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 8px 3px rgba(0,0,0,0.15);
       overflow-y: auto; z-index: 5;
       opacity: 0; transform: translateX(20px);
       transition: opacity 0.3s, transform 0.3s;
@@ -1768,7 +1772,8 @@
         border-right: none; border-bottom: 1px solid var(--card-border);
         overflow-y: auto;
       }
-      .uss-card-img { height: 90px; }
+      .uss-group-cards { grid-template-columns: repeat(2, 1fr); }
+      .uss-card-img { height: 80px; }
       .users-hero { width: 350px; height: 50vh; }
       .users-info-card {
         position: fixed; top: auto; bottom: 0; right: 0; left: 0;
