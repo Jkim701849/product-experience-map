@@ -2299,10 +2299,10 @@
       font-size: 0.55rem; color: var(--dim); margin-top: 2px;
     }
 
-    .v2-line { stroke: var(--conn-line-color); stroke-width: 1.5; fill: none; }
+    .v2-line { stroke: var(--conn-line-color); stroke-width: 1.5; fill: none; stroke-linejoin: round; }
     .v2-line.data { stroke: var(--conn-line-data); stroke-dasharray: 6 4; }
-    .v2-line.highlight { stroke: var(--cyan); stroke-width: 2.5; opacity: 1; }
-    .v2-line.dimmed { opacity: 0.08; }
+    .v2-line.highlight { stroke: var(--cyan); stroke-width: 2; opacity: 1; }
+    .v2-line.dimmed { opacity: 0.06; }
 
   </style>
 </head>
@@ -7483,13 +7483,76 @@ function toggleTheme() {
     var viewport = document.getElementById('mapv2-viewport');
     var linesSvg = document.getElementById('mapv2-lines');
 
-    // Render nodes as rectangles
+    // Compute grid layout — no overlaps
+    var userNodes = nodes.filter(function(n) { return n.type === 'user'; });
+    var prodNodes = nodes.filter(function(n) { return n.type === 'product'; });
+    var v2Pos = {}; // nodeId -> {x, y, w, h}
+
+    // Place users in a column on the left
+    var uw = 190, uh = 80, uGapY = 30;
+    var startX = 50, startY = 50;
+    userNodes.forEach(function(n, i) {
+      v2Pos[n.id] = { x: startX, y: startY + i * (uh + uGapY), w: uw, h: uh };
+    });
+
+    // For each product, find which users connect to it
+    var prodUsers = {};
+    prodNodes.forEach(function(p) { prodUsers[p.id] = []; });
+    connections.forEach(function(c) {
+      if (nMap[c[0]] && nMap[c[0]].type === 'user' && nMap[c[1]] && nMap[c[1]].type === 'product') {
+        if (!prodUsers[c[1]]) prodUsers[c[1]] = [];
+        prodUsers[c[1]].push(c[0]);
+      }
+      if (nMap[c[1]] && nMap[c[1]].type === 'user' && nMap[c[0]] && nMap[c[0]].type === 'product') {
+        if (!prodUsers[c[0]]) prodUsers[c[0]] = [];
+        prodUsers[c[0]].push(c[1]);
+      }
+    });
+
+    // Place products in columns to the right, grouped by how many users share them
+    var pw = 140, ph = 60, pGapX = 40, pGapY = 20;
+    var colX = startX + uw + 80;
+    var placed = {};
+    var colSlots = {}; // colIndex -> next Y
+
+    // Sort products: most connected first (shared products go in earlier columns)
+    var sortedProds = prodNodes.slice().sort(function(a, b) {
+      return (prodUsers[b.id] || []).length - (prodUsers[a.id] || []).length;
+    });
+
+    sortedProds.forEach(function(p) {
+      var users = prodUsers[p.id] || [];
+      // Determine column based on connection count
+      var col = users.length > 2 ? 0 : users.length > 1 ? 1 : 2;
+      if (!colSlots[col]) colSlots[col] = startY;
+
+      // Average Y of connected users for vertical positioning
+      var avgY = startY;
+      if (users.length > 0) {
+        var sumY = 0;
+        users.forEach(function(uid) {
+          if (v2Pos[uid]) sumY += v2Pos[uid].y + uh / 2;
+        });
+        avgY = sumY / users.length - ph / 2;
+      }
+
+      // Use avg Y but ensure no overlap with previous in same column
+      var y = Math.max(avgY, colSlots[col]);
+      var x = colX + col * (pw + pGapX);
+
+      v2Pos[p.id] = { x: x, y: y, w: pw, h: ph };
+      colSlots[col] = y + ph + pGapY;
+    });
+
+    // Render nodes
     nodes.forEach(function(n) {
+      var pos = v2Pos[n.id];
+      if (!pos) return;
       var el = document.createElement('div');
       el.className = 'v2-node ' + n.type;
       el.dataset.id = n.id;
-      el.style.left = n.x + 'px';
-      el.style.top = n.y + 'px';
+      el.style.left = pos.x + 'px';
+      el.style.top = pos.y + 'px';
 
       var d = n.detail || {};
       var name = (d.title || n.label || '').replace(/\n/g, ' ');
@@ -7565,12 +7628,16 @@ function toggleTheme() {
     });
 
     // Initial zoom to fit
-    var allX = nodes.map(function(n) { return n.x; });
-    var allY = nodes.map(function(n) { return n.y; });
-    var minX = Math.min.apply(null, allX) - 100;
-    var minY = Math.min.apply(null, allY) - 100;
-    var maxX = Math.max.apply(null, allX) + 300;
-    var maxY = Math.max.apply(null, allY) + 200;
+    var allX = [], allY = [], allR = [], allB = [];
+    Object.keys(v2Pos).forEach(function(id) {
+      var p = v2Pos[id];
+      allX.push(p.x); allY.push(p.y);
+      allR.push(p.x + p.w); allB.push(p.y + p.h);
+    });
+    var minX = Math.min.apply(null, allX) - 50;
+    var minY = Math.min.apply(null, allY) - 50;
+    var maxX = Math.max.apply(null, allR) + 50;
+    var maxY = Math.max.apply(null, allB) + 50;
     var contentW = maxX - minX;
     var contentH = maxY - minY;
     v2Scale = Math.min(window.innerWidth / contentW, window.innerHeight / contentH) * 0.85;
@@ -7584,16 +7651,30 @@ function toggleTheme() {
     function drawV2Lines() {
       linesSvg.innerHTML = '';
       connections.forEach(function(c) {
-        var a = nMap[c[0]], b = nMap[c[1]];
+        var a = v2Pos[c[0]], b = v2Pos[c[1]];
         if (!a || !b) return;
         var isData = c[2] === 'data';
-        var aw = a.type === 'user' ? 180 : 130;
-        var ah = a.type === 'user' ? 70 : 55;
-        var bw = b.type === 'user' ? 180 : 130;
-        var bh = b.type === 'user' ? 70 : 55;
 
-        var x1 = a.x + aw / 2, y1 = a.y + ah / 2;
-        var x2 = b.x + bw / 2, y2 = b.y + bh / 2;
+        // Connect from right edge of left node to left edge of right node
+        var leftNode = a.x < b.x ? a : b;
+        var rightNode = a.x < b.x ? b : a;
+        var x1 = leftNode.x + leftNode.w;
+        var y1 = leftNode.y + leftNode.h / 2;
+        var x2 = rightNode.x;
+        var y2 = rightNode.y + rightNode.h / 2;
+
+        // If same column, connect bottom to top
+        if (Math.abs(a.x - b.x) < 50) {
+          var topNode = a.y < b.y ? a : b;
+          var botNode = a.y < b.y ? b : a;
+          x1 = topNode.x + topNode.w / 2;
+          y1 = topNode.y + topNode.h;
+          x2 = botNode.x + botNode.w / 2;
+          y2 = botNode.y;
+        }
+
+        // Midpoint for right-angle routing
+        var midX = x1 + (x2 - x1) / 2;
 
         var isActive = v2ActiveNode && (c[0] === v2ActiveNode || c[1] === v2ActiveNode);
         var cls = 'v2-line';
@@ -7601,11 +7682,19 @@ function toggleTheme() {
         if (isActive) cls += ' highlight';
         else if (v2ActiveNode) cls += ' dimmed';
 
-        var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttribute('x1', x1); line.setAttribute('y1', y1);
-        line.setAttribute('x2', x2); line.setAttribute('y2', y2);
-        line.setAttribute('class', cls);
-        linesSvg.appendChild(line);
+        // Draw orthogonal path: horizontal → vertical → horizontal
+        var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        var d;
+        if (Math.abs(a.x - b.x) < 50) {
+          // Vertical: straight down
+          d = 'M' + x1 + ',' + y1 + ' L' + x2 + ',' + y2;
+        } else {
+          // Right-angle: go right to midpoint, then vertical, then right to target
+          d = 'M' + x1 + ',' + y1 + ' L' + midX + ',' + y1 + ' L' + midX + ',' + y2 + ' L' + x2 + ',' + y2;
+        }
+        path.setAttribute('d', d);
+        path.setAttribute('class', cls);
+        linesSvg.appendChild(path);
       });
     }
   }
