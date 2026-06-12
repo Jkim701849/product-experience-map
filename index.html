@@ -1970,6 +1970,193 @@
     .user-avatar-svg { border-radius: 50%; overflow: hidden; display: inline-block; }
     .user-avatar-svg svg { width: 100%; height: 100%; display: block; }
 
+    /* ====== CMS VIEW ====== */
+    .cms-view {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 40; display: none; background: var(--bg); overflow: hidden;
+    }
+    .cms-view.active { display: flex; z-index: 60; }
+    body.cms-active .zoom-controls, body.cms-active .toolbar,
+    body.cms-active .detail-panel, body.cms-active .welcome-card { display: none !important; }
+
+    .cms-layout { display: flex; width: 100%; height: 100%; }
+
+    .cms-sidebar {
+      width: 300px; flex-shrink: 0; display: flex; flex-direction: column;
+      border-right: 1px solid var(--card-border); background: var(--card-bg);
+    }
+    .cms-sidebar-header {
+      display: flex; align-items: center; padding: 0.75rem 1rem; gap: 0.75rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .cms-back {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--card-elevated); border: none;
+      color: var(--card-text-tertiary); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s; padding: 0;
+    }
+    .cms-back .material-symbols-outlined { font-size: 1.2rem; }
+    .cms-back:hover { background: var(--card-hover); color: var(--card-text); }
+    .cms-title {
+      font-family: var(--sans); font-size: 1rem; font-weight: 500; color: var(--text);
+    }
+
+    .cms-tabs {
+      display: flex; border-bottom: 1px solid var(--card-border);
+    }
+    .cms-tab {
+      flex: 1; padding: 0.6rem 0.5rem; border: none; background: none;
+      color: var(--card-text-tertiary); font-family: var(--sans); font-size: 0.68rem;
+      font-weight: 500; cursor: pointer; display: flex; align-items: center;
+      justify-content: center; gap: 4px; transition: color 0.2s;
+      border-bottom: 2px solid transparent;
+    }
+    .cms-tab .material-symbols-outlined { font-size: 0.9rem; }
+    .cms-tab:hover { color: var(--text); }
+    .cms-tab.active { color: var(--cyan); border-bottom-color: var(--cyan); }
+
+    .cms-search-wrap {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--card-border);
+    }
+    .cms-search-wrap .material-symbols-outlined { font-size: 1rem; color: var(--dim); }
+    .cms-search {
+      flex: 1; border: none; background: none; outline: none;
+      color: var(--text); font-family: var(--sans); font-size: 0.78rem;
+    }
+    .cms-search::placeholder { color: var(--dim); }
+
+    .cms-list {
+      flex: 1; overflow-y: auto; padding: 0.5rem;
+    }
+    .cms-list::-webkit-scrollbar { width: 4px; }
+    .cms-list::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
+
+    .cms-list-item {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.5rem 0.6rem; border-radius: 8px; cursor: pointer;
+      transition: background 0.15s; margin-bottom: 2px;
+    }
+    .cms-list-item:hover { background: var(--card-hover); }
+    .cms-list-item.active { background: var(--cyan-dim); }
+    .cms-list-item-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: var(--card-elevated); display: flex; align-items: center;
+      justify-content: center; flex-shrink: 0;
+    }
+    .cms-list-item-icon .material-symbols-outlined { font-size: 0.9rem; color: var(--dim); }
+    .cms-list-item-icon.user { color: var(--gold); }
+    .cms-list-item-icon.product { color: var(--cyan); }
+    .cms-list-item-name {
+      font-size: 0.78rem; font-weight: 500; color: var(--text);
+    }
+    .cms-list-item-sub {
+      font-size: 0.6rem; color: var(--dim); margin-top: 1px;
+    }
+
+    .cms-add-btn {
+      display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+      margin: 0.5rem; padding: 0.6rem; border-radius: 8px;
+      background: var(--cyan-dim); border: 1px solid rgba(138,180,248,0.2);
+      color: var(--cyan); font-family: var(--sans); font-size: 0.72rem;
+      font-weight: 600; cursor: pointer; transition: background 0.2s;
+    }
+    .cms-add-btn:hover { background: rgba(138,180,248,0.2); }
+    .cms-add-btn .material-symbols-outlined { font-size: 0.9rem; }
+
+    /* Editor panel */
+    .cms-editor {
+      flex: 1; overflow-y: auto; padding: 2rem;
+    }
+    .cms-editor::-webkit-scrollbar { width: 4px; }
+    .cms-editor::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
+    .cms-editor-empty {
+      height: 100%; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; color: var(--dim);
+      font-family: var(--sans); gap: 0.5rem; font-size: 0.85rem;
+    }
+
+    .cms-form { max-width: 700px; }
+    .cms-form-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+    .cms-form-title {
+      font-family: var(--sans); font-size: 1.2rem; font-weight: 500; color: var(--text);
+    }
+    .cms-form-actions { display: flex; gap: 8px; }
+    .cms-btn {
+      padding: 0.5rem 1rem; border-radius: 8px; border: none;
+      font-family: var(--sans); font-size: 0.72rem; font-weight: 600;
+      cursor: pointer; transition: background 0.2s;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .cms-btn .material-symbols-outlined { font-size: 0.85rem; }
+    .cms-btn-save { background: var(--cyan); color: #121212; }
+    .cms-btn-save:hover { background: #a3c9fa; }
+    .cms-btn-delete { background: rgba(242,139,130,0.15); color: var(--red); }
+    .cms-btn-delete:hover { background: rgba(242,139,130,0.25); }
+    .cms-btn-cancel { background: var(--card-elevated); color: var(--text); }
+    .cms-btn-cancel:hover { background: var(--card-hover); }
+
+    .cms-field { margin-bottom: 1.25rem; }
+    .cms-label {
+      display: block; font-family: var(--sans); font-size: 0.65rem;
+      font-weight: 600; color: var(--card-text-secondary);
+      text-transform: uppercase; letter-spacing: 0.06em;
+      margin-bottom: 0.35rem;
+    }
+    .cms-input, .cms-textarea, .cms-select {
+      width: 100%; padding: 0.6rem 0.75rem; border-radius: 8px;
+      border: 1px solid var(--card-border); background: var(--card-elevated);
+      color: var(--text); font-family: var(--sans); font-size: 0.8rem;
+      outline: none; transition: border-color 0.2s;
+    }
+    .cms-input:focus, .cms-textarea:focus, .cms-select:focus {
+      border-color: var(--cyan);
+    }
+    .cms-textarea { min-height: 100px; resize: vertical; }
+    .cms-select { cursor: pointer; }
+
+    .cms-array-section { margin-bottom: 1.25rem; }
+    .cms-array-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+    .cms-array-add {
+      font-size: 0.65rem; color: var(--cyan); cursor: pointer;
+      background: none; border: none; font-family: var(--sans); font-weight: 600;
+      display: flex; align-items: center; gap: 2px;
+    }
+    .cms-array-add .material-symbols-outlined { font-size: 0.8rem; }
+    .cms-array-item {
+      display: flex; gap: 8px; align-items: flex-start; margin-bottom: 6px;
+    }
+    .cms-array-item .cms-input, .cms-array-item .cms-textarea { flex: 1; }
+    .cms-array-remove {
+      width: 28px; height: 28px; border-radius: 6px; border: none;
+      background: rgba(242,139,130,0.1); color: var(--red); cursor: pointer;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      margin-top: 4px;
+    }
+    .cms-array-remove .material-symbols-outlined { font-size: 0.8rem; }
+
+    .cms-tool-row { display: flex; gap: 6px; margin-bottom: 6px; }
+    .cms-tool-row .cms-input { flex: 1; }
+    .cms-tool-row .cms-input:first-child { max-width: 120px; }
+
+    .cms-divider {
+      height: 1px; background: var(--card-border);
+      margin: 1.5rem 0;
+    }
+
+    @media (max-width: 768px) {
+      .cms-layout { flex-direction: column; }
+      .cms-sidebar { width: 100%; max-height: 40vh; }
+      .cms-editor { padding: 1rem; }
+    }
+
   </style>
 </head>
 <body>
@@ -1990,6 +2177,7 @@
       <a class="start-menu-item" data-start-action="users"><span class="smi-label">Users</span></a>
       <a class="start-menu-item" data-start-action="workflows"><span class="smi-label">Workflows</span></a>
       <a class="start-menu-item" data-start-action="glossary"><span class="smi-label">Glossary</span></a>
+      <a class="start-menu-item" data-start-action="cms"><span class="smi-label">Content Manager</span></a>
       <a class="start-menu-item" data-start-action="secret" style="margin-top:1.5rem;"><span class="smi-label" style="font-size:clamp(0.55rem,1vw,0.72rem);letter-spacing:0.12em;color:rgba(210,215,230,0.25);">Don't click. This is the secret room.</span></a>
     </nav>
   </div>
@@ -2074,6 +2262,34 @@
     </div>
   </div>
 
+  <!-- CMS View -->
+  <div class="cms-view" id="cms-view">
+    <div class="cms-layout">
+      <div class="cms-sidebar">
+        <div class="cms-sidebar-header">
+          <button class="cms-back" id="cms-back"><span class="material-symbols-outlined">arrow_back</span></button>
+          <span class="cms-title">Content Manager</span>
+        </div>
+        <div class="cms-tabs">
+          <button class="cms-tab active" data-tab="users"><span class="material-symbols-outlined">group</span>Users</button>
+          <button class="cms-tab" data-tab="products"><span class="material-symbols-outlined">widgets</span>Products</button>
+          <button class="cms-tab" data-tab="portfolios"><span class="material-symbols-outlined">folder</span>Portfolios</button>
+        </div>
+        <div class="cms-search-wrap">
+          <span class="material-symbols-outlined">search</span>
+          <input class="cms-search" id="cms-search" type="text" placeholder="Search..." />
+        </div>
+        <div class="cms-list" id="cms-list"></div>
+        <button class="cms-add-btn" id="cms-add-btn"><span class="material-symbols-outlined">add</span>Add New</button>
+      </div>
+      <div class="cms-editor" id="cms-editor">
+        <div class="cms-editor-empty">
+          <span class="material-symbols-outlined" style="font-size:3rem;opacity:0.2;">edit_note</span>
+          <p>Select an item to edit</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Detail Panel -->
   <div class="detail-panel" id="detail">
@@ -5875,8 +6091,8 @@ function toggleTheme() {
   /* ========== FILTER DROPDOWN ========== */
   var filterBtn = document.getElementById('filter-btn');
   var filterMenu = document.getElementById('filter-menu');
-  var filterLabels = { all: 'All', usermap: 'Relationships', datamap: 'Data Map', pathgraph: 'Path Graph', glossary: 'Glossary', users: 'Users', workflows: 'Workflows' };
-  var filterIcons = { all: 'hub', usermap: 'group', product: 'widgets', datamap: 'share', pathgraph: 'timeline', glossary: 'menu_book', users: 'group', workflows: 'account_tree' };
+  var filterLabels = { all: 'All', usermap: 'Relationships', datamap: 'Data Map', pathgraph: 'Path Graph', glossary: 'Glossary', users: 'Users', workflows: 'Workflows', cms: 'CMS' };
+  var filterIcons = { all: 'hub', usermap: 'group', product: 'widgets', datamap: 'share', pathgraph: 'timeline', glossary: 'menu_book', users: 'group', workflows: 'account_tree', cms: 'edit_note' };
 
   filterBtn.addEventListener('click', function(e) {
     e.stopPropagation();
@@ -6294,6 +6510,8 @@ function toggleTheme() {
     if (uView) { uView.classList.remove('active'); document.body.classList.remove('users-active'); }
     if (wvView2) { wvView2.classList.remove('active'); document.body.classList.remove('workflows-active'); }
     if (secretRoom) secretRoom.classList.remove('active');
+    var cmsView = document.getElementById('cms-view');
+    if (cmsView) { cmsView.classList.remove('active'); document.body.classList.remove('cms-active'); }
     document.getElementById('viewport').style.display = '';
     closeDetail();
     hideWelcomeCard();
@@ -6328,6 +6546,12 @@ function toggleTheme() {
       case 'pathgraph':
         startOverlay.classList.add('hidden');
         triggerFilter('pathgraph');
+        break;
+      case 'cms':
+        startOverlay.classList.add('hidden');
+        document.getElementById('cms-view').classList.add('active');
+        document.body.classList.add('cms-active');
+        initCMS();
         break;
       case 'secret':
         openSecretRoom();
@@ -6466,7 +6690,464 @@ function toggleTheme() {
   /* ========== USERS VIEW EVENT BINDINGS ========== */
   document.getElementById('users-view-close').addEventListener('click', backToMenu);
 
+  /* ========== CMS ========== */
+  var cmsCurrentTab = 'users';
+  var cmsCurrentId = null;
+  var cmsInitialized = false;
 
+  function initCMS() {
+    if (cmsInitialized) { renderCMSList(); return; }
+    cmsInitialized = true;
+
+    // Tab switching
+    document.querySelectorAll('.cms-tab').forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('.cms-tab').forEach(function(t) { t.classList.remove('active'); });
+        tab.classList.add('active');
+        cmsCurrentTab = tab.dataset.tab;
+        cmsCurrentId = null;
+        renderCMSList();
+        document.getElementById('cms-editor').innerHTML = '<div class="cms-editor-empty"><span class="material-symbols-outlined" style="font-size:3rem;opacity:0.2;">edit_note</span><p>Select an item to edit</p></div>';
+      });
+    });
+
+    // Search
+    document.getElementById('cms-search').addEventListener('input', function() {
+      renderCMSList(this.value);
+    });
+
+    // Add new
+    document.getElementById('cms-add-btn').addEventListener('click', function() {
+      if (cmsCurrentTab === 'users') addNewUser();
+      else if (cmsCurrentTab === 'products') addNewProduct();
+      else addNewPortfolio();
+    });
+
+    // Back
+    document.getElementById('cms-back').addEventListener('click', backToMenu);
+
+    renderCMSList();
+  }
+
+  function renderCMSList(query) {
+    var list = document.getElementById('cms-list');
+    query = (query || '').toLowerCase();
+
+    var items = [];
+    if (cmsCurrentTab === 'users') {
+      items = nodes.filter(function(n) { return n.type === 'user'; });
+    } else if (cmsCurrentTab === 'products') {
+      items = nodes.filter(function(n) { return n.type === 'product'; });
+    } else {
+      // Portfolios — derive from connections (groups of products per user)
+      var userNodes = nodes.filter(function(n) { return n.type === 'user'; });
+      items = userNodes.map(function(u) {
+        var prods = [];
+        connections.forEach(function(c) {
+          if (c[0] === u.id && nMap[c[1]] && nMap[c[1]].type === 'product') prods.push(c[1]);
+          if (c[1] === u.id && nMap[c[0]] && nMap[c[0]].type === 'product') prods.push(c[0]);
+        });
+        return { id: u.id, label: (u.detail ? u.detail.title : u.label) + ' Portfolio', type: 'portfolio', products: prods, icon: 'folder' };
+      });
+    }
+
+    if (query) {
+      items = items.filter(function(n) {
+        var name = (n.detail ? n.detail.title : n.label || '').toLowerCase();
+        return name.indexOf(query) !== -1 || n.id.indexOf(query) !== -1;
+      });
+    }
+
+    var html = '';
+    items.forEach(function(n) {
+      var name = n.detail ? n.detail.title : (n.label || n.id);
+      var sub = n.detail ? (n.detail.subtitle || '') : '';
+      if (typeof name === 'string') name = name.replace(/\n/g, ' ');
+      var isActive = cmsCurrentId === n.id;
+      var iconClass = n.type === 'user' ? 'user' : 'product';
+      var icon = n.icon || (n.type === 'user' ? 'person' : 'widgets');
+      if (cmsCurrentTab === 'portfolios') { icon = 'folder'; iconClass = 'product'; sub = (n.products ? n.products.length : 0) + ' products'; }
+
+      html += '<div class="cms-list-item' + (isActive ? ' active' : '') + '" data-id="' + n.id + '">';
+      html += '<div class="cms-list-item-icon ' + iconClass + '"><span class="material-symbols-outlined">' + icon + '</span></div>';
+      html += '<div><div class="cms-list-item-name">' + name + '</div>';
+      html += '<div class="cms-list-item-sub">' + sub + '</div></div>';
+      html += '</div>';
+    });
+
+    list.innerHTML = html;
+
+    list.querySelectorAll('.cms-list-item').forEach(function(item) {
+      item.addEventListener('click', function() {
+        cmsCurrentId = item.dataset.id;
+        renderCMSList(document.getElementById('cms-search').value);
+        if (cmsCurrentTab === 'users' || cmsCurrentTab === 'products') {
+          renderCMSEditor(cmsCurrentId);
+        } else {
+          renderPortfolioEditor(cmsCurrentId);
+        }
+      });
+    });
+  }
+
+  function renderCMSEditor(id) {
+    var n = nMap[id];
+    if (!n) return;
+    var d = n.detail || {};
+    var editor = document.getElementById('cms-editor');
+    var isUser = n.type === 'user';
+
+    var html = '<div class="cms-form">';
+    html += '<div class="cms-form-header">';
+    html += '<span class="cms-form-title">Edit: ' + (d.title || n.label || '').replace(/\n/g,' ') + '</span>';
+    html += '<div class="cms-form-actions">';
+    html += '<button class="cms-btn cms-btn-delete" id="cms-delete"><span class="material-symbols-outlined">delete</span>Delete</button>';
+    html += '<button class="cms-btn cms-btn-save" id="cms-save"><span class="material-symbols-outlined">save</span>Save</button>';
+    html += '</div></div>';
+
+    // Basic fields
+    html += '<div class="cms-field"><label class="cms-label">ID (read-only)</label>';
+    html += '<input class="cms-input" value="' + n.id + '" disabled /></div>';
+
+    html += '<div class="cms-field"><label class="cms-label">Title</label>';
+    html += '<input class="cms-input" id="cms-f-title" value="' + (d.title || '').replace(/"/g,'&quot;') + '" /></div>';
+
+    html += '<div class="cms-field"><label class="cms-label">Subtitle</label>';
+    html += '<input class="cms-input" id="cms-f-subtitle" value="' + (d.subtitle || '').replace(/"/g,'&quot;') + '" /></div>';
+
+    html += '<div class="cms-field"><label class="cms-label">Label (node display)</label>';
+    html += '<input class="cms-input" id="cms-f-label" value="' + (n.label || '').replace(/\n/g,'\\n').replace(/"/g,'&quot;') + '" /></div>';
+
+    html += '<div class="cms-field"><label class="cms-label">Icon (Material symbol name)</label>';
+    html += '<input class="cms-input" id="cms-f-icon" value="' + (n.icon || '') + '" /></div>';
+
+    html += '<div class="cms-field"><label class="cms-label">Description</label>';
+    html += '<textarea class="cms-textarea" id="cms-f-desc">' + (d.desc || '') + '</textarea></div>';
+
+    html += '<div class="cms-divider"></div>';
+
+    // Hardware (array of strings)
+    if (isUser || d.hardware) {
+      html += '<div class="cms-array-section">';
+      html += '<div class="cms-array-header"><label class="cms-label" style="margin:0;">Hardware</label>';
+      html += '<button class="cms-array-add" data-array="hardware"><span class="material-symbols-outlined">add</span>Add</button></div>';
+      html += '<div id="cms-hw-list">';
+      if (d.hardware) {
+        d.hardware.forEach(function(hw, i) {
+          html += '<div class="cms-array-item"><input class="cms-input cms-hw" value="' + hw.replace(/"/g,'&quot;') + '" />';
+          html += '<button class="cms-array-remove" data-idx="' + i + '"><span class="material-symbols-outlined">close</span></button></div>';
+        });
+      }
+      html += '</div></div>';
+    }
+
+    // Tools (array of {name, color, desc})
+    if (d.tools) {
+      html += '<div class="cms-array-section">';
+      html += '<div class="cms-array-header"><label class="cms-label" style="margin:0;">Tools & Services</label>';
+      html += '<button class="cms-array-add" data-array="tools"><span class="material-symbols-outlined">add</span>Add</button></div>';
+      html += '<div id="cms-tools-list">';
+      d.tools.forEach(function(t, i) {
+        html += '<div class="cms-tool-row">';
+        html += '<input class="cms-input cms-tool-name" value="' + (t.name || '').replace(/"/g,'&quot;') + '" placeholder="Name" />';
+        html += '<input class="cms-input cms-tool-color" value="' + (t.color || '') + '" placeholder="Color CSS" />';
+        html += '<input class="cms-input cms-tool-desc" value="' + (t.desc || '').replace(/"/g,'&quot;') + '" placeholder="Description" />';
+        html += '<button class="cms-array-remove" data-idx="' + i + '"><span class="material-symbols-outlined">close</span></button>';
+        html += '</div>';
+      });
+      html += '</div></div>';
+    }
+
+    html += '<div class="cms-divider"></div>';
+
+    // Pain Points (array of strings)
+    if (isUser || d.painPoints) {
+      html += '<div class="cms-array-section">';
+      html += '<div class="cms-array-header"><label class="cms-label" style="margin:0;">Pain Points</label>';
+      html += '<button class="cms-array-add" data-array="painPoints"><span class="material-symbols-outlined">add</span>Add</button></div>';
+      html += '<div id="cms-pp-list">';
+      if (d.painPoints) {
+        d.painPoints.forEach(function(pp, i) {
+          html += '<div class="cms-array-item"><textarea class="cms-textarea cms-pp" style="min-height:50px;">' + pp + '</textarea>';
+          html += '<button class="cms-array-remove" data-idx="' + i + '"><span class="material-symbols-outlined">close</span></button></div>';
+        });
+      }
+      html += '</div></div>';
+    }
+
+    // Workflows (simplified — name + steps as comma-separated)
+    if (d.workflows && d.workflows.length > 0) {
+      html += '<div class="cms-divider"></div>';
+      html += '<div class="cms-array-section">';
+      html += '<div class="cms-array-header"><label class="cms-label" style="margin:0;">Workflows</label>';
+      html += '<button class="cms-array-add" data-array="workflows"><span class="material-symbols-outlined">add</span>Add</button></div>';
+      html += '<div id="cms-wf-list">';
+      d.workflows.forEach(function(wf, i) {
+        html += '<div style="margin-bottom:0.75rem;padding:0.75rem;background:var(--card-elevated);border-radius:8px;">';
+        html += '<input class="cms-input cms-wf-name" value="' + (wf.name || '').replace(/"/g,'&quot;') + '" placeholder="Workflow name" style="margin-bottom:6px;" />';
+        html += '<textarea class="cms-textarea cms-wf-steps" style="min-height:60px;" placeholder="Steps (one per line)">' + (wf.steps || []).join('\n') + '</textarea>';
+        html += '<button class="cms-array-remove" data-idx="' + i + '" style="margin-top:4px;"><span class="material-symbols-outlined">close</span></button>';
+        html += '</div>';
+      });
+      html += '</div></div>';
+    }
+
+    html += '</div>';
+    editor.innerHTML = html;
+
+    // Bind save
+    document.getElementById('cms-save').addEventListener('click', function() {
+      saveCMSItem(id);
+    });
+
+    // Bind delete
+    document.getElementById('cms-delete').addEventListener('click', function() {
+      if (confirm('Delete "' + (d.title || n.label) + '"? This cannot be undone.')) {
+        deleteCMSItem(id);
+      }
+    });
+
+    // Bind array add buttons
+    editor.querySelectorAll('.cms-array-add').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var arr = btn.dataset.array;
+        if (arr === 'hardware') {
+          if (!n.detail.hardware) n.detail.hardware = [];
+          n.detail.hardware.push('');
+        } else if (arr === 'tools') {
+          if (!n.detail.tools) n.detail.tools = [];
+          n.detail.tools.push({name:'',color:'var(--cyan)',desc:''});
+        } else if (arr === 'painPoints') {
+          if (!n.detail.painPoints) n.detail.painPoints = [];
+          n.detail.painPoints.push('');
+        } else if (arr === 'workflows') {
+          if (!n.detail.workflows) n.detail.workflows = [];
+          n.detail.workflows.push({name:'New Workflow',steps:['Step 1'],icon:'account_tree'});
+        }
+        renderCMSEditor(id);
+      });
+    });
+
+    // Bind array remove buttons
+    editor.querySelectorAll('.cms-array-remove').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var idx = parseInt(btn.dataset.idx);
+        var section = btn.closest('.cms-array-section') || btn.parentElement;
+        // Determine which array by checking parent list ID
+        var parent = btn.closest('[id]');
+        if (parent && parent.id === 'cms-hw-list' && n.detail.hardware) { n.detail.hardware.splice(idx, 1); }
+        else if (parent && parent.id === 'cms-tools-list' && n.detail.tools) { n.detail.tools.splice(idx, 1); }
+        else if (parent && parent.id === 'cms-pp-list' && n.detail.painPoints) { n.detail.painPoints.splice(idx, 1); }
+        else if (parent && parent.id === 'cms-wf-list' && n.detail.workflows) { n.detail.workflows.splice(idx, 1); }
+        renderCMSEditor(id);
+      });
+    });
+  }
+
+  function saveCMSItem(id) {
+    var n = nMap[id];
+    if (!n || !n.detail) return;
+
+    n.detail.title = document.getElementById('cms-f-title').value;
+    n.detail.subtitle = document.getElementById('cms-f-subtitle').value;
+    n.label = document.getElementById('cms-f-label').value.replace(/\\n/g, '\n');
+    n.icon = document.getElementById('cms-f-icon').value;
+    n.detail.desc = document.getElementById('cms-f-desc').value;
+
+    // Hardware
+    var hwInputs = document.querySelectorAll('.cms-hw');
+    if (hwInputs.length > 0) {
+      n.detail.hardware = [];
+      hwInputs.forEach(function(inp) { if (inp.value.trim()) n.detail.hardware.push(inp.value.trim()); });
+    }
+
+    // Tools
+    var toolNames = document.querySelectorAll('.cms-tool-name');
+    var toolColors = document.querySelectorAll('.cms-tool-color');
+    var toolDescs = document.querySelectorAll('.cms-tool-desc');
+    if (toolNames.length > 0) {
+      n.detail.tools = [];
+      for (var i = 0; i < toolNames.length; i++) {
+        if (toolNames[i].value.trim()) {
+          n.detail.tools.push({
+            name: toolNames[i].value.trim(),
+            color: toolColors[i] ? toolColors[i].value.trim() : 'var(--cyan)',
+            desc: toolDescs[i] ? toolDescs[i].value.trim() : ''
+          });
+        }
+      }
+    }
+
+    // Pain Points
+    var ppInputs = document.querySelectorAll('.cms-pp');
+    if (ppInputs.length > 0) {
+      n.detail.painPoints = [];
+      ppInputs.forEach(function(inp) { if (inp.value.trim()) n.detail.painPoints.push(inp.value.trim()); });
+    }
+
+    // Workflows
+    var wfNames = document.querySelectorAll('.cms-wf-name');
+    var wfSteps = document.querySelectorAll('.cms-wf-steps');
+    if (wfNames.length > 0 && n.detail.workflows) {
+      n.detail.workflows = [];
+      for (var w = 0; w < wfNames.length; w++) {
+        if (wfNames[w].value.trim()) {
+          var steps = wfSteps[w] ? wfSteps[w].value.split('\n').filter(function(s) { return s.trim(); }) : [];
+          n.detail.workflows.push({
+            name: wfNames[w].value.trim(),
+            steps: steps,
+            icon: 'account_tree'
+          });
+        }
+      }
+    }
+
+    // Save to localStorage
+    saveCMSData();
+
+    // Refresh
+    nodesInitialized = false;
+    nMap = nodeMap();
+    drawNodes();
+    drawLines();
+    renderCMSList(document.getElementById('cms-search').value);
+    alert('Saved: ' + n.detail.title);
+  }
+
+  function deleteCMSItem(id) {
+    var idx = -1;
+    for (var i = 0; i < nodes.length; i++) {
+      if (nodes[i].id === id) { idx = i; break; }
+    }
+    if (idx >= 0) {
+      nodes.splice(idx, 1);
+      // Remove connections
+      for (var c = connections.length - 1; c >= 0; c--) {
+        if (connections[c][0] === id || connections[c][1] === id) {
+          connections.splice(c, 1);
+        }
+      }
+      saveCMSData();
+      nMap = nodeMap();
+      nodesInitialized = false;
+      drawNodes(); drawLines();
+      cmsCurrentId = null;
+      renderCMSList();
+      document.getElementById('cms-editor').innerHTML = '<div class="cms-editor-empty"><span class="material-symbols-outlined" style="font-size:3rem;opacity:0.2;">edit_note</span><p>Item deleted</p></div>';
+    }
+  }
+
+  function addNewUser() {
+    var id = 'user-' + Date.now();
+    nodes.push({
+      id: id, type: 'user', label: 'New User', x: 1500, y: 1500, icon: 'person',
+      detail: { title: 'New User', subtitle: '', desc: '', hardware: [], tools: [], workflows: [], painPoints: [] }
+    });
+    saveCMSData();
+    nMap = nodeMap();
+    nodesInitialized = false;
+    drawNodes(); drawLines();
+    cmsCurrentId = id;
+    renderCMSList();
+    renderCMSEditor(id);
+  }
+
+  function addNewProduct() {
+    var id = 'product-' + Date.now();
+    nodes.push({
+      id: id, type: 'product', label: 'New Product', x: 1500, y: 1500, icon: 'widgets',
+      detail: { title: 'New Product', subtitle: '', desc: '', tools: [], dataFlows: [] }
+    });
+    saveCMSData();
+    nMap = nodeMap();
+    nodesInitialized = false;
+    drawNodes(); drawLines();
+    cmsCurrentId = id;
+    renderCMSList();
+    renderCMSEditor(id);
+  }
+
+  function addNewPortfolio() {
+    alert('Portfolios are derived from user-product connections. Use the Products tab to manage which products belong to each user.');
+  }
+
+  function renderPortfolioEditor(userId) {
+    var n = nMap[userId];
+    if (!n) return;
+    var editor = document.getElementById('cms-editor');
+
+    // Get current products connected to this user
+    var connectedProducts = [];
+    connections.forEach(function(c) {
+      if (c[0] === userId && nMap[c[1]] && nMap[c[1]].type === 'product') connectedProducts.push(c[1]);
+      if (c[1] === userId && nMap[c[0]] && nMap[c[0]].type === 'product') connectedProducts.push(c[0]);
+    });
+
+    var allProducts = nodes.filter(function(n) { return n.type === 'product'; });
+
+    var html = '<div class="cms-form">';
+    html += '<div class="cms-form-header"><span class="cms-form-title">' + (n.detail ? n.detail.title : n.label).replace(/\n/g,' ') + ' — Products</span></div>';
+    html += '<p style="font-size:0.75rem;color:var(--card-text-secondary);margin-bottom:1rem;">Check the products this user connects to:</p>';
+
+    allProducts.forEach(function(p) {
+      var pName = (p.detail ? p.detail.title : p.label || p.id).replace(/\n/g,' ');
+      var checked = connectedProducts.indexOf(p.id) >= 0;
+      html += '<label style="display:flex;align-items:center;gap:0.6rem;padding:0.4rem 0;font-size:0.78rem;color:var(--text);cursor:pointer;">';
+      html += '<input type="checkbox" class="cms-portfolio-check" data-pid="' + p.id + '"' + (checked ? ' checked' : '') + ' />';
+      html += pName + '</label>';
+    });
+
+    html += '<div style="margin-top:1rem;"><button class="cms-btn cms-btn-save" id="cms-portfolio-save"><span class="material-symbols-outlined">save</span>Save Connections</button></div>';
+    html += '</div>';
+    editor.innerHTML = html;
+
+    document.getElementById('cms-portfolio-save').addEventListener('click', function() {
+      // Remove all existing connections for this user to products
+      for (var c = connections.length - 1; c >= 0; c--) {
+        var isUserConn = (connections[c][0] === userId && nMap[connections[c][1]] && nMap[connections[c][1]].type === 'product') ||
+                         (connections[c][1] === userId && nMap[connections[c][0]] && nMap[connections[c][0]].type === 'product');
+        if (isUserConn && connections[c][2] !== 'data') {
+          connections.splice(c, 1);
+        }
+      }
+      // Add checked ones
+      document.querySelectorAll('.cms-portfolio-check:checked').forEach(function(cb) {
+        connections.push([userId, cb.dataset.pid]);
+      });
+      saveCMSData();
+      nodesInitialized = false;
+      drawNodes(); drawLines();
+      renderCMSList(document.getElementById('cms-search').value);
+      alert('Connections saved');
+    });
+  }
+
+  function saveCMSData() {
+    try {
+      var data = { nodes: nodes, connections: connections };
+      localStorage.setItem('pem-cms-data', JSON.stringify(data));
+    } catch(e) { console.warn('CMS save failed:', e); }
+  }
+
+  // Load saved CMS data on startup
+  (function loadCMSData() {
+    try {
+      var saved = localStorage.getItem('pem-cms-data');
+      if (saved) {
+        var data = JSON.parse(saved);
+        if (data.nodes) {
+          // Merge saved data into existing nodes
+          nodes.length = 0;
+          data.nodes.forEach(function(n) { nodes.push(n); });
+        }
+        if (data.connections) {
+          connections.length = 0;
+          data.connections.forEach(function(c) { connections.push(c); });
+        }
+        nMap = nodeMap();
+      }
+    } catch(e) { console.warn('CMS load failed:', e); }
+  })();
 
 })();
 </script>
