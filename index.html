@@ -2151,6 +2151,37 @@
       margin: 1.5rem 0;
     }
 
+    /* Workflow image drop zone */
+    .cms-wf-dropzone {
+      border: 2px dashed var(--card-border); border-radius: 12px;
+      padding: 1.5rem; text-align: center; cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      margin-bottom: 1rem;
+    }
+    .cms-wf-dropzone:hover, .cms-wf-dropzone.dragover {
+      border-color: var(--cyan); background: var(--cyan-dim);
+    }
+    .cms-wf-dropzone .material-symbols-outlined {
+      font-size: 2rem; color: var(--dim); display: block; margin-bottom: 0.5rem;
+    }
+    .cms-wf-dropzone p {
+      font-size: 0.72rem; color: var(--card-text-secondary); margin: 0;
+    }
+    .cms-wf-dropzone p.small {
+      font-size: 0.6rem; color: var(--dim); margin-top: 0.25rem;
+    }
+    .cms-wf-dropzone.processing {
+      border-color: var(--gold); background: var(--gold-dim);
+    }
+    .cms-wf-dropzone img {
+      max-width: 100%; max-height: 200px; border-radius: 8px;
+      margin-top: 0.75rem; object-fit: contain;
+    }
+    .cms-wf-progress {
+      font-size: 0.65rem; color: var(--gold); margin-top: 0.5rem;
+      font-weight: 600;
+    }
+
     @media (max-width: 768px) {
       .cms-layout { flex-direction: column; }
       .cms-sidebar { width: 100%; max-height: 40vh; }
@@ -2422,6 +2453,7 @@
   </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script>
 /* ========== JARVIS PARTICLE FACE ========== */
 (function() {
@@ -6875,13 +6907,21 @@ function toggleTheme() {
       html += '</div></div>';
     }
 
-    // Workflows (simplified — name + steps as comma-separated)
+    // Workflows
+    html += '<div class="cms-divider"></div>';
+    html += '<div class="cms-array-section">';
+    html += '<div class="cms-array-header"><label class="cms-label" style="margin:0;">Workflows</label>';
+    html += '<button class="cms-array-add" data-array="workflows"><span class="material-symbols-outlined">add</span>Add</button></div>';
+
+    // Drop zone for image-to-workflow
+    html += '<div class="cms-wf-dropzone" id="cms-wf-dropzone">';
+    html += '<span class="material-symbols-outlined">image</span>';
+    html += '<p>Drop a workflow image here to auto-generate steps</p>';
+    html += '<p class="small">Supports PNG, JPG — uses OCR to extract text</p>';
+    html += '</div>';
+
+    html += '<div id="cms-wf-list">';
     if (d.workflows && d.workflows.length > 0) {
-      html += '<div class="cms-divider"></div>';
-      html += '<div class="cms-array-section">';
-      html += '<div class="cms-array-header"><label class="cms-label" style="margin:0;">Workflows</label>';
-      html += '<button class="cms-array-add" data-array="workflows"><span class="material-symbols-outlined">add</span>Add</button></div>';
-      html += '<div id="cms-wf-list">';
       d.workflows.forEach(function(wf, i) {
         html += '<div style="margin-bottom:0.75rem;padding:0.75rem;background:var(--card-elevated);border-radius:8px;">';
         html += '<input class="cms-input cms-wf-name" value="' + (wf.name || '').replace(/"/g,'&quot;') + '" placeholder="Workflow name" style="margin-bottom:6px;" />';
@@ -6889,8 +6929,8 @@ function toggleTheme() {
         html += '<button class="cms-array-remove" data-idx="' + i + '" style="margin-top:4px;"><span class="material-symbols-outlined">close</span></button>';
         html += '</div>';
       });
-      html += '</div></div>';
     }
+    html += '</div></div>';
 
     html += '</div>';
     editor.innerHTML = html;
@@ -6942,6 +6982,100 @@ function toggleTheme() {
         renderCMSEditor(id);
       });
     });
+
+    // Bind workflow image drop zone
+    var dropzone = document.getElementById('cms-wf-dropzone');
+    if (dropzone) {
+      ['dragenter','dragover'].forEach(function(evt) {
+        dropzone.addEventListener(evt, function(e) { e.preventDefault(); dropzone.classList.add('dragover'); });
+      });
+      ['dragleave','drop'].forEach(function(evt) {
+        dropzone.addEventListener(evt, function() { dropzone.classList.remove('dragover'); });
+      });
+      dropzone.addEventListener('click', function() {
+        var inp = document.createElement('input');
+        inp.type = 'file'; inp.accept = 'image/*';
+        inp.onchange = function() { if (inp.files[0]) processWorkflowImage(inp.files[0], id); };
+        inp.click();
+      });
+      dropzone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        var file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) processWorkflowImage(file, id);
+      });
+    }
+  }
+
+  function processWorkflowImage(file, nodeId) {
+    var dropzone = document.getElementById('cms-wf-dropzone');
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      dropzone.classList.add('processing');
+      dropzone.innerHTML = '<span class="material-symbols-outlined">hourglass_top</span>'
+        + '<p>Analyzing image...</p>'
+        + '<p class="cms-wf-progress" id="cms-ocr-progress">Loading OCR engine...</p>'
+        + '<img src="' + e.target.result + '" />';
+
+      if (typeof Tesseract === 'undefined') {
+        dropzone.innerHTML = '<span class="material-symbols-outlined">error</span><p>Tesseract.js not loaded</p>';
+        dropzone.classList.remove('processing');
+        return;
+      }
+
+      Tesseract.recognize(e.target.result, 'eng', {
+        logger: function(m) {
+          var prog = document.getElementById('cms-ocr-progress');
+          if (prog && m.progress) {
+            var pct = Math.round(m.progress * 100);
+            prog.textContent = m.status + '... ' + pct + '%';
+          }
+        }
+      }).then(function(result) {
+        var text = result.data.text || '';
+        // Parse text into workflow steps
+        var lines = text.split('\n')
+          .map(function(l) { return l.trim(); })
+          .filter(function(l) { return l.length > 2; })
+          // Remove common OCR artifacts
+          .filter(function(l) { return !/^[\-\=\.\,\|\*]+$/.test(l); })
+          // Strip leading numbers/bullets
+          .map(function(l) { return l.replace(/^\d+[\.\)\:\-]\s*/, '').replace(/^[\-\•\*]\s*/, ''); })
+          .filter(function(l) { return l.length > 2; });
+
+        if (lines.length === 0) {
+          dropzone.classList.remove('processing');
+          dropzone.innerHTML = '<span class="material-symbols-outlined">warning</span>'
+            + '<p>No text detected. Try a clearer image.</p>'
+            + '<p class="small">Click or drop to try again</p>';
+          return;
+        }
+
+        // Use first meaningful line as workflow name, rest as steps
+        var wfName = lines[0];
+        var steps = lines.slice(1);
+        if (steps.length === 0) steps = [wfName];
+
+        var n = nMap[nodeId];
+        if (n && n.detail) {
+          if (!n.detail.workflows) n.detail.workflows = [];
+          n.detail.workflows.push({
+            name: wfName,
+            steps: steps,
+            icon: 'account_tree'
+          });
+        }
+
+        dropzone.classList.remove('processing');
+        renderCMSEditor(nodeId);
+      }).catch(function(err) {
+        console.error('OCR error:', err);
+        dropzone.classList.remove('processing');
+        dropzone.innerHTML = '<span class="material-symbols-outlined">error</span>'
+          + '<p>OCR failed: ' + (err.message || 'Unknown error') + '</p>'
+          + '<p class="small">Click or drop to try again</p>';
+      });
+    };
+    reader.readAsDataURL(file);
   }
 
   function saveCMSItem(id) {
