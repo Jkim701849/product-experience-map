@@ -2519,7 +2519,7 @@ function toggleTheme() {
   /* ========== DATA ========== */
   var nodes = [
     /* ══════ USERS ══════ */
-    { id: 'pilot', type: 'user', label: 'Pilot', x: 565, y: 2050, icon: 'person',
+    { id: 'pilot', type: 'user', label: 'Pilot', x: 896, y: 1498, icon: 'person',
       detail: { title: 'Pilot', subtitle: 'Flight Crew', desc: 'Commercial airline pilots responsible for operating flights, pre-flight procedures, and communicating with operations centers. Stays logged in to ECS for 21 days. Uses biometrics (Touch ID / Face ID) for authentication.',
         hardware: ['Mobile Phone (iOS)', 'Mobile Phone (Android)', 'Tablet (EFB)', 'Desktop', 'Phone (Call)'],
         tools: [
@@ -2682,7 +2682,7 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'fa', type: 'user', label: 'FA', x: 1457, y: 2192, icon: 'person',
+    { id: 'fa', type: 'user', label: 'FA', x: 1788, y: 1640, icon: 'person',
       detail: { title: 'Flight Attendant', subtitle: 'Cabin Crew', desc: 'Flight attendants managing in-flight service, safety, and cabin operations. Access scheduling and compliance tools. Key terms: Bid Month (month FA is bidding for flying), Contractual Month (defined by union contract, may differ from calendar month), Flying Month (month FA flies awarded trips), Log (single flights bundled into trips), Line (schedule of flying within a month), Lineholder (FA who bids for and receives a full month of flying), RAPs (Reserve Availability Periods - blocks of time a reserve must be available), Reserve (FA eligible for any trip, can be called for days on via Panel by or WAR), Stand by (FA sitting at airport on call), Trip/Sequence (series of legs flown by an FA).',
         hardware: ['Personal phone', 'Company issued tablet'],
         tools: [
@@ -2754,7 +2754,7 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'crew-tracker', type: 'user', label: 'Crew\nTracker', x: 1012, y: 2750, icon: 'person',
+    { id: 'crew-tracker', type: 'user', label: 'Crew\nTracker', x: 1797, y: 2004, icon: 'person',
       detail: { title: 'Crew Tracker', painPoints: ['Must manually check PTP compliance before calling pilots','Pilot Lookup requires knowing employee name — no quick search by flight/sequence',], subtitle: 'IOC Staff', desc: 'IOC team member responsible for tracking crew positions and managing irregular operations. Routes incoming ECS requests by equipment and base. Reviews pilot sequence and status information. Can look up pilots by employee name to review flight status and notification preferences.',
         hardware: ['Desktop workstation', 'Phone (Call)'],
         tools: [
@@ -2778,7 +2778,7 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'crew-scheduler', type: 'user', label: 'Crew\nScheduler', x: 1091, y: 2634, icon: 'person',
+    { id: 'crew-scheduler', type: 'user', label: 'Crew\nScheduler', x: 1876, y: 1888, icon: 'person',
       detail: { title: 'Crew Scheduler', subtitle: 'IOC Staff', desc: 'Manages crew scheduling, trip assignments, and reserve coordination. Routes incoming ECS requests by seat, base, equipment, and division. Handles DOTC (Daily Open Time Coverage) on a daily basis. Can remove assignee (SOD only) or transfer to another desk.',
         hardware: ['Desktop workstation', 'Phone (Call)'],
         tools: [
@@ -2821,7 +2821,7 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'training-schedulers', type: 'user', label: 'Training\nSchedulers', x: 3994, y: 1683, icon: 'person',
+    { id: 'training-schedulers', type: 'user', label: 'Training\nSchedulers', x: 2827, y: 1182, icon: 'person',
       detail: { title: 'Training Schedulers', painPoints: ['Must manually cross-reference MINT, MARFFLE, CPOP, CTP, and Equalization Report','No single unified system for training scheduling workflow','Before awarding, must run unreliable queries to verify data','Calling instructors directly required for specialized events (Blancord/ADP)',], subtitle: 'Training Operations', desc: 'Coordinates pilot and crew training schedules, certifications, and qualification tracking. Looks in MINT to find events for the next day that still need instructors (on holidays sometimes multiple days out). Awards events in CPOP and assigns bids in MINT, then updates the Equalization Report.',
         hardware: ['Desktop workstation'],
         tools: [
@@ -2868,7 +2868,7 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'ckp-ip', type: 'user', label: 'Check Pilots\n& Instructor\nPilots', x: 4227, y: 1579, icon: 'person',
+    { id: 'ckp-ip', type: 'user', label: 'Check Pilots\n& Instructor\nPilots', x: 3060, y: 1078, icon: 'person',
       detail: { title: 'Check Pilots & Instructor Pilots', subtitle: 'CKP · IP', desc: 'Check Pilots and Instructor Pilots who can bid on overtime training events. They are qualified to handle CKP and IP events and use the CTP Overtime Proffer to submit bids.',
         hardware: ['Personal phone', 'Company issued tablet'],
         tools: [
@@ -2882,7 +2882,7 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'fcti-simp', type: 'user', label: 'FCTI &\nSim Pilots', x: 3707, y: 1796, icon: 'person',
+    { id: 'fcti-simp', type: 'user', label: 'FCTI &\nSim Pilots', x: 2540, y: 1295, icon: 'person',
       detail: { title: 'Flight Crew Training Instructors & Sim Pilots', subtitle: 'FCTI · SimP', desc: 'Flight Crew Training Instructors and Simulator Pilots. For FCTI and SimP shifts, schedulers look at the MARFFLE to check availability, then check the Equalization Report to decide who should be awarded based on seniority.',
         hardware: ['Personal phone', 'Desktop workstation'],
         tools: [
@@ -2898,7 +2898,7 @@ function toggleTheme() {
     },
 
     /* ══════ RBO (Baggage Handling) USERS ══════ */
-    { id: 'ticket-agent', type: 'user', label: 'Ticket Agent', x: 503, y: 1500, icon: 'badge', detail: {
+    { id: 'ticket-agent', type: 'user', label: 'Ticket Agent', x: 699, y: 851, icon: 'badge', detail: {
       title: 'Ticket Agent', subtitle: 'Airport Operations',
       desc: 'Handles customer check-in at departure terminal. Takes customer bags, scans bag tags, and places them on the conveyor belt for induction into the Baggage Handling System (BHS).',
       hardware: ['Desktop workstation', 'Bag tag printer', 'Conveyor belt scanner'],
@@ -2909,7 +2909,7 @@ function toggleTheme() {
       workflows: [{name:'Customer Check-in & Bag Induction',steps:['Greet customer','Print bag tag','Scan bag tag','Place bag on conveyor belt','Confirm bag entered BHS']}],
       painPoints: ['Manual bag tag scanning can be slow during peak hours','System delays between scan and BHS confirmation']
     }},
-    { id: 'gate-crew', type: 'user', label: 'Gate Crew', x: 709, y: 1597, icon: 'engineering', detail: {
+    { id: 'gate-crew', type: 'user', label: 'Gate Crew', x: 905, y: 948, icon: 'engineering', detail: {
       title: 'Gate Crew', subtitle: 'Ramp Operations',
       desc: 'Responsible for offloading arriving bags from aircraft using belt loader vehicles. Uses TrackScan app to scan bags as they are unloaded. Also loads departing bags onto aircraft.',
       hardware: ['Belt loader vehicle', 'Company-issued tablet/phone', 'Safety equipment'],
@@ -2919,7 +2919,7 @@ function toggleTheme() {
       workflows: [{name:'Arriving Bags Offload',steps:['Position belt loader at aircraft','Begin offloading bags','Scan each bag with TrackScan','Place bags on transport cart','Confirm all bags offloaded']}],
       painPoints: ['Belt loader positioning delays','TrackScan app connectivity issues on tarmac','Weather impacts on offloading speed']
     }},
-    { id: 'abr-driver', type: 'user', label: 'ABR Driver', x: 355, y: 1427, icon: 'local_shipping', detail: {
+    { id: 'abr-driver', type: 'user', label: 'ABR Driver', x: 551, y: 778, icon: 'local_shipping', detail: {
       title: 'ABR Driver', subtitle: 'Ramp Operations',
       desc: 'Drives baggage carts between aircraft and terminals. Scans bags with T.LINE application and loads baggage carts with appropriate cargo for transport to the correct location.',
       hardware: ['Baggage tug/cart', 'Handheld scanner', 'Company-issued device'],
@@ -2930,7 +2930,7 @@ function toggleTheme() {
       workflows: [{name:'Bag Transport',steps:['Receive bags from gate crew or BHS','Scan bags with T.LINE','Load onto appropriate cart','Drive to destination gate/terminal','Deliver bags for loading']}],
       painPoints: ['Wrong terminal routing requires re-transport','Tight connection times for transfer bags','Tarmac congestion during peak operations']
     }},
-    { id: 'bag-clerk', type: 'user', label: 'Bag Clerk', x: 903, y: 1375, icon: 'inventory_2', detail: {
+    { id: 'bag-clerk', type: 'user', label: 'Bag Clerk', x: 1099, y: 726, icon: 'inventory_2', detail: {
       title: 'Bag Clerk', subtitle: 'Baggage Operations',
       desc: 'Scans and manages bags at various points in the baggage handling process including BHS make-up units, late piers, and planeside loading. Responsible for ensuring bags reach the correct aircraft.',
       hardware: ['Handheld scanner', 'Desktop workstation', 'Radio'],
@@ -2941,7 +2941,7 @@ function toggleTheme() {
       workflows: [{name:'Planeside Loading',steps:['Receive bags at make-up unit','Scan each bag','Load onto baggage cart','Drive planeside','Scan and load onto aircraft']}],
       painPoints: ['Late bags arriving after cutoff time','Manual cross-referencing of bag tags','Late pier routing adds significant time','Bags left on tarmac require sweeper pickup']
     }},
-    { id: 'sweeper', type: 'user', label: 'Sweeper', x: 829, y: 1485, icon: 'search', detail: {
+    { id: 'sweeper', type: 'user', label: 'Sweeper', x: 1025, y: 836, icon: 'search', detail: {
       title: 'Sweeper', subtitle: 'Ramp Operations',
       desc: 'Drives around the service roads looking for bags left on the tarmac. When a bag does not belong to the departing flight or was not transported in time, it is left on the tarmac for an indefinite amount of time to be picked up by the Sweeper and taken to the appropriate location.',
       hardware: ['Service vehicle', 'Handheld scanner', 'Radio'],
@@ -2951,7 +2951,7 @@ function toggleTheme() {
       workflows: [{name:'Tarmac Bag Recovery',steps:['Drive service roads around tarmac','Identify bags left on ground','Scan bag with TrackScan','Determine correct destination','Transport to appropriate location']}],
       painPoints: ['No defined schedule for sweeper routes','Bags can sit on tarmac indefinitely','Weather exposure damages bags','Difficult to locate bags in large ramp areas']
     }},
-    { id: 'encoder', type: 'user', label: 'Encoder', x: 850, y: 1217, icon: 'qr_code_scanner', detail: {
+    { id: 'encoder', type: 'user', label: 'Encoder', x: 1046, y: 568, icon: 'qr_code_scanner', detail: {
       title: 'Encoder', subtitle: 'Baggage Operations',
       desc: 'Works at the Encode Station in the Baggage Handling System. Fixes physical problems with bag tags so bags can be properly scanned and re-entered into the BHS routing system.',
       hardware: ['Encode station workstation', 'Bag tag printer', 'Scanner'],
@@ -2964,7 +2964,7 @@ function toggleTheme() {
     }},
 
     /* ══════ PRODUCTS ══════ */
-    { id: 'cci', type: 'product', label: 'CCI', x: 824, y: 1994, icon: 'smartphone',
+    { id: 'cci', type: 'product', label: 'CCI', x: 1155, y: 1442, icon: 'smartphone',
       detail: { title: 'CCI · Crew Check-In', subtitle: 'Pilots · Flight Attendants', desc: 'Local, PWA, iOS app that allows crew members to access their flight schedules, details, FOS resources, and other mission critical information. Crew members also check-in to their flights via this app.',
         hardware: ['Company issued tablet', 'Personal PC', 'Personal phone'],
         tools: [
@@ -2974,7 +2974,7 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'ecs', type: 'product', label: 'ECS', x: 1015, y: 2125, icon: 'chat',
+    { id: 'ecs', type: 'product', label: 'ECS', x: 1346, y: 1573, icon: 'chat',
       detail: { title: 'ECS · Electronic Communication System', painPoints: ['Pilots waited 10 minutes to 3 hours for responses using legacy phone/radio/email','Urgent messages buried under non-urgent noise — no priority system','$4.2M in annual operational waste from cascading delays and miscommunication','Miscommunication caused delayed clearances, incorrect crew assignments, and last-minute flight changes',], subtitle: 'Pilots · Crew Scheduling · Crew Tracking · Hotel/Limo', desc: 'Real-time request-based 2-Way Comms platform hosted within CME as a micro-frontend app. Replaces radio, phone, and email for structured pilot-to-IOC communication. Message history retained for 90 days.',
         hardware: ['Mobile Phone (iOS/Android)', 'Tablet (EFB)', 'Desktop'],
         tools: [
@@ -2999,28 +2999,28 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'fdpro-1', type: 'product', label: 'FDPro', x: 950, y: 2130, icon: 'description',
+    { id: 'fdpro-1', type: 'product', label: 'FDPro', x: 1281, y: 1578, icon: 'description',
       detail: { title: 'FDPro', subtitle: 'Flight Data', desc: 'Flight planning and data tool used by pilots and flight attendants for route information, fuel planning, and operational data.' }
     },
-    { id: 'aircraft-fms-1', type: 'product', label: 'Aircraft FMS', x: 581, y: 2192, icon: 'flight',
+    { id: 'aircraft-fms-1', type: 'product', label: 'Aircraft FMS', x: 912, y: 1640, icon: 'flight',
       detail: { title: 'Aircraft FMS', subtitle: 'Flight Management System', desc: 'Onboard flight management system used for navigation, performance calculations, and flight planning.' }
     },
-    { id: 'comply-365', type: 'product', label: 'Comply 365', x: 701, y: 2168, icon: 'verified',
+    { id: 'comply-365', type: 'product', label: 'Comply 365', x: 1032, y: 1616, icon: 'verified',
       detail: { title: 'Comply 365', subtitle: 'Compliance', desc: 'Digital compliance and documentation platform for flight attendants and crew members. Stores manuals, safety documentation, and regulatory requirements.' }
     },
-    { id: 'atc', type: 'product', label: 'ATC', x: 516, y: 2250, icon: 'cell_tower',
+    { id: 'atc', type: 'product', label: 'ATC', x: 847, y: 1698, icon: 'cell_tower',
       detail: { title: 'ATC', subtitle: 'Air Traffic Control', desc: 'External air traffic control communication interface for pilots during flight operations.' }
     },
-    { id: 'dispatch', type: 'product', label: 'Dispatch', x: 755, y: 2331, icon: 'send',
+    { id: 'dispatch', type: 'product', label: 'Dispatch', x: 1086, y: 1779, icon: 'send',
       detail: { title: 'Dispatch', subtitle: 'Flight Dispatch', desc: 'Flight dispatch system for operational coordination between pilots and the dispatch team.' }
     },
-    { id: 'wsi', type: 'product', label: 'WSI', x: 650, y: 2267, icon: 'cloud',
+    { id: 'wsi', type: 'product', label: 'WSI', x: 981, y: 1715, icon: 'cloud',
       detail: { title: 'WSI', subtitle: 'Weather Service', desc: 'Weather information service providing real-time meteorological data, forecasts, and weather alerts for flight planning and operations.' }
     },
-    { id: 'flight-keys', type: 'product', label: 'Flight Keys', x: 377, y: 2007, icon: 'vpn_key',
+    { id: 'flight-keys', type: 'product', label: 'Flight Keys', x: 708, y: 1455, icon: 'vpn_key',
       detail: { title: 'Flight Keys', subtitle: 'Operations', desc: 'Flight key management and operational data access tool used by pilots for flight-specific information.' }
     },
-    { id: 'mint', type: 'product', label: 'MINT', x: 3896, y: 1737, icon: 'school',
+    { id: 'mint', type: 'product', label: 'MINT', x: 2729, y: 1236, icon: 'school',
       detail: { title: 'MINT', painPoints: ['MINT prints poorly — teams create PDFs and email them as workaround','FCR Report is so cluttered that the spiral treatment is used fill required and sometimes info is missed','Lost capability from TIMS migration — now need MARFFLE because TIMS would supply lists directly',], subtitle: 'Training Management', desc: 'Training management and instructor scheduling system. Training schedulers look in MINT to find events for the next day that still need instructors. MINT prints poorly so teams create PDFs and email them. Originally had more capability in TIMS — every time they need a MARFFLE, it\'s because TIMS would supply a list of all available sips.',
         hardware: ['Desktop workstation'],
         tools: [
@@ -3034,7 +3034,7 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'marffle', type: 'product', label: 'MARFFLE\n(Excel)', x: 4004, y: 1824, icon: 'table_chart',
+    { id: 'marffle', type: 'product', label: 'MARFFLE\n(Excel)', x: 2837, y: 1323, icon: 'table_chart',
       detail: { title: 'The MARFFLEs', subtitle: 'Excel Spreadsheets', desc: 'Two Excel-based reports used to check instructor availability. The first is a monthly MARFFLE made by the training crew — it has both CKP and IP within it and lists instructor qualifications. The second is a daily MARFFLE pulled from MINT that changes hour by hour (time-stamped), showing current schedule including new sick days that have come up.',
         tools: [
           { name: 'Monthly MARFFLE', color: '#16a34a', desc: 'CKP & IP qualifications, made by training crew' },
@@ -3047,7 +3047,7 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'cpop', type: 'product', label: 'CPOP', x: 4112, y: 1646, icon: 'event_note',
+    { id: 'cpop', type: 'product', label: 'CPOP', x: 2945, y: 1145, icon: 'event_note',
       detail: { title: 'CPOP', subtitle: 'Crew Planning Operations Platform', desc: 'Platform where training schedulers recreate events that need to be filled for overtime bidding. Schedulers "award" events by checking a box (that functionally does nothing). Events from CPOP are sent to the Overtime Proffer in CTP. Bids from CTP are sent back to CPOP.',
         hardware: ['Desktop workstation'],
         tools: [
@@ -3063,7 +3063,7 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'ctp', type: 'product', label: 'CTP', x: 4108, y: 1784, icon: 'assignment',
+    { id: 'ctp', type: 'product', label: 'CTP', x: 2941, y: 1283, icon: 'assignment',
       detail: { title: 'CTP · Overtime Proffer', painPoints: ['No qualification filtering — any instructor can bid on any event regardless of qualification','Bidding window limited to 11am-2pm for next day events',], subtitle: 'Crew Training Platform', desc: 'The Overtime Proffer within CTP allows Check Pilots and Instructor Pilots to bid on overtime training events. Receives events from CPOP and sends bids back. Note: not everything is being filtered to instructors for their specific qualification — any instructor can bid on any event.',
         hardware: ['Desktop workstation', 'Personal phone'],
         tools: [
@@ -3077,7 +3077,7 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'eq-report', type: 'product', label: 'Equalization\nReport (Excel)', x: 3968, y: 1584, icon: 'table_chart',
+    { id: 'eq-report', type: 'product', label: 'Equalization\nReport (Excel)', x: 2801, y: 1083, icon: 'table_chart',
       detail: { title: 'Equalization Report', painPoints: ['Everything on this report is horizontal — team wants it easily accessible as a stand-up view','Schedulers must run bad queries to verify before awarding','Manual seniority-based decisions prone to human error',], subtitle: 'Excel Spreadsheet', desc: 'Excel-based report used to track instructor seniority and work history. Schedulers check a pilot\'s status to manually decide who should be awarded an event based on whether they\'ve worked or their seniority. Everything on this report is horizontal — the team wants it easily accessible as a stand-up view.',
         tools: [
           { name: 'Seniority tracking', color: '#ca8a04', desc: 'Worked or not seniority status' },
@@ -3093,7 +3093,7 @@ function toggleTheme() {
     },
 
     /* ══════ ADDITIONAL USERS ══════ */
-    { id: 'hotel-limo', type: 'user', label: 'Hotel/Limo\nCoordinator', x: 630, y: 791, icon: 'person',
+    { id: 'hotel-limo', type: 'user', label: 'Hotel/Limo\nCoordinator', x: 1365, y: 570, icon: 'person',
       detail: { title: 'Hotel/Limo Coordinator', subtitle: 'IOC Support', desc: 'Handles overnight hotel bookings and ground transportation for crew during layovers. Receives Hotel/Limo Issue requests via ECS 2-Way Comms (routed by 4-Part Bid Status). Marks requests as complete, rejected, or approved.',
         hardware: ['Desktop workstation', 'Phone (Call)'],
         tools: [
@@ -3110,7 +3110,7 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'cpo', type: 'user', label: 'Chief Pilots\nOffice', x: 281, y: 1869, icon: 'person',
+    { id: 'cpo', type: 'user', label: 'Chief Pilots\nOffice', x: 612, y: 1317, icon: 'person',
       detail: { title: 'Chief Pilots Office (CPO)', subtitle: 'Management', desc: 'Provides oversight and escalation support for pilot operations, training, and compliance. Involved in overnight and schedule change escalations.',
         hardware: ['Desktop workstation', 'Phone'],
         tools: [
@@ -3121,7 +3121,7 @@ function toggleTheme() {
     },
 
     /* ══════ ADDITIONAL PRODUCTS ══════ */
-    { id: 'cme', type: 'product', label: 'CME', x: 869, y: 2329, icon: 'web',
+    { id: 'cme', type: 'product', label: 'CME', x: 1200, y: 1777, icon: 'web',
       detail: { title: 'CME', subtitle: 'Crew Management Ecosystem', desc: 'Application that hosts ECS as a micro-frontend app. IOC staff (Crew Schedulers, Crew Trackers, Hotel/Limo) open the ECS inbox within CME to view and manage 2-way comms requests. Can see updated information after FOS changes are made.',
         hardware: ['Desktop workstation'],
         tools: [
@@ -3131,7 +3131,7 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'pbs', type: 'product', label: 'PBS', x: 836, y: 2154, icon: 'how_to_vote',
+    { id: 'pbs', type: 'product', label: 'PBS', x: 1167, y: 1602, icon: 'how_to_vote',
       detail: { title: 'PBS · Preferential Bidding System', painPoints: ['PBS is very complicated — thousands of pilots bidding simultaneously','&quot;5 clicks to just look at Flight Plan in CCI&quot;','Standing bid has only 7 active layers in order of preference — limited flexibility','Check awards process can take 1+ hours',], subtitle: 'Scheduling', desc: 'System used by pilots and flight attendants to bid on monthly schedules. Pilots create a bidding strategy, set up standing bids, adjust for days off, preview bids, and review awards. PBS is noted as being very complicated. Developed by AOS (vendor).',
         hardware: ['Desktop workstation', 'Personal phone'],
         tools: [
@@ -3153,7 +3153,7 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'etb', type: 'product', label: 'ETB', x: 920, y: 2046, icon: 'swap_horiz',
+    { id: 'etb', type: 'product', label: 'ETB', x: 1251, y: 1494, icon: 'swap_horiz',
       detail: { title: 'ETB · Electronic Trade Board', subtitle: 'Trip Trading', desc: 'System used by pilots to trade trips with other pilots. Part of the Trading journey flow. Connected to the Trip Trade System (TTS) and Trip Trade Open Times (TTOT).',
         hardware: ['Desktop workstation', 'Personal phone'],
         tools: [
@@ -3162,17 +3162,17 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'mps', type: 'product', label: 'MPS', x: 560, y: 1851, icon: 'sms',
+    { id: 'mps', type: 'product', label: 'MPS', x: 891, y: 1299, icon: 'sms',
       detail: { title: 'MPS', subtitle: 'Messaging/Paging System', desc: 'Messaging and paging system used for schedule change notifications. Pilots receive notifications about schedule changes, reassignments, and operational updates through MPS.',
         hardware: ['Personal phone', 'Pager'],
       }
     },
-    { id: 'pfr', type: 'product', label: 'PFR', x: 475, y: 2174, icon: 'description',
+    { id: 'pfr', type: 'product', label: 'PFR', x: 806, y: 1622, icon: 'description',
       detail: { title: 'PFR', subtitle: 'Pilot Flight Record', desc: 'Record system containing pilot flight history, status, and scheduling data. Referenced during schedule changes and used by crew scheduling for assignment decisions.',
         hardware: ['Desktop workstation'],
       }
     },
-    { id: 'fos', type: 'product', label: 'FOS', x: 754, y: 1852, icon: 'dns',
+    { id: 'fos', type: 'product', label: 'FOS', x: 1085, y: 1300, icon: 'dns',
       detail: { title: 'FOS · Flight Operating System', painPoints: ['Legacy system constraining modern workflow improvements','Many downstream systems depend on FOS data — changes are high-risk','FCRM only refreshes nightly — not real-time crew data',], subtitle: 'Core Operations', desc: 'The central flight operating system that manages crew data, trip trades, schedules, and operational records. Many other systems (PBS, TTS, FCRM) interface with FOS. Contains TTOS, TTS, and other subsystems.',
         hardware: ['Desktop workstation'],
         tools: [
@@ -3185,29 +3185,29 @@ function toggleTheme() {
     },
 
     /* ══════ NEW NODES FROM ARRIVE-TO-CRUISE ══════ */
-    { id: 'skypath', type: 'product', label: 'SkyPath', x: 394, y: 2160, icon: 'air',
+    { id: 'skypath', type: 'product', label: 'SkyPath', x: 725, y: 1608, icon: 'air',
       detail: { title: 'SkyPath', subtitle: 'Turbulence Tracking', desc: 'Real-time turbulence tracking and reporting tool used during cruise phase. Aggregates turbulence data from multiple aircraft to provide pilots with up-to-date ride quality information along their route.',
         hardware: ['Tablet (EFB)'],
       }
     },
-    { id: 'fmsplus', type: 'product', label: 'FMS+', x: 478, y: 1990, icon: 'flight',
+    { id: 'fmsplus', type: 'product', label: 'FMS+', x: 809, y: 1438, icon: 'flight',
       detail: { title: 'FMSPlus · Enhanced Flight Management System', subtitle: 'Flight Planning & Cruise', desc: 'Enhanced flight management system used during trip review and cruise phases. Provides advanced route optimization, performance monitoring, and flight plan management capabilities beyond standard FMS.',
         hardware: ['Tablet (EFB)', 'Aircraft system'],
       }
     },
 
     /* ══════ NEW NODES FROM ARRIVE-TO-PUSHBACK ══════ */
-    { id: 'emal', type: 'product', label: 'eMAL', x: 420, y: 2062, icon: 'build',
+    { id: 'emal', type: 'product', label: 'eMAL', x: 751, y: 1510, icon: 'build',
       detail: { title: 'eMAL', subtitle: 'Electronic Maintenance Log', desc: 'EQP maintenance information system. Pilots check eMAL for existing MELs (Minimum Equipment List) during walk-around. Used to report and track maintenance issues found during pre-flight inspection. Also referenced during flight plan verification.',
         hardware: ['Tablet (EFB)', 'Desktop'],
       }
     },
-    { id: 'acars', type: 'product', label: 'ACARS', x: 662, y: 1829, icon: 'satellite_alt',
+    { id: 'acars', type: 'product', label: 'ACARS', x: 993, y: 1277, icon: 'satellite_alt',
       detail: { title: 'ACARS', subtitle: 'Aircraft Communications Addressing and Reporting System', desc: 'Digital datalink system for transmitting messages between aircraft and ground stations. Used by pilots to contact dispatchers for flight plan changes, receive revised plans, and send/receive operational messages.',
         hardware: ['Aircraft system', 'Desktop'],
       }
     },
-    { id: 'gate-agent', type: 'user', label: 'Gate\nAgent', x: 384, y: 1741, icon: 'person',
+    { id: 'gate-agent', type: 'user', label: 'Gate\nAgent', x: 580, y: 1092, icon: 'person',
       detail: { title: 'Gate Agent', painPoints: ['&quot;When you get close to D-10 gate agents can get pushy&quot;','&quot;Non-standard / different procedures in different locations and different experience levels can cause issues&quot;','Pilots cannot proceed down jet bridge without gate agent present — creates dependency bottleneck',], subtitle: 'Airport Operations', desc: 'Responsible for boarding management and gate operations. Pilots cannot proceed down the jet bridge without a gate agent present. Gate agents are not required to be there until 1 hour prior. They inform pilots of special needs for each leg. When close to D-10 (departure minus 10 min), gate agents can get pushy.',
         hardware: ['Desktop workstation', 'Handheld scanner'],
         tools: [
@@ -3235,7 +3235,7 @@ function toggleTheme() {
       }
     },
     /* ══════ NEW NODES FROM FLIGHT & CREW OPS ARCHITECTURE ══════ */
-    { id: 'opshub', type: 'product', label: 'OpsHub', x: 1101, y: 567, icon: 'hub',
+    { id: 'opshub', type: 'product', label: 'OpsHub', x: 1836, y: 346, icon: 'hub',
       detail: { title: 'OpsHub', subtitle: 'Data Integration Hub', desc: 'Central data integration hub connecting FOS, IOC Decision Platform, Crew Hub, and downstream systems. Routes crew data, flight data, and operational messages between systems. Appears in multiple points in the architecture as the primary data broker.',
         hardware: ['Server infrastructure'],
         tools: [
@@ -3244,7 +3244,7 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'ioc-platform', type: 'product', label: 'IOC Decision\nPlatform', x: 953, y: 2224, icon: 'dashboard',
+    { id: 'ioc-platform', type: 'product', label: 'IOC Decision\nPlatform', x: 1284, y: 1672, icon: 'dashboard',
       detail: { title: 'IOC Decision Platform', subtitle: 'Operations Intelligence', desc: 'Decision support platform for the Integrated Operations Center. Aggregates data from FOS, OpsHub, Sabre PSS, and other systems to provide real-time operational intelligence for crew scheduling, tracking, and flight operations decisions.',
         hardware: ['Desktop workstation'],
         tools: [
@@ -3255,7 +3255,7 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'crew-hub', type: 'product', label: 'Crew Hub', x: 907, y: 737, icon: 'groups',
+    { id: 'crew-hub', type: 'product', label: 'Crew Hub', x: 1642, y: 516, icon: 'groups',
       detail: { title: 'Crew Hub', subtitle: 'Crew Data Aggregation', desc: 'Aggregates crew data from multiple sources — scheduling, tracking, training, pay and benefits. Feeds into FOS and downstream crew-facing applications. Central repository for crew records, qualifications, and availability.',
         hardware: ['Server infrastructure'],
         tools: [
@@ -3264,7 +3264,7 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'sabre-pss', type: 'product', label: 'Sabre PSS', x: 462, y: 1644, icon: 'airplane_ticket',
+    { id: 'sabre-pss', type: 'product', label: 'Sabre PSS', x: 658, y: 995, icon: 'airplane_ticket',
       detail: { title: 'Sabre PSS', subtitle: 'Passenger Service System', desc: 'Sabre-based Passenger Service System handling reservations, ticketing, departure control, and passenger data. Interfaces with FOS for crew-passenger coordination and feeds data to OpsHub and IOC Decision Platform.',
         hardware: ['Desktop workstation', 'Gate terminals'],
         tools: [
@@ -3273,34 +3273,34 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'decs', type: 'product', label: 'DECS', x: 616, y: 2380, icon: 'air',
+    { id: 'decs', type: 'product', label: 'DECS', x: 947, y: 1828, icon: 'air',
       detail: { title: 'DECS', subtitle: 'Dispatch Environmental Control System', desc: 'Environmental and dispatch control system used for flight dispatch operations. Interfaces with weather systems and flight planning to support dispatch decisions.',
         hardware: ['Desktop workstation'],
       }
     },
-    { id: 'sendblue', type: 'product', label: 'SendBlue', x: 558, y: 1617, icon: 'mail',
+    { id: 'sendblue', type: 'product', label: 'SendBlue', x: 754, y: 968, icon: 'mail',
       detail: { title: 'SendBlue', subtitle: 'FOS Messaging Service', desc: 'Messaging service within FOS used for operational notifications, crew communications, and system-to-system message delivery. Part of FOS Other Services alongside Fargo.',
         hardware: ['Server infrastructure'],
       }
     },
-    { id: 'crew-pay', type: 'product', label: 'Crew Pay\n& Benefits', x: 350, y: 1650, icon: 'payments',
+    { id: 'crew-pay', type: 'product', label: 'Crew Pay\n& Benefits', x: 546, y: 1001, icon: 'payments',
       detail: { title: 'Crew Pay & Benefits', subtitle: 'FOS Module', desc: 'FOS module handling crew pay calculations, credit accrual, overtime, per diem, and benefits administration. Receives data from crew scheduling, tracking, and trip trade systems.',
         hardware: ['Desktop workstation'],
       }
     },
 
     /* ══════ FA SCHEDULING SYSTEMS (from FA Scheduling Overview) ══════ */
-    { id: 'aos', type: 'product', label: 'AOS', x: 1185, y: 1763, icon: 'auto_awesome',
+    { id: 'aos', type: 'product', label: 'AOS', x: 1516, y: 1211, icon: 'auto_awesome',
       detail: { title: 'AOS · Advanced Optimization System', subtitle: 'Legacy Scheduling', desc: 'A legacy system that awards trips from PBS into FOS. Part of the PBS bidding pipeline — after PBS processes bids, AOS handles the optimization and award distribution to flight attendants.',
         tools: [
           { name: 'Trip Awards', color: '#3b82f6', desc: 'Awards PBS trips into FOS' },
         ]
       }
     },
-    { id: 'bvr', type: 'product', label: 'BVR', x: 803, y: 2551, icon: 'fact_check',
+    { id: 'bvr', type: 'product', label: 'BVR', x: 1588, y: 1805, icon: 'fact_check',
       detail: { title: 'BVR · Business Validation Report', subtitle: 'Crew Planning', desc: 'Report generated by Crew Planning during PBS bidding. Validates business rules and constraints before schedules are awarded to flight attendants. Ensures bid results comply with operational and contractual requirements.' }
     },
-    { id: 'ccs', type: 'product', label: 'CCS', x: 1064, y: 2343, icon: 'gavel',
+    { id: 'ccs', type: 'product', label: 'CCS', x: 1849, y: 1597, icon: 'gavel',
       detail: { title: 'CCS · Common Crew Service', subtitle: 'Data Governance', desc: 'A job in the data governance area. Qualifies legal and available FAs to check legalities and all scheduling rules. Ensures crew assignments comply with FAA regulations, union contract terms, and company policies.',
         tools: [
           { name: 'Legality Check', color: '#3b82f6', desc: 'Validates FA scheduling rules compliance' },
@@ -3308,13 +3308,13 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'lrd', type: 'product', label: 'LRD', x: 857, y: 1725, icon: 'how_to_vote',
+    { id: 'lrd', type: 'product', label: 'LRD', x: 1188, y: 1173, icon: 'how_to_vote',
       detail: { title: 'LRD · Lineholder/Reserve Designation', subtitle: 'FA Bidding', desc: 'Allows flight attendants to cast their ballot on whether they are lineholder or reserve. Awards are given based on seniority. This is the first step in the monthly bidding cycle — FAs must choose their designation before PBS bidding opens.' }
     },
-    { id: 'lpd', type: 'product', label: 'LPD', x: 922, y: 1075, icon: 'admin_panel_settings',
+    { id: 'lpd', type: 'product', label: 'LPD', x: 1657, y: 854, icon: 'admin_panel_settings',
       detail: { title: 'LPD · Planning Admin', subtitle: 'Crew Planning', desc: 'Planning administration tool used by Crew Planning to process LRD bids and manage planning workflows. Handles the administrative side of lineholder/reserve designation processing.' }
     },
-    { id: 'rota', type: 'product', label: 'ROTA', x: 1194, y: 2267, icon: 'event_available',
+    { id: 'rota', type: 'product', label: 'ROTA', x: 1525, y: 1715, icon: 'event_available',
       detail: { title: 'ROTA · Reserve Open Time Assignment', subtitle: 'Reserve Scheduling', desc: 'Awards and assigns sequences to reserves, identifies assignments and Reserve Availability Periods (RAPs). Must be completed by D/O (day of operations) for lineholder operations. ROTA has a 5-day rolling processing of trips.',
         tools: [
           { name: 'Sequence Assignment', color: '#3b82f6', desc: 'Awards trips to reserve FAs' },
@@ -3322,10 +3322,10 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'rotd', type: 'product', label: 'ROTD', x: 1045, y: 1966, icon: 'update',
+    { id: 'rotd', type: 'product', label: 'ROTD', x: 1376, y: 1414, icon: 'update',
       detail: { title: 'ROTD · Reserve Open Time Assignment Daily', subtitle: 'Daily Reserve Processing', desc: 'Reserve 4-6 is a block entry on reserve but original ROTA has a 5-day rolling processing of trips. ROTD runs once a day to handle daily reserve assignments and updates. Continues running as needed after ROTA processes.' }
     },
-    { id: 'tts', type: 'product', label: 'TTS', x: 1310, y: 1918, icon: 'swap_horiz',
+    { id: 'tts', type: 'product', label: 'TTS', x: 1641, y: 1366, icon: 'swap_horiz',
       detail: { title: 'TTS · Trip Trade System', subtitle: 'Trip Trading', desc: 'Awards crewmembers sequences for bidding and linesman trades. FAs submit bids to trade or pick up trips. TTS runs for the next month, is closed 2 days out for processing, then reopens. Connected to UBL for unsuccessful bidders.',
         tools: [
           { name: 'Trip Bidding', color: '#3b82f6', desc: 'Submit bids for trip trades' },
@@ -3333,16 +3333,16 @@ function toggleTheme() {
         ]
       }
     },
-    { id: 'ubl', type: 'product', label: 'UBL', x: 1144, y: 1941, icon: 'person_off',
+    { id: 'ubl', type: 'product', label: 'UBL', x: 1475, y: 1389, icon: 'person_off',
       detail: { title: 'UBL · Unsuccessful Bidders List', subtitle: 'FA Scheduling', desc: 'Lists crewmembers who did not receive trips through TTS bidding. UBL Auto Award assigns remaining trips, followed by a Manual Call List for any remaining unassigned FAs.' }
     },
-    { id: 'tss', type: 'product', label: 'TSS', x: 890, y: 2517, icon: 'calendar_month',
+    { id: 'tss', type: 'product', label: 'TSS', x: 1675, y: 1771, icon: 'calendar_month',
       detail: { title: 'TSS · Training Scheduling System', subtitle: 'Crew Planning', desc: 'System employed by Crew Planning that allows them to build training slots for flight attendants. TSS generates training planned absences that are sent to FAs as part of the training bidding workflow.' }
     },
-    { id: 'tbs', type: 'product', label: 'TBS', x: 1228, y: 2486, icon: 'school',
+    { id: 'tbs', type: 'product', label: 'TBS', x: 2013, y: 1740, icon: 'school',
       detail: { title: 'TBS · Training Bidding System (CQ)', subtitle: 'FA Training', desc: 'Shows the data flight attendants bid on for training (also known as CQ). Can be used to confirm FAs for any scheduling conflicts. Part of the training bidding workflow — FAs are assigned training here after receiving TSS planned absences.' }
     },
-    { id: 'crew-portal', type: 'product', label: 'Crew\nPortal', x: 1137, y: 2104, icon: 'web',
+    { id: 'crew-portal', type: 'product', label: 'Crew\nPortal', x: 1468, y: 1552, icon: 'web',
       detail: { title: 'Crew Portal', subtitle: 'FA Portal', desc: 'Portal for flight attendants to access their schedule, bid packages, assignments, and view sequences in FOS. Central hub for FA self-service — used throughout the bidding, trading, and scheduling workflows.',
         tools: [
           { name: 'Schedule View', color: '#00ccff', desc: 'View awarded schedule and sequences' },
@@ -3353,7 +3353,7 @@ function toggleTheme() {
     },
 
     /* ══════ CREW PLANNER (User) ══════ */
-    { id: 'crew-planner', type: 'user', label: 'Crew\nPlanner', x: 885, y: 2659, icon: 'person',
+    { id: 'crew-planner', type: 'user', label: 'Crew\nPlanner', x: 1670, y: 1913, icon: 'person',
       detail: { title: 'Crew Planner', subtitle: 'Crew Planning Team', desc: 'Crew Planning team member responsible for building FA schedules, managing PBS bidding, generating BVR reports, coordinating training slots, and administering lineholder/reserve designations. Works with multiple scheduling systems to ensure adequate crew coverage.',
         hardware: ['Desktop workstation'],
         tools: [
@@ -3395,31 +3395,31 @@ function toggleTheme() {
     },
 
     /* ══════ RBO (Baggage Handling) PRODUCTS ══════ */
-    { id: 'trackscan', type: 'product', label: 'TrackScan', x: 526, y: 1380, icon: 'qr_code_scanner', detail: {
+    { id: 'trackscan', type: 'product', label: 'TrackScan', x: 722, y: 731, icon: 'qr_code_scanner', detail: {
       title: 'TrackScan', subtitle: 'Bag Scanning App',
       desc: 'Mobile application used by ramp and baggage operations staff to scan bag tags during offloading, loading, and transport. Provides real-time bag tracking across the airport.',
       tools: [{name:'TrackScan',color:'var(--cyan)',desc:'Primary bag scanning and tracking app for ramp operations'}],
       dataFlows: []
     }},
-    { id: 'tline', type: 'product', label: 'T.LINE', x: 305, y: 1303, icon: 'conveyor_belt', detail: {
+    { id: 'tline', type: 'product', label: 'T.LINE', x: 501, y: 654, icon: 'conveyor_belt', detail: {
       title: 'T.LINE', subtitle: 'Cart Loading App',
       desc: 'Application used by ABR Drivers to scan bags and manage baggage cart loading. Tracks which bags are loaded on which carts for transport between aircraft and terminals.',
       tools: [{name:'T.LINE',color:'var(--cyan)',desc:'Baggage cart loading and tracking application'}],
       dataFlows: []
     }},
-    { id: 'bmas', type: 'product', label: 'BMAS', x: 589, y: 1203, icon: 'analytics', detail: {
+    { id: 'bmas', type: 'product', label: 'BMAS', x: 785, y: 554, icon: 'analytics', detail: {
       title: 'BMAS', subtitle: 'Baggage Management & Analytics',
       desc: 'Baggage Management and Analytics System. Provides oversight and reporting for the entire baggage handling operation including routing, delays, and mishandled bag tracking.',
       tools: [{name:'BMAS',color:'var(--purple)',desc:'Baggage analytics and management platform'}],
       dataFlows: []
     }},
-    { id: 'bms', type: 'product', label: 'BMS', x: 441, y: 1292, icon: 'route', detail: {
+    { id: 'bms', type: 'product', label: 'BMS', x: 637, y: 643, icon: 'route', detail: {
       title: 'BMS', subtitle: 'Baggage Management System',
       desc: 'Core baggage routing system within the BHS. Scans bags one or more times while traveling through the Baggage Handling System to determine the appropriate make-up unit (MU) for each bag.',
       tools: [{name:'BMS',color:'var(--purple)',desc:'Automated baggage routing and sorting system'}],
       dataFlows: []
     }},
-    { id: 'bhs', type: 'product', label: 'BHS', x: 483, y: 1157, icon: 'settings_input_component', detail: {
+    { id: 'bhs', type: 'product', label: 'BHS', x: 679, y: 508, icon: 'settings_input_component', detail: {
       title: 'BHS', subtitle: 'Baggage Handling System',
       desc: 'Physical conveyor and sorting infrastructure that moves bags from check-in through security screening, sorting, and to the appropriate make-up unit or transfer point. Includes laser scanners, conveyor belts, and automated sorting.',
       tools: [{name:'BHS',color:'var(--purple)',desc:'Physical baggage conveyor and sorting infrastructure'}],
