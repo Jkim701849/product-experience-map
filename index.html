@@ -1583,24 +1583,21 @@
     }
 
     /* ====== USERS VIEW (Character Select) ====== */
+    /* ====== USERS VIEW ====== */
     .users-view {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
       z-index: 40; display: none;
       background: var(--bg); overflow: hidden;
     }
     .users-view.active { display: flex; flex-direction: column; z-index: 60; }
-    body.users-active .zoom-controls,
-    body.users-active .toolbar,
-    body.users-active .detail-panel,
-    body.users-active .welcome-card { display: none !important; }
-    body.users-active .pathgraph-view,
-    body.users-active .glossary-view { display: none !important; }
-    body.pathgraph-active .users-view,
-    body.glossary-active .users-view { display: none !important; }
+    body.users-active .zoom-controls, body.users-active .toolbar,
+    body.users-active .detail-panel, body.users-active .welcome-card { display: none !important; }
+    body.users-active .pathgraph-view, body.users-active .glossary-view { display: none !important; }
+    body.pathgraph-active .users-view, body.glossary-active .users-view { display: none !important; }
 
     .users-top-bar {
       display: flex; align-items: center; padding: 0.75rem 1.25rem;
-      flex-shrink: 0;
+      flex-shrink: 0; z-index: 10; position: relative;
     }
     .users-close {
       width: 40px; height: 40px; border-radius: 50%;
@@ -1608,7 +1605,7 @@
       box-shadow: 0 1px 2px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.4);
       color: var(--card-text-tertiary); cursor: pointer;
       display: flex; align-items: center; justify-content: center;
-      transition: background 0.2s, color 0.2s; padding: 0;
+      transition: background 0.2s; padding: 0;
     }
     .users-close .material-symbols-outlined { font-size: 1.2rem; }
     .users-close:hover { background: var(--card-hover); color: var(--card-text); }
@@ -1618,144 +1615,137 @@
       text-transform: uppercase; margin-left: auto; margin-right: auto;
     }
 
-    /* Main content area */
-    .users-main {
-      flex: 1; display: flex; position: relative; overflow: hidden;
+    /* Main area — hero + card overlay */
+    .users-stage {
+      flex: 1; position: relative; overflow: hidden;
     }
 
-    /* Info card styles (used in floating card) */
-    .us-name { font-size: 1.2rem; font-weight: 700; color: var(--gold); margin-bottom: 0.15rem; }
-    .us-subtitle { font-size: 0.7rem; color: var(--card-text-tertiary); margin-bottom: 1rem; }
-    .us-section-title {
-      font-size: 0.55rem; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.1em; color: var(--cyan); margin: 1.25rem 0 0.4rem;
+    /* Large hero photo — centered, bleeds off top */
+    .users-hero {
+      position: absolute; bottom: 180px; left: 50%; transform: translateX(-50%);
+      width: 500px; height: 600px;
+      z-index: 1; pointer-events: none;
     }
-    .us-section-title:first-child { margin-top: 0; }
-    .us-desc { font-size: 0.72rem; color: var(--card-text-secondary); line-height: 1.6; }
-    .us-stats {
-      display: flex; gap: 8px; margin: 0.75rem 0;
-    }
-    .us-stat {
-      flex: 1; padding: 0.5rem; text-align: center;
-      background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 6px;
-    }
-    .us-stat-num { font-family: 'Orbitron'; font-size: 1rem; font-weight: 700; color: var(--cyan); }
-    .us-stat-label { font-size: 0.5rem; color: var(--dim); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
-    .us-enter-btn {
-      display: flex; align-items: center; justify-content: center; gap: 0.4rem;
-      width: 100%; padding: 0.7rem; margin-top: 1.25rem;
-      background: var(--cyan-dim); border: 1px solid rgba(138,180,248,0.2);
-      border-radius: 8px; color: var(--cyan); font-family: var(--sans);
-      font-size: 0.72rem; font-weight: 700; cursor: pointer;
-      transition: background 0.2s;
-    }
-    .us-enter-btn:hover { background: rgba(138,180,248,0.2); }
-    .us-enter-btn .material-symbols-outlined { font-size: 0.9rem; }
-
-    /* Featured character fills the whole area */
-    .users-featured {
-      flex: 1; display: flex; flex-direction: column;
-      align-items: center; justify-content: flex-end;
-      position: relative; padding-bottom: 100px;
-    }
-    .users-featured-avatar {
-      width: 400px; height: 500px;
-      filter: drop-shadow(0 10px 40px rgba(0,0,0,0.3));
-      transition: opacity 0.3s;
-    }
-    .users-featured-avatar svg { width: 100%; height: 100%; }
-    .users-featured-avatar img { border-radius: 0; }
-    .users-featured-name {
-      font-family: 'Orbitron', sans-serif; font-size: 2.2rem;
-      font-weight: 700; color: var(--text); letter-spacing: 0.06em;
-      text-transform: uppercase; text-align: center;
-      margin-top: -20px; position: relative; z-index: 2;
-    }
-    .users-featured-subtitle {
-      font-size: 0.75rem; color: var(--card-text-tertiary);
-      letter-spacing: 0.15em; text-transform: uppercase; text-align: center;
-      margin-top: 0.25rem;
-    }
-    .users-featured-tags {
-      display: flex; gap: 8px; margin-top: 0.75rem;
-    }
-    .users-featured-tag {
-      padding: 0.25rem 0.75rem; border-radius: 4px;
-      font-size: 0.6rem; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-    .users-featured-tag.cat-crew { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(253,214,99,0.3); }
-    .users-featured-tag.cat-ramp { background: rgba(242,139,130,0.12); color: #f28b82; border: 1px solid rgba(242,139,130,0.3); }
-    .users-featured-tag.cat-ioc { background: var(--cyan-dim); color: var(--cyan); border: 1px solid rgba(138,180,248,0.3); }
-    .users-featured-tag.cat-training { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(215,174,251,0.3); }
-    .users-featured-tag.cat-airport { background: rgba(129,201,149,0.12); color: #81c995; border: 1px solid rgba(129,201,149,0.3); }
-    .users-featured-empty {
-      color: var(--dim); font-size: 1rem; text-align: center;
+    .users-hero img {
+      width: 100%; height: 100%;
+      object-fit: contain; object-position: bottom;
+      filter: drop-shadow(0 10px 40px rgba(0,0,0,0.2));
     }
 
-    /* Floating info card */
+    /* Floating info card — top right */
     .users-info-card {
-      position: absolute; right: 5%; top: 15%;
-      width: 300px; max-height: 60vh;
+      position: absolute; top: 20px; right: 40px;
+      width: 320px; z-index: 5;
       background: var(--card-bg); border: 1px solid var(--card-border);
-      border-radius: 12px; padding: 1.25rem;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-      overflow-y: auto; z-index: 5;
-      opacity: 0; transform: translateX(20px);
+      border-radius: 16px; padding: 1.5rem;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+      opacity: 0; transform: translateY(10px);
       transition: opacity 0.3s, transform 0.3s;
       pointer-events: none;
     }
-    .users-info-card.visible {
-      opacity: 1; transform: translateX(0); pointer-events: auto;
+    .users-info-card.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .uic-title {
+      font-family: 'Orbitron', sans-serif; font-size: 1.1rem;
+      font-weight: 700; color: var(--text); margin-bottom: 0.5rem;
     }
-    .users-info-card::-webkit-scrollbar { width: 4px; }
-    .users-info-card::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
+    .uic-subtitle { font-size: 0.72rem; color: var(--card-text-tertiary); margin-bottom: 1rem; }
+    .uic-desc { font-size: 0.7rem; color: var(--card-text-secondary); line-height: 1.6; margin-bottom: 1rem; }
+    .uic-stats { display: flex; gap: 8px; margin-bottom: 1rem; }
+    .uic-stat {
+      flex: 1; text-align: center; padding: 0.4rem;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 8px;
+    }
+    .uic-stat-num { font-family: 'Orbitron'; font-size: 0.9rem; font-weight: 700; color: var(--cyan); }
+    .uic-stat-label { font-size: 0.45rem; color: var(--dim); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
+    .uic-btn {
+      display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+      width: 100%; padding: 0.6rem; background: var(--cyan-dim);
+      border: 1px solid rgba(138,180,248,0.2); border-radius: 8px;
+      color: var(--cyan); font-family: var(--sans); font-size: 0.7rem;
+      font-weight: 700; cursor: pointer; transition: background 0.2s;
+    }
+    .uic-btn:hover { background: rgba(138,180,248,0.2); }
+    .uic-btn .material-symbols-outlined { font-size: 0.85rem; }
 
-    /* Bottom character roster */
-    .users-roster {
-      position: absolute; bottom: 0; left: 0; right: 0;
-      background: rgba(0,0,0,0.3);
-      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-      padding: 12px 16px;
-      display: flex; gap: 8px; overflow-x: auto;
-      justify-content: center;
-      border-top: 1px solid var(--card-border);
+    /* Left side category nav */
+    .users-categories {
+      position: absolute; left: 40px; top: 50%; transform: translateY(-50%);
+      z-index: 5;
     }
-    .users-roster::-webkit-scrollbar { height: 0; }
-    .ur-thumb {
-      width: 64px; height: 64px; flex-shrink: 0;
-      border-radius: 8px; overflow: hidden;
-      border: 2px solid transparent;
-      cursor: pointer; transition: border-color 0.2s, transform 0.2s;
-      background: var(--card-bg); position: relative;
+    .users-cat-item {
+      font-family: var(--sans); font-size: 0.75rem;
+      color: var(--dim); padding: 0.3rem 0; cursor: pointer;
+      transition: color 0.2s;
     }
-    .ur-thumb:hover { border-color: rgba(255,255,255,0.3); transform: scale(1.05); }
-    .ur-thumb.selected { border-color: var(--cyan); box-shadow: 0 0 12px rgba(138,180,248,0.3); transform: scale(1.1); }
-    .ur-thumb .user-avatar-svg { border-radius: 6px; }
-    .ur-thumb .user-avatar-svg svg { width: 60px; height: 60px; }
-    .ur-thumb-label {
+    .users-cat-item:first-child { font-weight: 700; color: var(--text); font-size: 0.85rem; }
+    .users-cat-item:hover { color: var(--text); }
+    .users-cat-item.active { color: var(--cyan); }
+
+    /* Bottom card rows */
+    .users-card-rows {
       position: absolute; bottom: 0; left: 0; right: 0;
-      background: rgba(0,0,0,0.7); padding: 1px 3px;
-      font-size: 0.38rem; color: rgba(255,255,255,0.8);
-      text-align: center; font-weight: 600;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      z-index: 5; padding: 0 0 20px;
+      max-height: 260px; overflow-y: auto;
+    }
+    .users-card-rows::-webkit-scrollbar { width: 0; }
+
+    .ucr-group {
+      padding: 0 40px; margin-bottom: 12px;
+    }
+    .ucr-header {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 8px;
+    }
+    .ucr-header-label {
+      font-family: var(--sans); font-size: 0.78rem; font-weight: 700;
+      color: var(--text); white-space: nowrap;
+    }
+    .ucr-header-line { flex: 1; height: 1px; background: var(--card-border); }
+
+    .ucr-scroll {
+      display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px;
+    }
+    .ucr-scroll::-webkit-scrollbar { height: 0; }
+
+    /* Individual user card */
+    .ucr-card {
+      width: 140px; flex-shrink: 0; cursor: pointer;
+      background: var(--card-bg); border-radius: 10px;
+      overflow: hidden; border: 2px solid transparent;
+      transition: border-color 0.2s, transform 0.2s;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+    }
+    .ucr-card:hover { border-color: rgba(255,255,255,0.2); transform: translateY(-3px); }
+    .ucr-card.selected { border-color: var(--cyan); box-shadow: 0 4px 20px rgba(138,180,248,0.25); }
+
+    .ucr-card-img {
+      width: 100%; height: 100px;
+      overflow: hidden; background: var(--card-elevated);
+    }
+    .ucr-card-img img {
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: top;
+    }
+
+    .ucr-card-label {
+      padding: 8px 10px;
+    }
+    .ucr-card-name {
+      font-family: var(--sans); font-size: 0.78rem;
+      font-weight: 700; color: var(--text);
+    }
+    .ucr-card-role {
+      font-size: 0.55rem; color: var(--dim);
+      margin-top: 2px;
     }
 
     @media (max-width: 768px) {
-      .users-featured-avatar { width: 180px; height: 300px; }
-      .users-featured-name { font-size: 1.3rem; }
-      .users-info-card {
-        position: fixed; right: 0; left: 0; top: auto; bottom: 90px;
-        width: 100%; max-height: 45vh;
-        border-radius: 16px 16px 0 0; transform: translateY(20px);
-      }
-      .users-info-card.visible { transform: translateY(0); }
-      .users-roster {
-        position: relative; flex-wrap: wrap; justify-content: center;
-        max-height: 50vh; overflow-y: auto;
-      }
-      .ur-thumb { width: 56px; height: 56px; }
-      .ur-thumb .user-avatar-svg svg { width: 52px; height: 52px; }
+      .users-hero { width: 280px; height: 380px; bottom: 240px; }
+      .users-info-card { top: 10px; right: 10px; left: 10px; width: auto; }
+      .users-categories { display: none; }
+      .ucr-group { padding: 0 16px; }
+      .ucr-card { width: 120px; }
+      .ucr-card-img { height: 80px; }
     }
 
     /* ====== WORKFLOWS VIEW ====== */
@@ -2006,15 +1996,13 @@
       <button class="users-close" id="users-view-close"><span class="material-symbols-outlined">arrow_back</span></button>
       <span class="users-page-title">Select a User</span>
     </div>
-    <div class="users-main">
-      <div class="users-featured" id="users-featured">
-        <div class="users-featured-empty">
-          <span class="material-symbols-outlined" style="font-size:3rem;opacity:0.2;display:block;margin-bottom:0.5rem;">person</span>
-          Choose a crew member
-        </div>
-        <div class="users-info-card" id="users-info-card"></div>
-        <div class="users-roster" id="users-roster"></div>
+    <div class="users-stage">
+      <div class="users-hero" id="users-hero">
+        <img src="user-avatar.png" alt="User" />
       </div>
+      <div class="users-categories" id="users-categories"></div>
+      <div class="users-info-card" id="users-info-card"></div>
+      <div class="users-card-rows" id="users-card-rows"></div>
     </div>
   </div>
 
@@ -5336,25 +5324,66 @@ function toggleTheme() {
   var usersSelectedId = null;
 
   function renderUsersView() {
-    var roster = document.getElementById('users-roster');
+    var cardRows = document.getElementById('users-card-rows');
+    var catNav = document.getElementById('users-categories');
     var userNodes = nodes.filter(function(n) { return n.type === 'user'; });
 
-    var html = '';
-    userNodes.forEach(function(n) {
-      html += '<div class="ur-thumb" data-user-id="' + n.id + '">';
-      html += '<div class="user-avatar-svg">' + getUserAvatar(n.id, 'small') + '</div>';
-      html += '<div class="ur-thumb-label">' + (n.detail ? n.detail.title : n.label).replace(/\n/g,' ') + '</div>';
-      html += '</div>';
-    });
-    roster.innerHTML = html;
+    // Group users by category
+    var groups = {
+      'Flight Crew': [],
+      'IOC Staff': [],
+      'Training': [],
+      'Ramp Operations': [],
+      'Airport Operations': []
+    };
 
-    roster.querySelectorAll('.ur-thumb').forEach(function(thumb) {
-      thumb.addEventListener('click', function() {
-        selectUserTile(thumb.dataset.userId);
+    userNodes.forEach(function(n) {
+      var id = n.id;
+      if (['pilot','fa','cpo'].indexOf(id) >= 0) groups['Flight Crew'].push(n);
+      else if (['crew-tracker','crew-scheduler','crew-planner'].indexOf(id) >= 0) groups['IOC Staff'].push(n);
+      else if (['training-schedulers','ckp-ip','fcti-simp'].indexOf(id) >= 0) groups['Training'].push(n);
+      else if (['gate-crew','abr-driver','bag-clerk','sweeper','encoder'].indexOf(id) >= 0) groups['Ramp Operations'].push(n);
+      else groups['Airport Operations'].push(n);
+    });
+
+    // Build category nav
+    var chtml = '';
+    Object.keys(groups).forEach(function(gname, gi) {
+      if (groups[gname].length === 0) return;
+      chtml += '<div class="users-cat-item' + (gi === 0 ? ' active' : '') + '">' + gname + '</div>';
+    });
+    catNav.innerHTML = chtml;
+
+    // Build card rows
+    var rhtml = '';
+    Object.keys(groups).forEach(function(gname) {
+      var gnodes = groups[gname];
+      if (gnodes.length === 0) return;
+      rhtml += '<div class="ucr-group">';
+      rhtml += '<div class="ucr-header"><span class="ucr-header-label">' + gname + '</span><div class="ucr-header-line"></div></div>';
+      rhtml += '<div class="ucr-scroll">';
+      gnodes.forEach(function(n) {
+        var d = n.detail || {};
+        var name = (d.title || n.label).replace(/\n/g,' ');
+        rhtml += '<div class="ucr-card" data-user-id="' + n.id + '">';
+        rhtml += '<div class="ucr-card-img"><img src="user-avatar.png" alt="' + name + '" /></div>';
+        rhtml += '<div class="ucr-card-label">';
+        rhtml += '<div class="ucr-card-name">' + name + '</div>';
+        rhtml += '<div class="ucr-card-role">' + (d.subtitle || '') + '</div>';
+        rhtml += '</div></div>';
+      });
+      rhtml += '</div></div>';
+    });
+    cardRows.innerHTML = rhtml;
+
+    // Bind clicks
+    cardRows.querySelectorAll('.ucr-card').forEach(function(card) {
+      card.addEventListener('click', function() {
+        selectUserTile(card.dataset.userId);
       });
     });
 
-    // Auto-select first user
+    // Auto-select first
     if (userNodes.length > 0) selectUserTile(userNodes[0].id);
   }
 
@@ -5363,59 +5392,30 @@ function toggleTheme() {
     if (!n || !n.detail) return;
     var d = n.detail;
 
-    // Highlight roster thumb
-    document.querySelectorAll('.ur-thumb').forEach(function(t) {
-      t.classList.toggle('selected', t.dataset.userId === uid);
+    // Highlight card
+    document.querySelectorAll('.ucr-card').forEach(function(c) {
+      c.classList.toggle('selected', c.dataset.userId === uid);
     });
 
-    // Determine category
-    var category = 'crew';
-    if (['ticket-agent','gate-crew','abr-driver','bag-clerk','sweeper','encoder'].indexOf(uid) >= 0) category = 'ramp';
-    if (['crew-tracker','crew-scheduler'].indexOf(uid) >= 0) category = 'ioc';
-    if (['training-schedulers','ckp-ip','fcti-simp'].indexOf(uid) >= 0) category = 'training';
-    if (['gate-agent','hotel-limo'].indexOf(uid) >= 0) category = 'airport';
-
-    var catLabels = { crew: 'Flight Crew', ramp: 'Ramp Operations', ioc: 'IOC Staff', training: 'Training', airport: 'Airport Ops' };
-
-    // Update featured area
-    var featured = document.getElementById('users-featured');
-    var fhtml = '';
-    fhtml += '<div class="users-featured-avatar"><img src="user-avatar.png" alt="' + (d.title || n.label).replace(/\n/g,' ') + '" style="width:100%;height:100%;object-fit:contain;object-position:bottom;"/></div>';
-    fhtml += '<div class="users-featured-name">' + (d.title || n.label).replace(/\n/g,' ') + '</div>';
-    fhtml += '<div class="users-featured-subtitle">' + (d.subtitle || '') + '</div>';
-    fhtml += '<div class="users-featured-tags">';
-    fhtml += '<span class="users-featured-tag cat-' + category + '">' + catLabels[category] + '</span>';
-    fhtml += '</div>';
-
-    // Keep the info card and roster
-    var infoCard = document.getElementById('users-info-card');
-    var rosterEl = document.getElementById('users-roster');
-    featured.innerHTML = fhtml;
-    featured.appendChild(infoCard);
-    featured.appendChild(rosterEl);
-
-    // Update floating info card
+    // Update info card
+    var card = document.getElementById('users-info-card');
     var toolCount = d.tools ? d.tools.length : 0;
     var wfCount = d.workflows ? d.workflows.length : 0;
     var ppCount = d.painPoints ? d.painPoints.length : 0;
 
-    var shtml = '';
-    shtml += '<div class="us-name">' + (d.title || n.label).replace(/\n/g,' ') + '</div>';
-    shtml += '<div class="us-subtitle">' + (d.subtitle || '') + '</div>';
-    shtml += '<span class="users-featured-tag cat-' + category + '" style="display:inline-block;margin-bottom:0.75rem;">' + catLabels[category] + '</span>';
+    var html = '';
+    html += '<div class="uic-title">' + (d.title || n.label).replace(/\n/g,' ') + '</div>';
+    html += '<div class="uic-subtitle">' + (d.subtitle || '') + '</div>';
+    html += '<div class="uic-stats">';
+    html += '<div class="uic-stat"><div class="uic-stat-num">' + toolCount + '</div><div class="uic-stat-label">Tools</div></div>';
+    html += '<div class="uic-stat"><div class="uic-stat-num">' + wfCount + '</div><div class="uic-stat-label">Workflows</div></div>';
+    html += '<div class="uic-stat"><div class="uic-stat-num">' + ppCount + '</div><div class="uic-stat-label">Pain Pts</div></div>';
+    html += '</div>';
+    html += '<div class="uic-desc">' + (d.desc || '').substring(0, 200) + (d.desc && d.desc.length > 200 ? '...' : '') + '</div>';
+    html += '<button class="uic-btn" onclick="navigateTo(\'map\');setTimeout(function(){selectNode(\'' + uid + '\');},400);"><span class="material-symbols-outlined">arrow_forward</span>View on Map</button>';
 
-    shtml += '<div class="us-stats">';
-    shtml += '<div class="us-stat"><div class="us-stat-num">' + toolCount + '</div><div class="us-stat-label">Tools</div></div>';
-    shtml += '<div class="us-stat"><div class="us-stat-num">' + wfCount + '</div><div class="us-stat-label">Workflows</div></div>';
-    shtml += '<div class="us-stat"><div class="us-stat-num">' + ppCount + '</div><div class="us-stat-label">Pain Pts</div></div>';
-    shtml += '</div>';
-
-    shtml += '<p class="us-desc">' + (d.desc || '') + '</p>';
-
-    shtml += '<button class="us-enter-btn" onclick="navigateTo(\'map\');setTimeout(function(){selectNode(\'' + uid + '\');},400);"><span class="material-symbols-outlined">arrow_forward</span>View on Map</button>';
-
-    infoCard.innerHTML = shtml;
-    infoCard.classList.add('visible');
+    card.innerHTML = html;
+    card.classList.add('visible');
   }
 
   /* ========== PATH GRAPH ========== */
