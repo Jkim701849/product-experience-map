@@ -2543,19 +2543,6 @@
     /* Expandable body */
     .irops-expand-body { display: none !important; }
     .irops-card.expanded .irops-expand-body { display: block !important; }
-    .irops-expand-btn {
-      display: flex; align-items: center; justify-content: center; gap: 4px;
-      padding: 0.4rem 1.5rem; cursor: pointer;
-      font-size: 0.62rem; font-weight: 600; color: var(--dim);
-      transition: color 0.2s;
-    }
-    .irops-expand-btn:hover { color: var(--text); }
-    .irops-expand-btn .material-symbols-outlined {
-      font-size: 0.85rem; transition: transform 0.3s;
-    }
-    .irops-card.expanded .irops-expand-btn .material-symbols-outlined {
-      transform: rotate(180deg);
-    }
     /* Hide status border on affected phases when IROPS active */
     .irops-affected .journey-card { border-top: none !important; }
 
@@ -7523,11 +7510,9 @@ function toggleTheme() {
         // Pulsing progress bar
         html += '<div class="irops-progress"><div class="irops-progress-bar"></div></div>';
         // Always visible: label + title + short desc
-        html += '<div class="jc-phase-num" style="display:flex;align-items:center;gap:4px;"><span class="material-symbols-outlined" style="font-size:0.7rem;color:#d32f2f;">warning</span>Irregular Operations</div>';
+        html += '<div class="jc-phase-num" style="display:flex;align-items:center;gap:4px;"><span class="material-symbols-outlined" style="font-size:0.7rem;color:#d32f2f;">warning</span>Irregular Operations<span class="material-symbols-outlined" id="irops-chevron" style="margin-left:auto;font-size:1.1rem;color:var(--dim);transition:transform 0.3s;">expand_more</span></div>';
         html += '<div class="jc-title">IROPS</div>';
         html += '<div class="jc-desc">IOC is coordinating network recovery across affected phases.</div>';
-        // Expand button
-        html += '<div class="irops-expand-btn" id="irops-expand"><span class="material-symbols-outlined">expand_more</span></div>';
         // Expandable body
         html += '<div class="irops-expand-body" style="display:none;">';
         html += '<div class="jc-divider"></div>';
@@ -7567,9 +7552,10 @@ function toggleTheme() {
       iropsCard.addEventListener('click', function(e) {
         e.stopPropagation();
         var body = iropsCard.querySelector('.irops-expand-body');
+        var chevron = document.getElementById('irops-chevron');
         var isExpanded = body.style.display === 'block';
         body.style.display = isExpanded ? 'none' : 'block';
-        iropsExpand.querySelector('.material-symbols-outlined').style.transform = isExpanded ? '' : 'rotate(180deg)';
+        if (chevron) chevron.style.transform = isExpanded ? '' : 'rotate(180deg)';
       });
     }
 
