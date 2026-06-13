@@ -10,49 +10,49 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      /* Material Design 3 Dark Theme */
-      --bg: #121212; --surface: #121212; --border: rgba(255,255,255,0.12);
-      --text: rgba(255,255,255,0.87); --muted: rgba(255,255,255,0.60); --dim: rgba(255,255,255,0.38);
-      --cyan: #8ab4f8; --cyan-dim: rgba(138,180,248,0.12); --cyan-glow: rgba(138,180,248,0.30);
-      --gold: #fdd663; --gold-dim: rgba(253,214,99,0.12); --gold-glow: rgba(253,214,99,0.25);
-      --purple: #d7aefb; --purple-dim: rgba(215,174,251,0.12);
-      --green: #81c995; --red: #f28b82;
+      /* YouTube Dark Theme */
+      --bg: #0f0f0f; --surface: #0f0f0f; --border: #272727;
+      --text: #f1f1f1; --muted: #aaaaaa; --dim: #717171;
+      --cyan: #3ea6ff; --cyan-dim: rgba(62,166,255,0.12); --cyan-glow: rgba(62,166,255,0.25);
+      --gold: #ffa000; --gold-dim: rgba(255,160,0,0.12); --gold-glow: rgba(255,160,0,0.20);
+      --purple: #c58af9; --purple-dim: rgba(197,138,249,0.12);
+      --green: #2ba640; --red: #ff4e45;
       --sans: 'DM Sans', system-ui, sans-serif;
-      /* Card / panel — Material surface + elevation overlays */
-      --card-bg: #1e1e1e; --card-border: rgba(255,255,255,0.12);
-      --card-text: rgba(255,255,255,0.87); --card-text-secondary: rgba(255,255,255,0.60);
-      --card-text-tertiary: rgba(255,255,255,0.38); --card-accent: #8ab4f8;
-      --card-hover: rgba(255,255,255,0.08); --card-elevated: #2c2c2c;
+      /* Card / panel */
+      --card-bg: #272727; --card-border: #3f3f3f;
+      --card-text: #f1f1f1; --card-text-secondary: #aaaaaa;
+      --card-text-tertiary: #717171; --card-accent: #3ea6ff;
+      --card-hover: #3f3f3f; --card-elevated: #3f3f3f;
       /* Viewport background */
-      --viewport-bg: #121212;
+      --viewport-bg: #0f0f0f;
       /* Node styles */
-      --node-product-bg: #1e1e1e;
-      --node-product-border: rgba(138,180,248,0.30);
-      --node-user-bg: #1e1e1e;
-      --node-user-border: rgba(253,214,99,0.45);
-      --node-default-bg: #1e1e1e;
-      --node-label-color: rgba(255,255,255,0.87);
-      --node-label-shadow: 0 0 8px rgba(0,0,0,0.6);
+      --node-product-bg: #272727;
+      --node-product-border: rgba(62,166,255,0.35);
+      --node-user-bg: #272727;
+      --node-user-border: rgba(255,160,0,0.45);
+      --node-default-bg: #272727;
+      --node-label-color: #f1f1f1;
+      --node-label-shadow: 0 0 6px rgba(0,0,0,0.8);
       /* Connection lines */
-      --conn-line-color: rgba(138,180,248,0.35);
-      --conn-line-data: rgba(215,174,251,0.50);
-      --conn-line-user: rgba(253,214,99,0.50);
-      /* Toolbar — Material surface at elevation 8 */
-      --toolbar-bg: #2c2c2c;
-      --toolbar-border: rgba(255,255,255,0.12);
-      --toolbar-shadow: 0 4px 16px rgba(0,0,0,0.4);
-      --toolbar-text: rgba(255,255,255,0.87);
-      --toolbar-hover: rgba(255,255,255,0.08);
-      --toolbar-active-bg: #8ab4f8;
-      --toolbar-active-text: #121212;
-      --toolbar-input-text: rgba(255,255,255,0.87);
-      --toolbar-input-placeholder: rgba(255,255,255,0.38);
-      --toolbar-divider: rgba(255,255,255,0.12);
+      --conn-line-color: rgba(62,166,255,0.30);
+      --conn-line-data: rgba(197,138,249,0.45);
+      --conn-line-user: rgba(255,160,0,0.45);
+      /* Toolbar */
+      --toolbar-bg: #272727;
+      --toolbar-border: #3f3f3f;
+      --toolbar-shadow: 0 2px 8px rgba(0,0,0,0.5);
+      --toolbar-text: #f1f1f1;
+      --toolbar-hover: #3f3f3f;
+      --toolbar-active-bg: #f1f1f1;
+      --toolbar-active-text: #0f0f0f;
+      --toolbar-input-text: #f1f1f1;
+      --toolbar-input-placeholder: #717171;
+      --toolbar-divider: #3f3f3f;
       /* Scrollbar */
-      --scrollbar-thumb: rgba(255,255,255,0.12);
-      --scrollbar-thumb-hover: rgba(255,255,255,0.20);
+      --scrollbar-thumb: #3f3f3f;
+      --scrollbar-thumb-hover: #555555;
       /* Label backgrounds */
-      --label-bg: rgba(18,18,18,0.92);
+      --label-bg: rgba(15,15,15,0.95);
     }
     [data-theme="light"] {
       --bg: #f8f9fa; --surface: #ffffff; --border: #dadce0;
