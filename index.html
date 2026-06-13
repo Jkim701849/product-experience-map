@@ -2464,6 +2464,16 @@
     .jc-state-btn[data-state="crew-late"].active { background: #e65100; border-color: #e65100; }
     .jc-state-btn[data-state="mechanical"].active { background: #d32f2f; border-color: #d32f2f; }
     .jc-state-btn[data-state="cancelled"].active { background: #7f0000; border-color: #7f0000; }
+    .jc-state-btn[data-state="weather"].active { background: #5c6bc0; border-color: #5c6bc0; }
+    .jc-state-btn[data-state="atc-hold"].active { background: #7b1fa2; border-color: #7b1fa2; }
+    .jc-state-btn[data-state="gate-hold"].active { background: #f57c00; border-color: #f57c00; }
+    .jc-state-btn[data-state="diversion"].active { background: #c62828; border-color: #c62828; }
+    .jc-state-btn[data-state="misconnect"].active { background: #ad1457; border-color: #ad1457; }
+    .jc-state-btn[data-state="system-down"].active { background: #bf360c; border-color: #bf360c; }
+    .jc-state-btn[data-state="bid-error"].active { background: #e65100; border-color: #e65100; }
+    .jc-state-btn[data-state="catering"].active { background: #827717; border-color: #827717; }
+    .jc-state-btn[data-state="pax-issue"].active { background: #4e342e; border-color: #4e342e; }
+    .jc-state-btn[data-state="bag-delay"].active { background: #795548; border-color: #795548; }
 
     /* Card state indicators */
     .journey-card[data-status="ontime"] { border-top: 3px solid #2ba640; }
@@ -2471,6 +2481,16 @@
     .journey-card[data-status="crew-late"] { border-top: 3px solid #e65100; }
     .journey-card[data-status="mechanical"] { border-top: 3px solid #d32f2f; }
     .journey-card[data-status="cancelled"] { border-top: 3px solid #7f0000; opacity: 0.6; }
+    .journey-card[data-status="weather"] { border-top: 3px solid #5c6bc0; }
+    .journey-card[data-status="atc-hold"] { border-top: 3px solid #7b1fa2; }
+    .journey-card[data-status="gate-hold"] { border-top: 3px solid #f57c00; }
+    .journey-card[data-status="diversion"] { border-top: 3px solid #c62828; }
+    .journey-card[data-status="misconnect"] { border-top: 3px solid #ad1457; }
+    .journey-card[data-status="system-down"] { border-top: 3px solid #bf360c; }
+    .journey-card[data-status="bid-error"] { border-top: 3px solid #e65100; }
+    .journey-card[data-status="catering"] { border-top: 3px solid #827717; }
+    .journey-card[data-status="pax-issue"] { border-top: 3px solid #4e342e; }
+    .journey-card[data-status="bag-delay"] { border-top: 3px solid #795548; }
 
     .jc-status-badge {
       display: inline-flex; align-items: center; gap: 4px;
@@ -2483,6 +2503,16 @@
     .jc-status-badge[data-status="crew-late"] { background: rgba(230,81,0,0.15); color: #e65100; }
     .jc-status-badge[data-status="mechanical"] { background: rgba(211,47,47,0.15); color: #d32f2f; }
     .jc-status-badge[data-status="cancelled"] { background: rgba(127,0,0,0.15); color: #7f0000; }
+    .jc-status-badge[data-status="weather"] { background: rgba(92,107,192,0.15); color: #5c6bc0; }
+    .jc-status-badge[data-status="atc-hold"] { background: rgba(123,31,162,0.15); color: #7b1fa2; }
+    .jc-status-badge[data-status="gate-hold"] { background: rgba(245,124,0,0.15); color: #f57c00; }
+    .jc-status-badge[data-status="diversion"] { background: rgba(198,40,40,0.15); color: #c62828; }
+    .jc-status-badge[data-status="misconnect"] { background: rgba(173,20,87,0.15); color: #ad1457; }
+    .jc-status-badge[data-status="system-down"] { background: rgba(191,54,12,0.15); color: #bf360c; }
+    .jc-status-badge[data-status="bid-error"] { background: rgba(230,81,0,0.15); color: #e65100; }
+    .jc-status-badge[data-status="catering"] { background: rgba(130,119,23,0.15); color: #827717; }
+    .jc-status-badge[data-status="pax-issue"] { background: rgba(78,52,46,0.15); color: #4e342e; }
+    .jc-status-badge[data-status="bag-delay"] { background: rgba(121,85,72,0.15); color: #795548; }
 
     @media (max-width: 768px) {
       .journey-card { width: 300px; }
@@ -7158,9 +7188,37 @@ function toggleTheme() {
   function renderJourney() {
     var container = document.getElementById('journey-cards');
     var html = '';
-    var stateLabels = { 'ontime': 'On Time', 'delayed': 'Delayed', 'crew-late': 'Crew Late', 'mechanical': 'Mechanical', 'cancelled': 'Cancelled' };
-    var stateIcons = { 'ontime': 'check_circle', 'delayed': 'schedule', 'crew-late': 'person_off', 'mechanical': 'build', 'cancelled': 'cancel' };
-    var stateKeys = ['ontime', 'delayed', 'crew-late', 'mechanical', 'cancelled'];
+    var stateLabels = {
+      'ontime': 'On Time', 'delayed': 'Delayed', 'crew-late': 'Crew Late',
+      'mechanical': 'Mechanical', 'cancelled': 'Cancelled',
+      'weather': 'Weather Delay', 'atc-hold': 'ATC Hold', 'gate-hold': 'Gate Hold',
+      'diversion': 'Diversion', 'misconnect': 'Misconnect',
+      'system-down': 'System Down', 'bid-error': 'Bid Error',
+      'catering': 'Catering Delay', 'pax-issue': 'Passenger Issue',
+      'bag-delay': 'Bag Delay'
+    };
+    var stateIcons = {
+      'ontime': 'check_circle', 'delayed': 'schedule', 'crew-late': 'person_off',
+      'mechanical': 'build', 'cancelled': 'cancel',
+      'weather': 'cloud', 'atc-hold': 'cell_tower', 'gate-hold': 'sensor_door',
+      'diversion': 'alt_route', 'misconnect': 'link_off',
+      'system-down': 'error', 'bid-error': 'warning',
+      'catering': 'restaurant', 'pax-issue': 'group_off',
+      'bag-delay': 'luggage'
+    };
+    // Per-phase applicable states
+    var phaseStates = [
+      /* 0: Schedule Planning */     ['ontime', 'delayed', 'system-down'],
+      /* 1: Bidding & Awards */      ['ontime', 'delayed', 'system-down', 'bid-error'],
+      /* 2: Schedule Distribution */ ['ontime', 'delayed', 'system-down', 'misconnect'],
+      /* 3: Crew Travel & Arrival */ ['ontime', 'delayed', 'crew-late', 'weather', 'misconnect'],
+      /* 4: Pre-Flight & Boarding */ ['ontime', 'delayed', 'mechanical', 'weather', 'crew-late', 'gate-hold', 'catering'],
+      /* 5: Departure */             ['ontime', 'delayed', 'mechanical', 'weather', 'atc-hold', 'cancelled'],
+      /* 6: In-Flight */             ['ontime', 'delayed', 'weather', 'atc-hold', 'diversion'],
+      /* 7: Arrival & Gate */        ['ontime', 'delayed', 'gate-hold', 'bag-delay', 'diversion'],
+      /* 8: Post-Flight */           ['ontime', 'delayed', 'mechanical'],
+      /* 9: Irregular Operations */  ['ontime', 'delayed', 'crew-late', 'mechanical', 'weather', 'cancelled', 'diversion']
+    ];
 
     // Ensure journeyStates matches journeyPhases length
     while (journeyStates.length < journeyPhases.length) {
@@ -7176,9 +7234,10 @@ function toggleTheme() {
       html += '<span class="jc-status-badge" data-status="' + currentState + '"><span class="material-symbols-outlined" style="font-size:0.7rem;">' + stateIcons[currentState] + '</span>' + stateLabels[currentState] + '</span>';
       html += '</div>';
 
-      // State buttons
+      // State buttons — only applicable states for this phase
+      var applicableStates = phaseStates[i] || ['ontime', 'delayed'];
       html += '<div class="jc-states">';
-      stateKeys.forEach(function(state) {
+      applicableStates.forEach(function(state) {
         html += '<button class="jc-state-btn' + (currentState === state ? ' active' : '') + '" data-state="' + state + '" data-phase="' + i + '">' + stateLabels[state] + '</button>';
       });
       html += '</div>';
