@@ -7529,7 +7529,7 @@ function toggleTheme() {
         // Expand button
         html += '<div class="irops-expand-btn" id="irops-expand"><span class="material-symbols-outlined">expand_more</span>Details</div>';
         // Expandable body
-        html += '<div class="irops-expand-body">';
+        html += '<div class="irops-expand-body" style="display:none;">';
         html += '<div class="jc-divider"></div>';
         html += '<div class="jc-section-title">Recovery Actions</div>';
         html += '<div class="jc-activities">';
@@ -7566,7 +7566,10 @@ function toggleTheme() {
     if (iropsExpand && iropsCard) {
       iropsExpand.addEventListener('click', function(e) {
         e.stopPropagation();
-        iropsCard.classList.toggle('expanded');
+        var body = iropsCard.querySelector('.irops-expand-body');
+        var isExpanded = body.style.display === 'block';
+        body.style.display = isExpanded ? 'none' : 'block';
+        iropsExpand.querySelector('.material-symbols-outlined').style.transform = isExpanded ? '' : 'rotate(180deg)';
       });
     }
 
