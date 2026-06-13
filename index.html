@@ -7116,70 +7116,324 @@ function toggleTheme() {
       desc: 'Network Planning builds the flight schedule (P0\u2192F0). Crew Planning uses PBS to create crew pairings and bid packages. Training slots are coordinated through TSS.',
       activities: ['Network Planning creates preliminary schedule (P0)', 'Iterations refined to final schedule (F0)', 'Crew Planning builds bid packages via PBS', 'Training slots coordinated through TSS', 'BVR reports generated for validation'],
       users: ['Crew Planner'],
-      products: ['PBS', 'BVR', 'AOS', 'TSS', 'FOS']
+      products: ['PBS', 'BVR', 'AOS', 'TSS', 'FOS'],
+      states: {
+        'delayed': {
+          desc: 'Schedule publication is delayed. Crew Planners work overtime to finalize pairings. Downstream bidding timelines shift.',
+          activities: ['Crew Planning extends processing window', 'Notify crew of delayed bid opening', 'Coordinate with Network Planning on changes', 'Adjust TSS training slots if impacted'],
+          users: ['Crew Planner'],
+          products: ['PBS', 'FOS', 'ECS']
+        },
+        'system-down': {
+          desc: 'PBS or FOS system outage. Crew Planners switch to manual processes or backup systems. All schedule generation halted until restored.',
+          activities: ['IT escalation for system restore', 'Manual schedule drafting as fallback', 'Communicate outage to all stakeholders', 'Prepare contingency bid timeline'],
+          users: ['Crew Planner'],
+          products: ['FOS', 'ECS']
+        }
+      }
     },
     {
       title: 'Bidding & Awards',
       desc: 'Pilots and Flight Attendants submit monthly schedule bids through PBS. Crew Planners process awards and publish results. FAs can trade trips via ETB and TTS.',
       activities: ['Pilots submit PBS bid preferences', 'FAs submit lineholder/reserve bids', 'PBS processes and awards schedules', 'Results published to crew members', 'ETB opens for trip trading', 'UBL generated for unsuccessful bidders'],
       users: ['Pilot', 'Flight Attendant', 'Crew Planner'],
-      products: ['PBS', 'CCI', 'ETB', 'TTS', 'UBL', 'LRD']
+      products: ['PBS', 'CCI', 'ETB', 'TTS', 'UBL', 'LRD'],
+      states: {
+        'delayed': {
+          desc: 'Bid window extended due to late schedule publication. Crews notified of new deadlines. PBS processing pushed back, impacting ETB and trip trading timelines.',
+          activities: ['Notify all crew of revised bid deadlines', 'Extend PBS bid window in system', 'Crew Planners monitor bid submission rates', 'Communicate new award publication date'],
+          users: ['Pilot', 'Flight Attendant', 'Crew Planner'],
+          products: ['PBS', 'CCI', 'ECS']
+        },
+        'system-down': {
+          desc: 'PBS system offline. Crew Planners collect bids manually via email and phone. Awards processed using backup spreadsheets until system is restored.',
+          activities: ['PBS offline notification sent to all crew', 'Manual bid collection via email/phone', 'IT escalation for PBS restore', 'Backup spreadsheet processing of bids'],
+          users: ['Pilot', 'Flight Attendant', 'Crew Planner'],
+          products: ['ECS']
+        },
+        'bid-error': {
+          desc: 'Incorrect awards detected after PBS processing. Crew Planners re-run PBS with corrected parameters. Affected crew notified of revised awards.',
+          activities: ['Identify incorrect award assignments', 'Re-run PBS with corrected parameters', 'Notify affected crew of revised awards', 'Crew Planners review and validate results', 'Update ETB with corrected pairings'],
+          users: ['Pilot', 'Flight Attendant', 'Crew Planner'],
+          products: ['PBS', 'CCI', 'ETB', 'ECS']
+        }
+      }
     },
     {
       title: 'Schedule Distribution',
       desc: 'Awarded schedules are distributed to crew members via CCI and crew portal. Crew Schedulers handle daily coverage (DOTC) and manage reserves.',
       activities: ['Schedules published in CCI', 'Crew Scheduler manages DOTC daily', 'Reserve assignments coordinated', 'ROTA/ROTD processes reserve coverage', 'MPS sends notifications to pilots'],
       users: ['Crew Scheduler', 'Crew Tracker', 'Pilot', 'Flight Attendant'],
-      products: ['CCI', 'ECS', 'MPS', 'ROTA', 'ROTD', 'FOS', 'CME']
+      products: ['CCI', 'ECS', 'MPS', 'ROTA', 'ROTD', 'FOS', 'CME'],
+      states: {
+        'delayed': {
+          desc: 'Late schedule push to crew. Pilots and FAs check CCI repeatedly for updates. Crew Schedulers prioritize coverage gaps and expedite DOTC assignments.',
+          activities: ['Crew Schedulers prioritize coverage gaps', 'Expedite DOTC assignments for affected dates', 'Crew members refresh CCI for updates', 'MPS sends delayed schedule notifications'],
+          users: ['Crew Scheduler', 'Pilot', 'Flight Attendant'],
+          products: ['CCI', 'ECS', 'MPS', 'FOS']
+        },
+        'system-down': {
+          desc: 'CCI or ECS system down. Schedule distribution falls back to phone-based communication. Crew Schedulers manually contact crew with assignments.',
+          activities: ['CCI/ECS outage reported to IT', 'Phone-based schedule distribution to crew', 'Crew Schedulers manually track assignments', 'Backup communication via crew hotline'],
+          users: ['Crew Scheduler', 'Crew Tracker', 'Pilot', 'Flight Attendant'],
+          products: ['FOS']
+        },
+        'misconnect': {
+          desc: 'Crew member assigned to wrong pairing or conflicting schedule. Crew Scheduler corrects assignment in FOS. ECS notification sent to affected crew.',
+          activities: ['Identify misconnected crew assignment', 'Crew Scheduler corrects pairing in FOS', 'ECS notification sent to affected crew', 'Verify corrected schedule in CCI', 'DOTC updated with reassignment'],
+          users: ['Crew Scheduler', 'Pilot', 'Flight Attendant'],
+          products: ['CCI', 'ECS', 'FOS', 'CME']
+        }
+      }
     },
     {
       title: 'Crew Travel & Arrival',
       desc: 'Crew members travel to their departure station. Pilots use KCM for security, check in via CCI with geofencing, and review weather and flight plans.',
       activities: ['KCM screening at airport', 'Sign in for trip (geofenced)', 'Review airplane and weather (WSI)', 'Check flight plan in CCI', 'Download into FDPro/Adobe'],
       users: ['Pilot', 'Flight Attendant'],
-      products: ['CCI', 'WSI', 'FDPro', 'Comply 365']
+      products: ['CCI', 'WSI', 'FDPro', 'Comply 365'],
+      states: {
+        'delayed': {
+          desc: 'Crew stuck in traffic or transit delays. Crew member contacts Crew Tracker via ECS. Reserve activation considered if report time will be missed.',
+          activities: ['Crew member contacts Crew Tracker via ECS', 'Crew Tracker assesses arrival timeline', 'Reserve activation considered if late', 'Update FOS with revised crew position'],
+          users: ['Pilot', 'Flight Attendant', 'Crew Tracker'],
+          products: ['CCI', 'ECS', 'FOS']
+        },
+        'crew-late': {
+          desc: 'Crew member will miss report time. Crew Tracker notifies Scheduler. Reserve called in from DOTC. Original crew member reassigned or released.',
+          activities: ['Crew member reports they will be late', 'Crew Tracker notifies Crew Scheduler', 'Reserve crew called in from DOTC', 'Rebid DOTC for replacement coverage', 'Update FOS with crew swap'],
+          users: ['Crew Tracker', 'Crew Scheduler', 'Reserve Pilot'],
+          products: ['ECS', 'FOS', 'CCI', 'ROTA']
+        },
+        'weather': {
+          desc: 'Airport weather delays crew travel to station. Crew monitors WSI for updates. Possible hotel extension if overnight crew cannot depart.',
+          activities: ['Monitor WSI for weather updates', 'Crew Tracker assesses weather impact', 'Possible hotel extension for overnight crew', 'Coordinate ground transportation alternatives'],
+          users: ['Pilot', 'Flight Attendant', 'Crew Tracker'],
+          products: ['WSI', 'ECS', 'CCI']
+        },
+        'misconnect': {
+          desc: 'Crew missed connecting flight to base or outstation. Crew Tracker locates crew and coordinates rebooking. Scheduler finds replacement crew for affected flight.',
+          activities: ['Crew reports missed connection via ECS', 'Crew Tracker locates and rebooks crew', 'Scheduler finds replacement from reserves', 'Update FOS with revised crew positions', 'Arrange alternate transportation if needed'],
+          users: ['Crew Tracker', 'Crew Scheduler', 'Reserve Pilot'],
+          products: ['ECS', 'FOS', 'CCI', 'Sabre PSS']
+        }
+      }
     },
     {
       title: 'Pre-Flight & Boarding',
       desc: 'First Officer performs walkaround inspection. Pilots brief crew, review MELs, and coordinate with gate agents. Baggage operations begin loading.',
       activities: ['FO walkaround aircraft inspection', 'Check for MELs (Comply 365)', 'Brief crew on flight details', 'Gate agent opens jet bridge', 'Baggage loaded via TrackScan', 'Departure briefing and runway validation'],
       users: ['Pilot', 'Flight Attendant', 'Gate Agent', 'Gate Crew', 'Bag Clerk'],
-      products: ['CCI', 'Comply 365', 'EAML', 'TrackScan', 'Sabre PSS', 'FDPro']
+      products: ['CCI', 'Comply 365', 'EAML', 'TrackScan', 'Sabre PSS', 'FDPro'],
+      states: {
+        'delayed': {
+          desc: 'Boarding delayed due to upstream issues. Pilots extend cockpit prep time. Gate agent manages passenger communication and rebooking for tight connections.',
+          activities: ['Pilots extend cockpit prep and monitoring', 'Gate agent announces delay to passengers', 'Rebook passengers with tight connections', 'Monitor updated departure time via CCI'],
+          users: ['Pilot', 'Flight Attendant', 'Gate Agent'],
+          products: ['CCI', 'Sabre PSS', 'FDPro']
+        },
+        'mechanical': {
+          desc: 'MEL item discovered during walkaround or cockpit setup. Pilots review Comply 365 for dispatch restrictions. Maintenance called to gate. Possible aircraft swap.',
+          activities: ['MEL item identified during inspection', 'Pilots review Comply 365 for restrictions', 'Maintenance called to gate for assessment', 'Possible aircraft swap coordinated', 'Gate agent notifies passengers of delay'],
+          users: ['Pilot', 'Flight Attendant', 'Gate Agent', 'Maintenance'],
+          products: ['Comply 365', 'EAML', 'CCI', 'FOS']
+        },
+        'weather': {
+          desc: 'Weather hold at gate. Pilots monitor WSI for conditions. Dispatch coordinates alternate routing. Passengers held on aircraft or in terminal.',
+          activities: ['Pilots monitor WSI weather updates', 'Dispatch coordinates alternate routing', 'Gate agent communicates hold to passengers', 'FA manages cabin during ground hold'],
+          users: ['Pilot', 'Flight Attendant', 'Gate Agent'],
+          products: ['WSI', 'CCI', 'FDPro', 'ACARS']
+        },
+        'crew-late': {
+          desc: 'Crew not at gate for boarding. Scheduler sends reserve crew member. Gate agent holds boarding until replacement arrives.',
+          activities: ['Gate agent reports crew not present', 'Scheduler dispatches reserve from DOTC', 'Gate agent holds boarding process', 'Reserve crew briefed and positioned', 'Update FOS with crew change'],
+          users: ['Gate Agent', 'Crew Scheduler', 'Reserve Pilot'],
+          products: ['ECS', 'FOS', 'CCI', 'ROTA']
+        },
+        'gate-hold': {
+          desc: 'Assigned gate not available. Previous aircraft still occupying gate. Ground crew works to reposition. Passengers wait in terminal.',
+          activities: ['Gate occupied by previous aircraft', 'Ground crew repositions equipment', 'Gate agent manages passenger expectations', 'Coordinate alternate gate assignment'],
+          users: ['Gate Agent', 'Gate Crew', 'Pilot'],
+          products: ['CCI', 'Sabre PSS']
+        },
+        'catering': {
+          desc: 'Catering truck delayed or incorrect provisions delivered. FA adjusts service plan for flight. Departure may be held pending catering resolution.',
+          activities: ['Catering truck delayed to aircraft', 'FA reviews and adjusts service plan', 'Contact catering supervisor for ETA', 'Captain decides whether to hold departure', 'Gate agent updates passengers on delay'],
+          users: ['Flight Attendant', 'Pilot', 'Gate Agent'],
+          products: ['CCI']
+        }
+      }
     },
     {
       title: 'Departure',
       desc: 'Final boarding confirmed by #1 FA. Pilots coordinate with dispatch for any last-minute changes. Pushback coordinated with ground crew.',
       activities: ['FA confirms all aboard, closes door', 'Final weight and balance check', 'Contact dispatcher for changes', 'Check revised flight plan', 'Coordinate pushback with ground crew', 'ACARS communication with dispatch'],
       users: ['Pilot', 'Flight Attendant', 'Gate Crew'],
-      products: ['CCI', 'FDPro', 'ACARS', 'Aircraft FMS']
+      products: ['CCI', 'FDPro', 'ACARS', 'Aircraft FMS'],
+      states: {
+        'delayed': {
+          desc: 'Pushback delayed. Pilot announces delay to passengers. Dispatch recalculates fuel requirements and updates flight plan via ACARS.',
+          activities: ['Pilot announces delay to passengers', 'Dispatch recalculates fuel burn', 'Updated flight plan sent via ACARS', 'Ground crew stands by for pushback', 'Monitor slot time for departure window'],
+          users: ['Pilot', 'Flight Attendant', 'Gate Crew'],
+          products: ['ACARS', 'FDPro', 'CCI']
+        },
+        'mechanical': {
+          desc: 'Last-minute mechanical issue discovered after boarding. Maintenance team dispatched to aircraft. Possible gate return if issue cannot be resolved on spot.',
+          activities: ['Mechanical issue reported by flight crew', 'Maintenance dispatched to aircraft', 'Pilots assess if gate return needed', 'EAML updated with write-up', 'Passengers informed of delay'],
+          users: ['Pilot', 'Maintenance', 'Flight Attendant'],
+          products: ['EAML', 'Comply 365', 'ACARS', 'CCI']
+        },
+        'weather': {
+          desc: 'Weather hold on ground. ATC issues ground stop. Pilots monitor ATIS for clearance. Fuel burn recalculated for extended ground time.',
+          activities: ['ATC ground stop in effect', 'Pilots monitor ATIS for updates', 'Dispatch recalculates fuel for hold', 'FA manages cabin during ground hold', 'ACARS updates from dispatch'],
+          users: ['Pilot', 'Flight Attendant'],
+          products: ['WSI', 'ACARS', 'FDPro', 'Aircraft FMS']
+        },
+        'atc-hold': {
+          desc: 'EDCT (Expected Departure Clearance Time) assigned by ATC. Pilots wait for clearance window. Fuel burn recalculated for delayed departure.',
+          activities: ['EDCT slot time assigned by ATC', 'Pilots wait for departure clearance', 'Dispatch recalculates fuel for delay', 'ACARS updates with new departure time', 'Passengers informed of ATC delay'],
+          users: ['Pilot', 'Flight Attendant'],
+          products: ['ACARS', 'FDPro', 'Aircraft FMS']
+        },
+        'cancelled': {
+          desc: 'Flight cancelled. Crew reassigned via ECS. Passengers rebooked through Sabre PSS. Gate agent manages deplaning and rebooking process.',
+          activities: ['Flight cancelled in system', 'Crew reassigned via ECS', 'Passengers rebooked via Sabre PSS', 'Gate agent manages deplaning', 'Baggage pulled from aircraft'],
+          users: ['Pilot', 'Flight Attendant', 'Gate Agent', 'Crew Scheduler'],
+          products: ['ECS', 'Sabre PSS', 'FOS', 'CCI']
+        }
+      }
     },
     {
       title: 'In-Flight Operations',
       desc: 'Pilots manage the aircraft via FMS, monitor weather, and communicate with ATC. Flight Attendants manage cabin service and safety.',
       activities: ['Navigate via Aircraft FMS', 'Monitor weather updates (WSI)', 'ATC communications', 'Cabin service and safety checks', 'ACARS messaging with operations'],
       users: ['Pilot', 'Flight Attendant'],
-      products: ['Aircraft FMS', 'WSI', 'ATC', 'ACARS', 'FDPro']
+      products: ['Aircraft FMS', 'WSI', 'ATC', 'ACARS', 'FDPro'],
+      states: {
+        'delayed': {
+          desc: 'Arrival will be late due to delayed departure. ATC may reroute for time savings. Pilots request direct routing to make up time.',
+          activities: ['Pilots request direct routing from ATC', 'ATC rerouting for time recovery', 'Dispatch monitors fuel vs. time tradeoff', 'ACARS updates on revised arrival time', 'FA adjusts cabin service for shorter flight'],
+          users: ['Pilot', 'Flight Attendant'],
+          products: ['Aircraft FMS', 'WSI', 'ATC', 'ACARS']
+        },
+        'weather': {
+          desc: 'Turbulence or storms en route. Pilots deviate from planned route. Flight Attendants secure cabin and suspend service.',
+          activities: ['Pilots deviate around weather cells', 'FA secures cabin and suspends service', 'Monitor WSI for storm movement', 'ATC coordinates deviation clearance', 'ACARS report to dispatch on conditions'],
+          users: ['Pilot', 'Flight Attendant'],
+          products: ['Aircraft FMS', 'WSI', 'ATC', 'ACARS']
+        },
+        'atc-hold': {
+          desc: 'Holding pattern at destination. Fuel monitoring becomes critical. Pilots assess alternate airport options if hold extends.',
+          activities: ['Enter holding pattern per ATC', 'Monitor fuel burn vs. reserves', 'Assess alternate airport options', 'ACARS update to dispatch on fuel state', 'Pilots declare minimum fuel if needed'],
+          users: ['Pilot', 'Flight Attendant'],
+          products: ['Aircraft FMS', 'ACARS', 'ATC', 'FDPro']
+        },
+        'diversion': {
+          desc: 'Diverting to alternate airport due to weather, medical, or mechanical issue. Pilots coordinate with dispatch. FA prepares cabin for unplanned landing.',
+          activities: ['Pilots coordinate diversion with dispatch', 'New flight plan generated via ACARS', 'FA prepares cabin for alternate landing', 'ATC clears diversion routing', 'Dispatch arranges ground support at alternate'],
+          users: ['Pilot', 'Flight Attendant'],
+          products: ['Aircraft FMS', 'ACARS', 'ATC', 'FDPro']
+        }
+      }
     },
     {
       title: 'Arrival & Gate',
       desc: 'Aircraft lands and taxis to gate. Ground crew positions equipment. Bags are offloaded and routed through BHS to baggage claim.',
       activities: ['Landing and taxi to gate', 'Flight status changes to "IN"', 'Gate crew offload bags (TrackScan)', 'ABR drivers transport bags to claim', 'BHS routes bags to correct carousel', 'Passengers deplane'],
       users: ['Pilot', 'Gate Crew', 'ABR Driver', 'Bag Clerk'],
-      products: ['TrackScan', 'T.LINE', 'BHS', 'BMS', 'BMAS']
+      products: ['TrackScan', 'T.LINE', 'BHS', 'BMS', 'BMAS'],
+      states: {
+        'delayed': {
+          desc: 'Late arrival. Assigned gate may not be available. Ground crew repositions equipment. Tight connections for passengers and crew.',
+          activities: ['Gate may not be available on arrival', 'Ground crew repositions for late aircraft', 'Passengers with tight connections prioritized', 'Crew Tracker updates FOS positions', 'Expedited bag offload process'],
+          users: ['Pilot', 'Gate Crew', 'ABR Driver', 'Crew Tracker'],
+          products: ['TrackScan', 'FOS', 'BHS', 'ECS']
+        },
+        'gate-hold': {
+          desc: 'Assigned gate occupied by another aircraft. Aircraft holds on taxiway. Passengers wait onboard while ground ops finds alternate gate.',
+          activities: ['Aircraft holds on taxiway', 'Ground ops coordinates alternate gate', 'Pilot communicates hold to passengers', 'Gate crew repositions equipment', 'Monitor gate availability in real-time'],
+          users: ['Pilot', 'Flight Attendant', 'Gate Crew'],
+          products: ['CCI', 'TrackScan']
+        },
+        'bag-delay': {
+          desc: 'Bags delayed in baggage handling system. Bag clerks trace missing bags via TrackScan. Passengers notified of delayed baggage at claim.',
+          activities: ['Bags delayed in BHS system', 'Bag clerks trace via TrackScan', 'BMS updated with delayed bag status', 'Passenger notified at baggage claim', 'File delayed baggage report in BMAS'],
+          users: ['Bag Clerk', 'ABR Driver', 'Gate Crew'],
+          products: ['TrackScan', 'BHS', 'BMS', 'BMAS']
+        },
+        'diversion': {
+          desc: 'Arrived at alternate airport. Ground ops scrambles to support unplanned arrival. Passenger rebooking and ground transportation arranged.',
+          activities: ['Ground ops at alternate arranges gate', 'Passengers rebooked via Sabre PSS', 'Ground transportation arranged', 'Crew Tracker updates crew positions', 'Baggage reconciliation at alternate station'],
+          users: ['Pilot', 'Gate Crew', 'Gate Agent', 'Crew Tracker'],
+          products: ['Sabre PSS', 'FOS', 'ECS', 'TrackScan']
+        }
+      }
     },
     {
       title: 'Post-Flight & Turnaround',
       desc: 'Crew logs are filed, maintenance checks performed, and the aircraft is prepared for the next flight. Hotel/limo arranged for overnight crews.',
       activities: ['File pilot reports (PFR)', 'Log maintenance items (EAML)', 'Sweeper checks tarmac for FOD', 'Hotel/limo arranged for overnights', 'Crew Tracker updates FOS positions', 'Aircraft cleaned and catered for next flight'],
       users: ['Pilot', 'Crew Tracker', 'Hotel/Limo Coordinator', 'Sweeper'],
-      products: ['ECS', 'FOS', 'CME', 'EAML', 'PFR']
+      products: ['ECS', 'FOS', 'CME', 'EAML', 'PFR'],
+      states: {
+        'delayed': {
+          desc: 'Post-flight processes rushed for quick turnaround. Crew rest may be abbreviated. Maintenance and catering expedited to minimize further delays.',
+          activities: ['Expedited post-flight checks', 'Abbreviated turnaround procedures', 'Crew rest clock starts late', 'Fast-track catering and cleaning', 'Crew Tracker monitors rest compliance'],
+          users: ['Pilot', 'Crew Tracker', 'Maintenance'],
+          products: ['ECS', 'FOS', 'EAML', 'PFR']
+        },
+        'mechanical': {
+          desc: 'Maintenance write-up entered in EAML. Maintenance team dispatched to assess. Aircraft may go out of service pending repair.',
+          activities: ['Write-up entered in EAML by pilot', 'Maintenance team dispatched to aircraft', 'Assess if aircraft can remain in service', 'Aircraft may go out of service (OOS)', 'Coordinate replacement aircraft if needed'],
+          users: ['Pilot', 'Maintenance', 'Crew Tracker'],
+          products: ['EAML', 'FOS', 'ECS', 'Comply 365']
+        }
+      }
     },
     {
       title: 'Irregular Operations',
       desc: 'When delays, cancellations, or diversions occur. Crew Schedulers and Trackers manage reassignments. IOC coordinates recovery.',
       activities: ['Delay management and announcements', 'Crew reassignment via ECS', 'Reserve crew activation', 'Passenger rebooking (Sabre PSS)', 'Recovery planning at IOC', 'Chief Pilots Office escalation'],
       users: ['Crew Scheduler', 'Crew Tracker', 'Chief Pilots Office', 'Gate Agent'],
-      products: ['ECS', 'FOS', 'CME', 'Sabre PSS', 'IOC Platform']
+      products: ['ECS', 'FOS', 'CME', 'Sabre PSS', 'IOC Platform'],
+      states: {
+        'delayed': {
+          desc: 'IOC manages cascading delays across the network. Crew Tracker repositions crews to cover downstream flights. Recovery plan activated.',
+          activities: ['IOC activates network recovery plan', 'Crew Tracker repositions crews across network', 'Downstream flights assessed for impact', 'Reserve pools evaluated for coverage', 'Communication sent to affected stations'],
+          users: ['Crew Scheduler', 'Crew Tracker', 'Chief Pilots Office'],
+          products: ['ECS', 'FOS', 'CME', 'IOC Platform']
+        },
+        'crew-late': {
+          desc: 'Reserve activation chain initiated. Crew Scheduler backfills from DOTC reserve pool. Multiple flights may be impacted if reserves are depleted.',
+          activities: ['Reserve activation chain initiated', 'Crew Scheduler backfills from DOTC', 'Assess reserve pool depth at station', 'Chief Pilots Office notified if critical', 'Track crew duty time limits'],
+          users: ['Crew Scheduler', 'Crew Tracker', 'Reserve Pilot'],
+          products: ['ECS', 'FOS', 'ROTA', 'ROTD']
+        },
+        'mechanical': {
+          desc: 'Aircraft swap coordinated between IOC and maintenance. Fleet status updated. Crews may be reassigned to different aircraft type.',
+          activities: ['Aircraft swap coordinated with maintenance', 'Fleet status updated in FOS', 'Crews assessed for type rating on swap', 'Maintenance updates EAML records', 'IOC adjusts downstream schedule'],
+          users: ['Crew Scheduler', 'Crew Tracker', 'Maintenance', 'Chief Pilots Office'],
+          products: ['ECS', 'FOS', 'EAML', 'IOC Platform']
+        },
+        'weather': {
+          desc: 'System-wide ground stops issued by ATC. Flow control programs activated. Mass rebooking of passengers across affected routes.',
+          activities: ['ATC ground stop in effect system-wide', 'Flow control programs activated', 'Mass passenger rebooking via Sabre PSS', 'Crew repositioning planned for recovery', 'IOC monitors weather progression'],
+          users: ['Crew Scheduler', 'Crew Tracker', 'Gate Agent', 'Chief Pilots Office'],
+          products: ['ECS', 'FOS', 'Sabre PSS', 'WSI', 'IOC Platform']
+        },
+        'cancelled': {
+          desc: 'Flight removed from schedule. All crew released from assignment. Passenger recovery and rebooking initiated across network.',
+          activities: ['Flight removed from active schedule', 'All crew released from assignment', 'Passenger recovery initiated via Sabre PSS', 'Crew available for reassignment in ECS', 'IOC updates network recovery plan'],
+          users: ['Crew Scheduler', 'Crew Tracker', 'Gate Agent'],
+          products: ['ECS', 'FOS', 'Sabre PSS', 'IOC Platform']
+        },
+        'diversion': {
+          desc: 'Crew at alternate station. Hotel and limo arranged for displaced crew. Repositioning flight or deadhead planned to return crew to network.',
+          activities: ['Hotel and ground transport arranged', 'Crew repositioning planned', 'Deadhead or ferry flight coordinated', 'Passenger rebooking at alternate station', 'IOC plans network recovery'],
+          users: ['Crew Scheduler', 'Crew Tracker', 'Hotel/Limo Coordinator'],
+          products: ['ECS', 'FOS', 'CME', 'Sabre PSS', 'IOC Platform']
+        }
+      }
     }
   ];
 
@@ -7228,6 +7482,18 @@ function toggleTheme() {
     journeyPhases.forEach(function(phase, i) {
       var currentState = journeyStates[i] || 'ontime';
 
+      // Get state-specific content or default
+      var phaseData = phase;
+      if (currentState !== 'ontime' && phase.states && phase.states[currentState]) {
+        phaseData = {
+          title: phase.title,
+          desc: phase.states[currentState].desc,
+          activities: phase.states[currentState].activities,
+          users: phase.states[currentState].users || phase.users,
+          products: phase.states[currentState].products || phase.products
+        };
+      }
+
       html += '<div class="journey-card" data-phase="' + i + '" data-status="' + currentState + '">';
       html += '<div class="jc-phase-num" style="display:flex;align-items:center;">';
       html += 'Phase ' + (i + 1) + ' of ' + journeyPhases.length;
@@ -7242,13 +7508,13 @@ function toggleTheme() {
       });
       html += '</div>';
 
-      html += '<div class="jc-title">' + phase.title + '</div>';
-      html += '<div class="jc-desc">' + phase.desc + '</div>';
+      html += '<div class="jc-title">' + phaseData.title + '</div>';
+      html += '<div class="jc-desc">' + phaseData.desc + '</div>';
       html += '<div class="jc-divider"></div>';
 
       html += '<div class="jc-section-title">Key Activities</div>';
       html += '<div class="jc-activities">';
-      phase.activities.forEach(function(a) {
+      phaseData.activities.forEach(function(a) {
         html += '<div class="jc-activity"><span class="material-symbols-outlined">check_circle</span>' + a + '</div>';
       });
       html += '</div>';
@@ -7256,13 +7522,13 @@ function toggleTheme() {
       html += '<div class="jc-divider"></div>';
       html += '<div class="jc-section-title">People & Systems</div>';
       html += '<div class="jc-people">';
-      if (phase.users) {
-        phase.users.forEach(function(u) {
+      if (phaseData.users) {
+        phaseData.users.forEach(function(u) {
           html += '<span class="jc-person user">' + u + '</span>';
         });
       }
-      if (phase.products) {
-        phase.products.forEach(function(p) {
+      if (phaseData.products) {
+        phaseData.products.forEach(function(p) {
           html += '<span class="jc-person product">' + p + '</span>';
         });
       }
