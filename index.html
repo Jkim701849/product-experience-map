@@ -2515,23 +2515,16 @@
     .jc-status-badge[data-status="bag-delay"] { background: rgba(121,85,72,0.15); color: #795548; }
 
     @media (max-width: 768px) {
-    /* IROPS inline banner inside each affected card */
-    .jc-irops-bar {
-      display: none; background: rgba(211,47,47,0.08);
+    /* IROPS section inside affected cards — same style as phase content */
+    .jc-irops-section {
       border-bottom: 1px solid rgba(211,47,47,0.2);
-      padding: 0.5rem 1.5rem;
-      font-family: var(--sans);
+      background: rgba(211,47,47,0.04);
     }
-    .jc-irops-bar.active { display: block; }
-    .jc-irops-bar-title {
-      font-size: 0.58rem; font-weight: 700; color: #d32f2f;
-      text-transform: uppercase; letter-spacing: 0.1em;
-      display: flex; align-items: center; gap: 4px;
-    }
-    .jc-irops-bar-title .material-symbols-outlined { font-size: 0.8rem; }
-    .jc-irops-bar-desc {
-      font-size: 0.6rem; color: var(--card-text-tertiary); margin-top: 2px;
-    }
+    .jc-irops-section .jc-phase-num { color: #d32f2f; }
+    .jc-irops-section .jc-title { color: #d32f2f; }
+    .jc-irops-section .jc-section-title { color: #d32f2f; }
+    .jc-irops-section .jc-activity .material-symbols-outlined { color: #d32f2f; }
+    .jc-irops-section .jc-divider { background: rgba(211,47,47,0.15); }
 
       .journey-card { width: 300px; }
       .jc-title { font-size: 1rem; }
@@ -7472,11 +7465,33 @@ function toggleTheme() {
 
       html += '<div class="journey-card" data-phase="' + i + '" data-status="' + currentState + '">';
 
-      // IROPS bar — only on phases 4-7, only when that specific phase is disrupted
+      // IROPS section — same look as phase content, only when disrupted
       if (isIropsPhase && phaseHasIrops) {
-        html += '<div class="jc-irops-bar active">';
-        html += '<div class="jc-irops-bar-title"><span class="material-symbols-outlined">warning</span>IROPS Active</div>';
-        html += '<div class="jc-irops-bar-desc">IOC coordinating recovery · Crew reassignment in progress</div>';
+        html += '<div class="jc-irops-section">';
+        html += '<div class="jc-phase-num" style="display:flex;align-items:center;">';
+        html += '<span class="material-symbols-outlined" style="font-size:0.7rem;margin-right:4px;">warning</span>Irregular Operations';
+        html += '</div>';
+        html += '<div class="jc-title">IROPS Active</div>';
+        html += '<div class="jc-desc">IOC is coordinating network recovery. Crew Schedulers and Trackers are managing reassignments and reserve activation.</div>';
+        html += '<div class="jc-divider"></div>';
+        html += '<div class="jc-section-title">Recovery Actions</div>';
+        html += '<div class="jc-activities">';
+        html += '<div class="jc-activity"><span class="material-symbols-outlined">check_circle</span>IOC activates recovery plan</div>';
+        html += '<div class="jc-activity"><span class="material-symbols-outlined">check_circle</span>Crew Tracker repositions crews</div>';
+        html += '<div class="jc-activity"><span class="material-symbols-outlined">check_circle</span>Reserve pools evaluated</div>';
+        html += '<div class="jc-activity"><span class="material-symbols-outlined">check_circle</span>Passenger rebooking initiated</div>';
+        html += '</div>';
+        html += '<div class="jc-divider"></div>';
+        html += '<div class="jc-section-title">People & Systems</div>';
+        html += '<div class="jc-people">';
+        html += '<span class="jc-person user">Crew Scheduler</span>';
+        html += '<span class="jc-person user">Crew Tracker</span>';
+        html += '<span class="jc-person user">Chief Pilots Office</span>';
+        html += '<span class="jc-person product">ECS</span>';
+        html += '<span class="jc-person product">FOS</span>';
+        html += '<span class="jc-person product">IOC Platform</span>';
+        html += '<span class="jc-person product">Sabre PSS</span>';
+        html += '</div>';
         html += '</div>';
       }
       html += '<div class="jc-phase-num" style="display:flex;align-items:center;">';
