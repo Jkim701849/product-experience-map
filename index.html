@@ -2515,16 +2515,51 @@
     .jc-status-badge[data-status="bag-delay"] { background: rgba(121,85,72,0.15); color: #795548; }
 
     @media (max-width: 768px) {
-    /* IROPS section inside affected cards — same style as phase content */
-    .jc-irops-section {
-      border-bottom: 1px solid rgba(211,47,47,0.2);
-      background: rgba(211,47,47,0.04);
+    /* IROPS spanning card — sits above affected phases */
+    .irops-row {
+      display: none; flex-shrink: 0;
+      position: relative;
     }
-    .jc-irops-section .jc-phase-num { color: #d32f2f; }
-    .jc-irops-section .jc-title { color: #d32f2f; }
-    .jc-irops-section .jc-section-title { color: #d32f2f; }
-    .jc-irops-section .jc-activity .material-symbols-outlined { color: #d32f2f; }
-    .jc-irops-section .jc-divider { background: rgba(211,47,47,0.15); }
+    .irops-row.active { display: flex; }
+    .irops-card {
+      background: rgba(211,47,47,0.06);
+      border: 1px solid rgba(211,47,47,0.2);
+      border-radius: 0; border-top: 3px solid #d32f2f;
+      cursor: pointer; overflow: hidden;
+      transition: max-height 0.3s ease;
+      width: 100%;
+    }
+    .irops-card-header {
+      display: flex; align-items: center; gap: 8px;
+      padding: 0.6rem 1.5rem;
+    }
+    .irops-card-header .material-symbols-outlined {
+      font-size: 1rem; color: #d32f2f;
+    }
+    .irops-card-title {
+      font-family: var(--sans); font-size: 0.85rem;
+      font-weight: 600; color: #d32f2f;
+    }
+    .irops-card-chevron {
+      margin-left: auto; font-size: 1.2rem; color: var(--dim);
+      transition: transform 0.3s;
+    }
+    .irops-card.expanded .irops-card-chevron { transform: rotate(180deg); }
+    .irops-card-body {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.3s ease;
+      padding: 0 1.5rem;
+    }
+    .irops-card.expanded .irops-card-body {
+      max-height: 500px;
+      padding: 0 1.5rem 1rem;
+    }
+    .irops-card-body .jc-section-title { color: #d32f2f; padding: 0; }
+    .irops-card-body .jc-desc { padding: 0; margin-bottom: 0.75rem; }
+    .irops-card-body .jc-activities { padding: 0; }
+    .irops-card-body .jc-activity .material-symbols-outlined { color: #d32f2f; }
+    .irops-card-body .jc-divider { margin: 0.75rem 0; }
+    .irops-card-body .jc-people { padding: 0; margin-top: 0.5rem; }
 
       .journey-card { width: 300px; }
       .jc-title { font-size: 1rem; }
@@ -7459,27 +7494,34 @@ function toggleTheme() {
         };
       }
 
-      // Is this an IROPS-eligible phase (4-7) with a disruption?
       var isIropsPhase = i >= 4 && i <= 7;
-      var phaseHasIrops = isIropsPhase && currentState !== 'ontime';
 
-      html += '<div class="journey-card" data-phase="' + i + '" data-status="' + currentState + '">';
-
-      // IROPS section — same look as phase content, only when disrupted
-      if (isIropsPhase && phaseHasIrops) {
-        html += '<div class="jc-irops-section">';
-        html += '<div class="jc-phase-num" style="display:flex;align-items:center;">';
-        html += '<span class="material-symbols-outlined" style="font-size:0.7rem;margin-right:4px;">warning</span>Irregular Operations';
+      // Before phase 4: insert IROPS column wrapper
+      if (i === 4) {
+        // Check if any of phases 4-7 are disrupted
+        var anyIrops = false;
+        for (var ip = 4; ip <= 7; ip++) {
+          if (journeyStates[ip] && journeyStates[ip] !== 'ontime') anyIrops = true;
+        }
+        html += '<div style="display:flex;flex-direction:column;flex-shrink:0;">';
+        // IROPS spanning card
+        html += '<div class="irops-row' + (anyIrops ? ' active' : '') + '" id="irops-row">';
+        html += '<div class="irops-card" id="irops-card">';
+        html += '<div class="irops-card-header">';
+        html += '<span class="material-symbols-outlined">warning</span>';
+        html += '<span class="irops-card-title">Irregular Operations (IROPS)</span>';
+        html += '<span class="material-symbols-outlined irops-card-chevron">expand_more</span>';
         html += '</div>';
-        html += '<div class="jc-title">IROPS Active</div>';
-        html += '<div class="jc-desc">IOC is coordinating network recovery. Crew Schedulers and Trackers are managing reassignments and reserve activation.</div>';
+        html += '<div class="irops-card-body">';
+        html += '<div class="jc-desc">IOC is coordinating network recovery. Crew Schedulers and Trackers are managing reassignments and reserve activation across affected phases.</div>';
         html += '<div class="jc-divider"></div>';
         html += '<div class="jc-section-title">Recovery Actions</div>';
         html += '<div class="jc-activities">';
         html += '<div class="jc-activity"><span class="material-symbols-outlined">check_circle</span>IOC activates recovery plan</div>';
         html += '<div class="jc-activity"><span class="material-symbols-outlined">check_circle</span>Crew Tracker repositions crews</div>';
-        html += '<div class="jc-activity"><span class="material-symbols-outlined">check_circle</span>Reserve pools evaluated</div>';
-        html += '<div class="jc-activity"><span class="material-symbols-outlined">check_circle</span>Passenger rebooking initiated</div>';
+        html += '<div class="jc-activity"><span class="material-symbols-outlined">check_circle</span>Reserve pools evaluated for coverage</div>';
+        html += '<div class="jc-activity"><span class="material-symbols-outlined">check_circle</span>Passenger rebooking initiated via Sabre PSS</div>';
+        html += '<div class="jc-activity"><span class="material-symbols-outlined">check_circle</span>Downstream flights assessed for impact</div>';
         html += '</div>';
         html += '<div class="jc-divider"></div>';
         html += '<div class="jc-section-title">People & Systems</div>';
@@ -7492,8 +7534,12 @@ function toggleTheme() {
         html += '<span class="jc-person product">IOC Platform</span>';
         html += '<span class="jc-person product">Sabre PSS</span>';
         html += '</div>';
-        html += '</div>';
+        html += '</div></div></div>';
+        // Open the row of phase cards below IROPS
+        html += '<div style="display:flex;">';
       }
+
+      html += '<div class="journey-card" data-phase="' + i + '" data-status="' + currentState + '">';
       html += '<div class="jc-phase-num" style="display:flex;align-items:center;">';
       html += 'Phase ' + (i + 1) + ' of ' + journeyPhases.length;
       html += '<span class="jc-status-badge" data-status="' + currentState + '"><span class="material-symbols-outlined" style="font-size:0.7rem;">' + stateIcons[currentState] + '</span>' + stateLabels[currentState] + '</span>';
@@ -7533,9 +7579,22 @@ function toggleTheme() {
       }
       html += '</div>';
       html += '</div>';
+
+      // Close IROPS column wrapper after phase 7
+      if (i === 7) {
+        html += '</div></div>'; // close phases row + column wrapper
+      }
     });
 
     container.innerHTML = html;
+
+    // IROPS card expand/collapse
+    var iropsCard = document.getElementById('irops-card');
+    if (iropsCard) {
+      iropsCard.addEventListener('click', function() {
+        iropsCard.classList.toggle('expanded');
+      });
+    }
 
     // Bind state button click handlers with cascade logic
     container.querySelectorAll('.jc-state-btn').forEach(function(btn) {
