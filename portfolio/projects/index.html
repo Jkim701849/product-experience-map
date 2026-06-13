@@ -7991,8 +7991,8 @@ function toggleTheme() {
           { name: 'TrackScan', icon: 'qr_code_scanner', desc: 'Mobile scanning app for bag tag reading and tracking', sends: ['Scan events to BMAS'], receives: ['Bag routing data from BMS'] }
         ],
         userActivities: [
-          { user: 'Ticket Agent', activities: ['Greets customer at counter', 'Prints bag tag via Sabre PSS', 'Scans bag tag with TrackScan handheld', 'Places bag on conveyor belt', 'Confirms bag entered BHS'] },
-          { user: 'Gate Agent', activities: ['Identifies oversized carry-on bags', 'Prints gate check tag', 'Scans bag with TrackScan', 'Coordinates bag delivery to ramp'] }
+          { user: 'Ticket Agent', activities: ['Ticket Agent greets customer at counter', 'Ticket Agent prints bag tag via Sabre PSS', 'Ticket Agent scans bag tag with TrackScan handheld', 'Ticket Agent places bag on conveyor belt', 'Ticket Agent confirms bag entered BHS'] },
+          { user: 'Gate Agent', activities: ['Gate Agent identifies oversized carry-on bags', 'Gate Agent prints gate check tag', 'Gate Agent scans bag with TrackScan', 'Gate Agent coordinates bag delivery to ramp'] }
         ]
       }
     },
@@ -8013,7 +8013,7 @@ function toggleTheme() {
           { name: 'BMS (Bag Management System)', icon: 'hub', desc: 'Central system that tracks bag status and determines routing through BHS', sends: ['Routing instructions to BHS', 'Bag status to BMAS'], receives: ['Scan data from laser arrays', 'Security clearance status'] }
         ],
         userActivities: [
-          { user: 'Bag Clerk', activities: ['Monitors BHS throughput on control screens', 'Responds to jam alerts and clears conveyor blockages', 'Coordinates with TSA on flagged bags', 'Tracks bags with extended security holds'] }
+          { user: 'Bag Clerk', activities: ['Bag Clerk monitors BHS throughput on control screens', 'Bag Clerk responds to jam alerts and clears conveyor blockages', 'Bag Clerk coordinates with TSA on flagged bags', 'Bag Clerk tracks bags with extended security holds'] }
         ]
       }
     },
@@ -8033,7 +8033,7 @@ function toggleTheme() {
           { name: 'TrackScan', icon: 'qr_code_scanner', desc: 'Handheld scanner used to read damaged tags and verify reprinted tags', sends: ['Scan events to BMAS'], receives: ['Bag record lookup from BMS'] }
         ],
         userActivities: [
-          { user: 'Encoder', activities: ['Retrieves bags from encode station conveyor', 'Diagnoses tag damage (torn, smudged, wrinkled)', 'Reprints bag tag using BMS workstation', 'Manually enters barcode data when tag is illegible', 'Verifies new tag scans correctly before re-induction'] }
+          { user: 'Encoder', activities: ['Encoder receives bag with unreadable tag', 'Encoder diagnoses tag barcode issue', 'Encoder reprints or repairs tag', 'Encoder re-scans bag into BHS via TrackScan'] }
         ]
       }
     },
@@ -8056,7 +8056,7 @@ function toggleTheme() {
           { name: 'TrackScan', icon: 'qr_code_scanner', desc: 'Used by bag clerks to trace bags and verify routing status', sends: ['Manual scan events to BMAS'], receives: ['Bag status and routing info'] }
         ],
         userActivities: [
-          { user: 'Bag Clerk', activities: ['Monitors BMS routing dashboard for anomalies', 'Traces delayed bags using TrackScan', 'Manually routes bags when BMS is down', 'Coordinates late pier expedites with ABR drivers', 'Communicates with gate about late bag status'] }
+          { user: 'Bag Clerk', activities: ['Bag Clerk monitors BMS routing dashboard', 'Bag Clerk identifies bags with routing errors', 'Bag Clerk manually re-routes misrouted bags', 'Bag Clerk coordinates late pier handling for tight connections'] }
         ]
       }
     },
@@ -8078,8 +8078,8 @@ function toggleTheme() {
           { name: 'T.LINE', icon: 'local_shipping', desc: 'Transport and logistics system used by ABR drivers for cart dispatch and routing', sends: ['Driver dispatch confirmations', 'Cart location updates'], receives: ['Cart ready notifications', 'Planeside delivery assignments'] }
         ],
         userActivities: [
-          { user: 'Bag Clerk', activities: ['Scans bags at make-up unit with TrackScan', 'Sorts bags onto correct carts by flight', 'Marks carts ready for transport', 'Handles late pier bags with priority tagging'] },
-          { user: 'ABR Driver', activities: ['Receives cart assignment via T.LINE', 'Hooks loaded cart to tug vehicle', 'Drives cart to assigned aircraft gate', 'Confirms delivery via T.LINE scan'] }
+          { user: 'Bag Clerk', activities: ['Bag Clerk scans each bag at make-up unit with TrackScan', 'Bag Clerk loads bags onto baggage cart', 'Bag Clerk verifies bag count against flight manifest'] },
+          { user: 'ABR Driver', activities: ['ABR Driver receives loaded cart from Bag Clerk', 'ABR Driver scans cart with T.LINE app', 'ABR Driver transports cart to assigned gate position'] }
         ]
       }
     },
@@ -8099,8 +8099,8 @@ function toggleTheme() {
           { name: 'BMAS', icon: 'monitoring', desc: 'Receives load confirmations and tracks bags from cart to aircraft', sends: ['Load completion status to dispatch', 'Bag count discrepancy alerts'], receives: ['Planeside scan events from TrackScan'] }
         ],
         userActivities: [
-          { user: 'Gate Crew', activities: ['Positions belt loader vehicle at aircraft cargo door', 'Scans each bag with TrackScan as it goes on belt', 'Loads bags into cargo compartments by zone', 'Secures cargo nets and closes cargo doors'] },
-          { user: 'Bag Clerk', activities: ['Verifies total bag count against passenger manifest', 'Resolves any count discrepancies before door close', 'Coordinates with gate agent on last-minute gate checks', 'Confirms final load to dispatch'] }
+          { user: 'Gate Crew', activities: ['Gate Crew positions belt loader at aircraft cargo door', 'Gate Crew offload scans arriving bags with TrackScan', 'Gate Crew loads departing bags into cargo hold'] },
+          { user: 'Bag Clerk', activities: ['Bag Clerk verifies final bag count against manifest', 'Bag Clerk confirms all bags loaded via BMAS'] }
         ]
       }
     },
@@ -8122,9 +8122,9 @@ function toggleTheme() {
           { name: 'BMAS', icon: 'monitoring', desc: 'Monitors connection timing and flags bags at risk of misconnect', sends: ['Misconnect alerts to bag clerks', 'Re-routing instructions'], receives: ['Arrival scan data', 'Flight schedule changes'] }
         ],
         userActivities: [
-          { user: 'Gate Crew', activities: ['Offloads bags from arriving aircraft with TrackScan', 'Separates connecting bags from terminating bags', 'Loads connecting bags onto transfer carts'] },
-          { user: 'ABR Driver', activities: ['Scans transfer carts with T.LINE', 'Transports connecting bags between gates or terminals', 'Prioritizes tight-connection bags for expedited delivery'] },
-          { user: 'Bag Clerk', activities: ['Monitors BMAS for misconnect risk alerts', 'Re-tags misconnected bags for next available flight', 'Coordinates with destination station for delayed bag delivery'] }
+          { user: 'Gate Crew', activities: ['Gate Crew offloads bags from arriving aircraft', 'Gate Crew scans each bag with TrackScan during offload'] },
+          { user: 'ABR Driver', activities: ['ABR Driver transports connecting bags to next gate', 'ABR Driver scans transfer bags with T.LINE'] },
+          { user: 'Bag Clerk', activities: ['Bag Clerk identifies misconnected bags via BMAS', 'Bag Clerk re-tags bag for next available flight', 'Bag Clerk re-inducts bag into BHS'] }
         ]
       }
     },
@@ -8144,8 +8144,8 @@ function toggleTheme() {
           { name: 'T.LINE', icon: 'local_shipping', desc: 'Transport logistics system for cart routing from gate to baggage claim', sends: ['Delivery confirmations to BMAS', 'Cart arrival at claim'], receives: ['Carousel assignment', 'Transport priority routing'] }
         ],
         userActivities: [
-          { user: 'Gate Crew', activities: ['Opens cargo doors and sets up belt loader', 'Offload scans each bag with TrackScan', 'Sorts terminating bags from connecting bags', 'Loads bags onto transport carts for claim delivery'] },
-          { user: 'ABR Driver', activities: ['Scans loaded cart with T.LINE', 'Drives bags to assigned baggage claim carousel', 'Confirms cart delivery at carousel', 'Returns empty carts to staging area'] }
+          { user: 'Gate Crew', activities: ['Gate Crew positions belt loader at aircraft', 'Gate Crew offloads all bags with TrackScan scanning', 'Gate Crew loads bags onto transport carts'] },
+          { user: 'ABR Driver', activities: ['ABR Driver scans carts with T.LINE', 'ABR Driver transports bags to baggage claim area'] }
         ]
       }
     },
@@ -8167,8 +8167,8 @@ function toggleTheme() {
           { name: 'BMS', icon: 'hub', desc: 'Used to re-route found bags back into BHS when they need to reach a different terminal or flight', sends: ['Re-routing commands to BHS'], receives: ['Found bag data from BMAS'] }
         ],
         userActivities: [
-          { user: 'Bag Clerk', activities: ['Monitors carousel for unclaimed bags', 'Files mishandled bag reports in BMAS', 'Coordinates delivery arrangements for delayed bags', 'Communicates with passengers about bag status'] },
-          { user: 'Sweeper', activities: ['Patrols tarmac and service roads in vehicle', 'Scans found bags with TrackScan', 'Delivers found bags to correct location', 'Reports recurring problem areas to operations'] }
+          { user: 'Bag Clerk', activities: ['Bag Clerk monitors carousel delivery via BMAS', 'Bag Clerk traces missing bags through BMAS tracking system', 'Bag Clerk initiates delivery arrangement for delayed bags'] },
+          { user: 'Sweeper', activities: ['Sweeper drives service roads scanning for stranded bags', 'Sweeper scans found bags with TrackScan', 'Sweeper transports recovered bags to appropriate location'] }
         ]
       }
     }
