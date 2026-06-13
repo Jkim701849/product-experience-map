@@ -8759,6 +8759,51 @@ function toggleTheme() {
       }
       html += '</div>';
 
+      // Other connections — find data flows to/from these systems from the global connections array
+      var phaseSystemIds = [];
+      d.systems.forEach(function(sys) {
+        // Match system name to node ID
+        nodes.forEach(function(n) {
+          if (n.type === 'product' && n.detail) {
+            var title = (n.detail.title || n.label || '').replace(/\n/g,' ');
+            if (title === sys.name || n.label === sys.name || n.id === sys.name.toLowerCase().replace(/ /g,'-')) {
+              if (phaseSystemIds.indexOf(n.id) === -1) phaseSystemIds.push(n.id);
+            }
+          }
+        });
+      });
+
+      var otherFlows = [];
+      connections.forEach(function(c) {
+        if (c[2] !== 'data') return;
+        var hasPhaseSystem = phaseSystemIds.indexOf(c[0]) >= 0 || phaseSystemIds.indexOf(c[1]) >= 0;
+        var bothInPhase = phaseSystemIds.indexOf(c[0]) >= 0 && phaseSystemIds.indexOf(c[1]) >= 0;
+        if (hasPhaseSystem && !bothInPhase) {
+          var inPhase = phaseSystemIds.indexOf(c[0]) >= 0 ? c[0] : c[1];
+          var outside = phaseSystemIds.indexOf(c[0]) >= 0 ? c[1] : c[0];
+          var outsideNode = nMap[outside];
+          var inPhaseNode = nMap[inPhase];
+          if (outsideNode && inPhaseNode) {
+            var outsideName = outsideNode.detail ? outsideNode.detail.title : outsideNode.label;
+            var inPhaseName = inPhaseNode.detail ? inPhaseNode.detail.title : inPhaseNode.label;
+            otherFlows.push({ outside: (outsideName || outside).replace(/\n/g,' '), inPhase: (inPhaseName || inPhase).replace(/\n/g,' ') });
+          }
+        }
+      });
+
+      if (otherFlows.length > 0) {
+        html += '<div style="margin-top:0.75rem;padding:0.6rem 0.75rem;background:var(--card-bg);border:1px dashed var(--card-border);border-radius:8px;font-size:0.68rem;color:var(--dim);">';
+        html += '<div style="font-weight:600;margin-bottom:0.4rem;color:var(--card-text-tertiary);">Also connected outside this phase</div>';
+        otherFlows.forEach(function(f) {
+          html += '<div style="padding:0.15rem 0;display:flex;align-items:center;gap:0.4rem;">';
+          html += '<span style="color:var(--purple);">' + f.outside + '</span>';
+          html += '<span class="material-symbols-outlined" style="font-size:0.7rem;">sync_alt</span>';
+          html += '<span style="color:var(--cyan);">' + f.inPhase + '</span>';
+          html += '</div>';
+        });
+        html += '</div>';
+      }
+
     } else {
       html += '<div class="pd-body-text">No data systems defined for this phase.</div>';
     }
