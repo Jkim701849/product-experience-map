@@ -2859,6 +2859,19 @@
       text-transform: uppercase; letter-spacing: 0.08em;
       padding-bottom: 0.4rem; text-align: center;
     }
+    .pd-dm-arrows {
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 1.2rem 6px 0; flex-shrink: 0;
+    }
+    .pd-dm-arrows .material-symbols-outlined {
+      font-size: 1rem; color: var(--dim); opacity: 0.4;
+    }
+    .pd-datamap {
+      display: flex; align-items: stretch; gap: 0;
+      overflow-x: auto;
+    }
+    .pd-datamap::-webkit-scrollbar { height: 3px; }
+    .pd-datamap::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
 
     /* User activity cards */
     .pd-user {
@@ -8633,7 +8646,72 @@ function toggleTheme() {
       }
       html += '</div>';
 
+      html += '</div>';
+
+      // Second row: Application → Device → User Group
+      html += '<div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--card-border);">';
+      html += '<div style="font-size:0.55rem;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.75rem;">How users access this data</div>';
+      html += '<div class="pd-datamap">';
+
+      // Applications column
+      html += '<div class="pd-dm-col" style="min-width:140px;">';
+      html += '<div class="pd-dm-col-label">Application</div>';
+      d.systems.forEach(function(sys) {
+        html += '<div class="pd-dm-node" style="border-left:3px solid var(--purple);">';
+        html += '<div class="pd-dm-node-icon" style="background:var(--purple-dim);"><span class="material-symbols-outlined" style="color:var(--purple);">' + sys.icon + '</span></div>';
+        html += '<div><div class="pd-dm-node-name">' + sys.name + '</div></div></div>';
+      });
+      html += '</div>';
+
+      // Arrow
+      html += '<div class="pd-dm-arrows"><span class="material-symbols-outlined">arrow_forward</span></div>';
+
+      // Devices column — derive from phase users' hardware
+      var devices = [];
+      var deviceIcons = {'handheld':'qr_code_scanner','mobile':'smartphone','phone':'smartphone','tablet':'tablet','desktop':'computer','workstation':'computer','scanner':'qr_code_scanner','vehicle':'local_shipping','radio':'settings_input_antenna','belt':'precision_manufacturing','flashlight':'flashlight_on'};
+      if (phase.users) {
+        phase.users.forEach(function(uname) {
+          nodes.forEach(function(n) {
+            if (n.type === 'user' && n.detail) {
+              var title = (n.detail.title || n.label || '').replace(/\n/g,' ');
+              if (title === uname && n.detail.hardware) {
+                n.detail.hardware.forEach(function(hw) { if (devices.indexOf(hw) === -1) devices.push(hw); });
+              }
+            }
+          });
+        });
+      }
+      if (devices.length === 0) devices = ['Handheld device'];
+      html += '<div class="pd-dm-col" style="min-width:140px;">';
+      html += '<div class="pd-dm-col-label">Device</div>';
+      devices.forEach(function(dev) {
+        var dIcon = 'devices';
+        var dl = dev.toLowerCase();
+        for (var k in deviceIcons) { if (dl.indexOf(k) !== -1) { dIcon = deviceIcons[k]; break; } }
+        html += '<div class="pd-dm-node" style="border-left:3px solid #81c995;">';
+        html += '<div class="pd-dm-node-icon" style="background:rgba(129,201,149,0.1);"><span class="material-symbols-outlined" style="color:#81c995;">' + dIcon + '</span></div>';
+        html += '<div><div class="pd-dm-node-name">' + dev + '</div></div></div>';
+      });
+      html += '</div>';
+
+      // Arrow
+      html += '<div class="pd-dm-arrows"><span class="material-symbols-outlined">arrow_forward</span></div>';
+
+      // User Groups column
+      html += '<div class="pd-dm-col" style="min-width:130px;">';
+      html += '<div class="pd-dm-col-label">User Group</div>';
+      if (phase.users) {
+        phase.users.forEach(function(u) {
+          html += '<div class="pd-dm-node" style="border-left:3px solid var(--gold);">';
+          html += '<div class="pd-dm-node-icon" style="background:var(--gold-dim);"><span class="material-symbols-outlined" style="color:var(--gold);">person</span></div>';
+          html += '<div><div class="pd-dm-node-name">' + u + '</div></div></div>';
+        });
+      }
+      html += '</div>';
+
       html += '</div></div>';
+
+      html += '</div>';
     }
 
     // User Activities — right column
