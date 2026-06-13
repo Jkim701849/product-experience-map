@@ -2328,6 +2328,144 @@
     }
     .v2-line.dimmed { opacity: 0.04; }
 
+    /* ====== JOURNEY VIEW ====== */
+    .journey-view {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 40; display: none; background: var(--bg);
+      flex-direction: column; overflow: hidden;
+    }
+    .journey-view.active { display: flex; z-index: 60; }
+    body.journey-active .zoom-controls, body.journey-active .toolbar,
+    body.journey-active .detail-panel, body.journey-active .welcome-card { display: none !important; }
+
+    .journey-header {
+      display: flex; align-items: center; padding: 0.75rem 1.25rem;
+      flex-shrink: 0; gap: 0.75rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .journey-back {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--card-elevated); border: none;
+      color: var(--card-text-tertiary); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s; padding: 0;
+    }
+    .journey-back .material-symbols-outlined { font-size: 1.2rem; }
+    .journey-back:hover { background: var(--card-hover); color: var(--card-text); }
+    .journey-title {
+      font-family: var(--sans); font-size: 1rem; font-weight: 500;
+      color: var(--text); margin: 0;
+    }
+
+    .journey-scroll {
+      flex: 1; overflow-x: auto; overflow-y: hidden;
+      padding: 2rem 1.5rem;
+    }
+    .journey-scroll::-webkit-scrollbar { height: 6px; }
+    .journey-scroll::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+
+    .journey-cards {
+      display: flex; gap: 20px; min-height: 100%;
+      align-items: stretch;
+    }
+
+    /* Phase card */
+    .journey-card {
+      width: 380px; flex-shrink: 0;
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 16px; overflow: hidden;
+      display: flex; flex-direction: column;
+      transition: box-shadow 0.2s;
+    }
+    .journey-card:hover {
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+
+    .jc-phase-num {
+      padding: 1rem 1.5rem 0;
+      font-family: 'Orbitron', sans-serif; font-size: 0.55rem;
+      font-weight: 700; color: var(--dim);
+      letter-spacing: 0.15em; text-transform: uppercase;
+    }
+    .jc-title {
+      padding: 0.4rem 1.5rem 0;
+      font-family: var(--sans); font-size: 1.25rem;
+      font-weight: 600; color: var(--text); line-height: 1.3;
+    }
+    .jc-desc {
+      padding: 0.5rem 1.5rem 0;
+      font-size: 0.78rem; color: var(--card-text-secondary);
+      line-height: 1.6;
+    }
+
+    .jc-divider {
+      height: 1px; background: var(--card-border);
+      margin: 1rem 1.5rem;
+    }
+
+    .jc-section-title {
+      padding: 0 1.5rem;
+      font-size: 0.58rem; font-weight: 700; color: var(--cyan);
+      text-transform: uppercase; letter-spacing: 0.08em;
+      margin-bottom: 0.4rem;
+    }
+
+    .jc-activities {
+      padding: 0 1.5rem; flex: 1;
+    }
+    .jc-activity {
+      display: flex; align-items: flex-start; gap: 0.5rem;
+      padding: 0.3rem 0; font-size: 0.72rem;
+      color: var(--card-text-secondary); line-height: 1.5;
+    }
+    .jc-activity .material-symbols-outlined {
+      font-size: 0.75rem; color: var(--cyan); margin-top: 3px; flex-shrink: 0;
+    }
+
+    .jc-people {
+      padding: 0.75rem 1.5rem 1rem;
+      display: flex; flex-wrap: wrap; gap: 6px;
+    }
+    .jc-person {
+      padding: 0.2rem 0.6rem; border-radius: 6px;
+      background: var(--card-elevated); font-size: 0.62rem;
+      font-weight: 500; color: var(--card-text-secondary);
+      border: 1px solid var(--card-border);
+    }
+    .jc-person.user { color: var(--gold); border-color: var(--gold-dim); }
+    .jc-person.product { color: var(--cyan); border-color: var(--cyan-dim); }
+
+    .jc-connector {
+      display: flex; align-items: center; flex-shrink: 0;
+      padding: 0 4px; color: var(--dim);
+    }
+    .jc-connector .material-symbols-outlined { font-size: 1.5rem; }
+
+    /* Add phase button */
+    .journey-add-card {
+      width: 200px; flex-shrink: 0;
+      background: none; border: 2px dashed var(--card-border);
+      border-radius: 16px; cursor: pointer;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 0.5rem; transition: border-color 0.2s, background 0.2s;
+      color: var(--dim); min-height: 300px;
+    }
+    .journey-add-card:hover {
+      border-color: var(--cyan); background: var(--cyan-dim);
+      color: var(--cyan);
+    }
+    .journey-add-card .material-symbols-outlined { font-size: 2rem; }
+    .journey-add-card span:last-child {
+      font-family: var(--sans); font-size: 0.75rem; font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+      .journey-card { width: 300px; }
+      .jc-title { font-size: 1rem; }
+      .journey-scroll { padding: 1rem; }
+    }
+
   </style>
 </head>
 <body>
@@ -2348,6 +2486,7 @@
       <a class="start-menu-item" data-start-action="mapv2"><span class="smi-label">PEM v2</span></a>
       <a class="start-menu-item" data-start-action="users"><span class="smi-label">Users</span></a>
       <a class="start-menu-item" data-start-action="workflows"><span class="smi-label">Workflows</span></a>
+      <a class="start-menu-item" data-start-action="journey"><span class="smi-label">Journey</span></a>
       <a class="start-menu-item" data-start-action="glossary"><span class="smi-label">Glossary</span></a>
       <a class="start-menu-item" data-start-action="cms"><span class="smi-label">Content Manager</span></a>
       <a class="start-menu-item" data-start-action="secret" style="margin-top:1.5rem;"><span class="smi-label" style="font-size:clamp(0.55rem,1vw,0.72rem);letter-spacing:0.12em;color:rgba(210,215,230,0.25);">Don't click. This is the secret room.</span></a>
@@ -2442,6 +2581,17 @@
           <p>Select a workflow to view</p>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Journey View -->
+  <div class="journey-view" id="journey-view">
+    <div class="journey-header">
+      <button class="journey-back" id="journey-back"><span class="material-symbols-outlined">arrow_back</span></button>
+      <h2 class="journey-title">Airline Operations Journey</h2>
+    </div>
+    <div class="journey-scroll" id="journey-scroll">
+      <div class="journey-cards" id="journey-cards"></div>
     </div>
   </div>
 
@@ -6290,8 +6440,8 @@ function toggleTheme() {
   /* ========== FILTER DROPDOWN ========== */
   var filterBtn = document.getElementById('filter-btn');
   var filterMenu = document.getElementById('filter-menu');
-  var filterLabels = { all: 'All', usermap: 'Relationships', datamap: 'Data Map', pathgraph: 'Path Graph', glossary: 'Glossary', users: 'Users', workflows: 'Workflows', cms: 'CMS', mapv2: 'PEM v2' };
-  var filterIcons = { all: 'hub', usermap: 'group', product: 'widgets', datamap: 'share', pathgraph: 'timeline', glossary: 'menu_book', users: 'group', workflows: 'account_tree', cms: 'edit_note', mapv2: 'grid_view' };
+  var filterLabels = { all: 'All', usermap: 'Relationships', datamap: 'Data Map', pathgraph: 'Path Graph', glossary: 'Glossary', users: 'Users', workflows: 'Workflows', journey: 'Journey', cms: 'CMS', mapv2: 'PEM v2' };
+  var filterIcons = { all: 'hub', usermap: 'group', product: 'widgets', datamap: 'share', pathgraph: 'timeline', glossary: 'menu_book', users: 'group', workflows: 'account_tree', journey: 'flight', cms: 'edit_note', mapv2: 'grid_view' };
 
   filterBtn.addEventListener('click', function(e) {
     e.stopPropagation();
@@ -6713,6 +6863,8 @@ function toggleTheme() {
     if (mv2) { mv2.classList.remove('active'); document.body.classList.remove('mapv2-active'); }
     var cmsView = document.getElementById('cms-view');
     if (cmsView) { cmsView.classList.remove('active'); document.body.classList.remove('cms-active'); }
+    var jv = document.getElementById('journey-view');
+    if (jv) { jv.classList.remove('active'); document.body.classList.remove('journey-active'); }
     document.getElementById('viewport').style.display = '';
     closeDetail();
     hideWelcomeCard();
@@ -6759,6 +6911,12 @@ function toggleTheme() {
         document.getElementById('mapv2-view').classList.add('active');
         document.body.classList.add('mapv2-active');
         initMapV2();
+        break;
+      case 'journey':
+        startOverlay.classList.add('hidden');
+        document.getElementById('journey-view').classList.add('active');
+        document.body.classList.add('journey-active');
+        renderJourney();
         break;
       case 'secret':
         openSecretRoom();
@@ -6895,6 +7053,153 @@ function toggleTheme() {
 
   /* ========== USERS VIEW EVENT BINDINGS ========== */
   document.getElementById('users-view-close').addEventListener('click', backToMenu);
+
+  /* ====== JOURNEY ====== */
+  var journeyPhases = [
+    {
+      title: 'Schedule Planning',
+      desc: 'Network Planning builds the flight schedule (P0\u2192F0). Crew Planning uses PBS to create crew pairings and bid packages. Training slots are coordinated through TSS.',
+      activities: ['Network Planning creates preliminary schedule (P0)', 'Iterations refined to final schedule (F0)', 'Crew Planning builds bid packages via PBS', 'Training slots coordinated through TSS', 'BVR reports generated for validation'],
+      users: ['Crew Planner'],
+      products: ['PBS', 'BVR', 'AOS', 'TSS', 'FOS']
+    },
+    {
+      title: 'Bidding & Awards',
+      desc: 'Pilots and Flight Attendants submit monthly schedule bids through PBS. Crew Planners process awards and publish results. FAs can trade trips via ETB and TTS.',
+      activities: ['Pilots submit PBS bid preferences', 'FAs submit lineholder/reserve bids', 'PBS processes and awards schedules', 'Results published to crew members', 'ETB opens for trip trading', 'UBL generated for unsuccessful bidders'],
+      users: ['Pilot', 'Flight Attendant', 'Crew Planner'],
+      products: ['PBS', 'CCI', 'ETB', 'TTS', 'UBL', 'LRD']
+    },
+    {
+      title: 'Schedule Distribution',
+      desc: 'Awarded schedules are distributed to crew members via CCI and crew portal. Crew Schedulers handle daily coverage (DOTC) and manage reserves.',
+      activities: ['Schedules published in CCI', 'Crew Scheduler manages DOTC daily', 'Reserve assignments coordinated', 'ROTA/ROTD processes reserve coverage', 'MPS sends notifications to pilots'],
+      users: ['Crew Scheduler', 'Crew Tracker', 'Pilot', 'Flight Attendant'],
+      products: ['CCI', 'ECS', 'MPS', 'ROTA', 'ROTD', 'FOS', 'CME']
+    },
+    {
+      title: 'Crew Travel & Arrival',
+      desc: 'Crew members travel to their departure station. Pilots use KCM for security, check in via CCI with geofencing, and review weather and flight plans.',
+      activities: ['KCM screening at airport', 'Sign in for trip (geofenced)', 'Review airplane and weather (WSI)', 'Check flight plan in CCI', 'Download into FDPro/Adobe'],
+      users: ['Pilot', 'Flight Attendant'],
+      products: ['CCI', 'WSI', 'FDPro', 'Comply 365']
+    },
+    {
+      title: 'Pre-Flight & Boarding',
+      desc: 'First Officer performs walkaround inspection. Pilots brief crew, review MELs, and coordinate with gate agents. Baggage operations begin loading.',
+      activities: ['FO walkaround aircraft inspection', 'Check for MELs (Comply 365)', 'Brief crew on flight details', 'Gate agent opens jet bridge', 'Baggage loaded via TrackScan', 'Departure briefing and runway validation'],
+      users: ['Pilot', 'Flight Attendant', 'Gate Agent', 'Gate Crew', 'Bag Clerk'],
+      products: ['CCI', 'Comply 365', 'EAML', 'TrackScan', 'Sabre PSS', 'FDPro']
+    },
+    {
+      title: 'Departure',
+      desc: 'Final boarding confirmed by #1 FA. Pilots coordinate with dispatch for any last-minute changes. Pushback coordinated with ground crew.',
+      activities: ['FA confirms all aboard, closes door', 'Final weight and balance check', 'Contact dispatcher for changes', 'Check revised flight plan', 'Coordinate pushback with ground crew', 'ACARS communication with dispatch'],
+      users: ['Pilot', 'Flight Attendant', 'Gate Crew'],
+      products: ['CCI', 'FDPro', 'ACARS', 'Aircraft FMS']
+    },
+    {
+      title: 'In-Flight Operations',
+      desc: 'Pilots manage the aircraft via FMS, monitor weather, and communicate with ATC. Flight Attendants manage cabin service and safety.',
+      activities: ['Navigate via Aircraft FMS', 'Monitor weather updates (WSI)', 'ATC communications', 'Cabin service and safety checks', 'ACARS messaging with operations'],
+      users: ['Pilot', 'Flight Attendant'],
+      products: ['Aircraft FMS', 'WSI', 'ATC', 'ACARS', 'FDPro']
+    },
+    {
+      title: 'Arrival & Gate',
+      desc: 'Aircraft lands and taxis to gate. Ground crew positions equipment. Bags are offloaded and routed through BHS to baggage claim.',
+      activities: ['Landing and taxi to gate', 'Flight status changes to "IN"', 'Gate crew offload bags (TrackScan)', 'ABR drivers transport bags to claim', 'BHS routes bags to correct carousel', 'Passengers deplane'],
+      users: ['Pilot', 'Gate Crew', 'ABR Driver', 'Bag Clerk'],
+      products: ['TrackScan', 'T.LINE', 'BHS', 'BMS', 'BMAS']
+    },
+    {
+      title: 'Post-Flight & Turnaround',
+      desc: 'Crew logs are filed, maintenance checks performed, and the aircraft is prepared for the next flight. Hotel/limo arranged for overnight crews.',
+      activities: ['File pilot reports (PFR)', 'Log maintenance items (EAML)', 'Sweeper checks tarmac for FOD', 'Hotel/limo arranged for overnights', 'Crew Tracker updates FOS positions', 'Aircraft cleaned and catered for next flight'],
+      users: ['Pilot', 'Crew Tracker', 'Hotel/Limo Coordinator', 'Sweeper'],
+      products: ['ECS', 'FOS', 'CME', 'EAML', 'PFR']
+    },
+    {
+      title: 'Irregular Operations',
+      desc: 'When delays, cancellations, or diversions occur. Crew Schedulers and Trackers manage reassignments. IOC coordinates recovery.',
+      activities: ['Delay management and announcements', 'Crew reassignment via ECS', 'Reserve crew activation', 'Passenger rebooking (Sabre PSS)', 'Recovery planning at IOC', 'Chief Pilots Office escalation'],
+      users: ['Crew Scheduler', 'Crew Tracker', 'Chief Pilots Office', 'Gate Agent'],
+      products: ['ECS', 'FOS', 'CME', 'Sabre PSS', 'IOC Platform']
+    }
+  ];
+
+  function renderJourney() {
+    var container = document.getElementById('journey-cards');
+    var html = '';
+
+    journeyPhases.forEach(function(phase, i) {
+      if (i > 0) {
+        html += '<div class="jc-connector"><span class="material-symbols-outlined">arrow_forward</span></div>';
+      }
+      html += '<div class="journey-card">';
+      html += '<div class="jc-phase-num">Phase ' + (i + 1) + ' of ' + journeyPhases.length + '</div>';
+      html += '<div class="jc-title">' + phase.title + '</div>';
+      html += '<div class="jc-desc">' + phase.desc + '</div>';
+      html += '<div class="jc-divider"></div>';
+
+      html += '<div class="jc-section-title">Key Activities</div>';
+      html += '<div class="jc-activities">';
+      phase.activities.forEach(function(a) {
+        html += '<div class="jc-activity"><span class="material-symbols-outlined">check_circle</span>' + a + '</div>';
+      });
+      html += '</div>';
+
+      html += '<div class="jc-divider"></div>';
+      html += '<div class="jc-section-title">People & Systems</div>';
+      html += '<div class="jc-people">';
+      if (phase.users) {
+        phase.users.forEach(function(u) {
+          html += '<span class="jc-person user">' + u + '</span>';
+        });
+      }
+      if (phase.products) {
+        phase.products.forEach(function(p) {
+          html += '<span class="jc-person product">' + p + '</span>';
+        });
+      }
+      html += '</div>';
+      html += '</div>';
+    });
+
+    // Add new phase button
+    html += '<div class="journey-add-card" id="journey-add-btn">';
+    html += '<span class="material-symbols-outlined">add_circle</span>';
+    html += '<span>Add Phase</span>';
+    html += '</div>';
+
+    container.innerHTML = html;
+
+    // Bind add button
+    document.getElementById('journey-add-btn').addEventListener('click', function() {
+      journeyPhases.push({
+        title: 'New Phase',
+        desc: 'Describe this phase of operations.',
+        activities: ['Activity 1'],
+        users: [],
+        products: []
+      });
+      renderJourney();
+      // Scroll to end
+      var scroll = document.getElementById('journey-scroll');
+      setTimeout(function() { scroll.scrollLeft = scroll.scrollWidth; }, 100);
+    });
+
+    // Mousewheel horizontal scroll
+    var scrollEl = document.getElementById('journey-scroll');
+    scrollEl.onwheel = function(e) {
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        e.preventDefault();
+        scrollEl.scrollLeft += e.deltaY * 2;
+      }
+    };
+  }
+
+  document.getElementById('journey-back').addEventListener('click', backToMenu);
 
   /* ========== CMS ========== */
   var cmsCurrentTab = 'users';
