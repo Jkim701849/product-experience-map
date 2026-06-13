@@ -2515,19 +2515,14 @@
     .jc-status-badge[data-status="bag-delay"] { background: rgba(121,85,72,0.15); color: #795548; }
 
     @media (max-width: 768px) {
-    /* IROPS spanning card — same style as journey-card */
-    .irops-row {
-      display: none !important; flex-shrink: 0;
-    }
-    .irops-row.active { display: flex !important; }
+    /* IROPS spanning card */
     .irops-card {
-      background: transparent;
-      border: none; border-right: 1px solid var(--card-border);
+      background: rgba(211,47,47,0.04);
+      border: none; border-bottom: 1px solid rgba(211,47,47,0.2);
       border-top: 3px solid #d32f2f;
       border-radius: 0; overflow: hidden;
-      width: 100%; cursor: pointer;
+      width: 100%;
     }
-    .irops-card:hover { background: rgba(255,255,255,0.02); }
     .irops-card-toggle {
       display: flex; align-items: center; padding: 0.75rem 1.5rem;
       font-family: 'Orbitron', sans-serif; font-size: 0.55rem;
@@ -7484,49 +7479,46 @@ function toggleTheme() {
 
       var isIropsPhase = i >= 4 && i <= 7;
 
-      // Before phase 4: insert IROPS column wrapper
+      // Before phase 4: check for IROPS and wrap phases 4-7
       if (i === 4) {
-        // Check if any of phases 4-7 are disrupted
         var anyIrops = false;
         for (var ip = 4; ip <= 7; ip++) {
           if (journeyStates[ip] && journeyStates[ip] !== 'ontime') anyIrops = true;
         }
         html += '<div style="display:flex;flex-direction:column;flex-shrink:0;">';
-        // IROPS spanning card
-        html += '<div class="irops-row' + (anyIrops ? ' active' : '') + '" id="irops-row">';
-        html += '<div class="irops-card" id="irops-card">';
-        // Collapsed: shows only "IROPS Active" banner
-        html += '<div class="irops-card-toggle" id="irops-toggle">';
-        html += '<span class="material-symbols-outlined" style="font-size:0.85rem;">warning</span>';
-        html += '<span style="font-family:var(--sans);font-size:0.85rem;font-weight:600;">IROPS Active</span>';
-        html += '<span class="material-symbols-outlined irops-card-chevron">expand_more</span>';
-        html += '</div>';
-        // Expandable body
-        html += '<div class="irops-card-body">';
-        html += '<div class="jc-title" style="color:#d32f2f;">Irregular Operations</div>';
-        html += '<div class="jc-desc">IOC is coordinating network recovery. Crew Schedulers and Trackers are managing reassignments and reserve activation across affected phases.</div>';
-        html += '<div class="jc-divider"></div>';
-        html += '<div class="jc-section-title" style="color:#d32f2f;">Recovery Actions</div>';
-        html += '<div class="jc-activities">';
-        html += '<div class="jc-activity"><span class="material-symbols-outlined" style="color:#d32f2f;">check_circle</span>IOC activates recovery plan</div>';
-        html += '<div class="jc-activity"><span class="material-symbols-outlined" style="color:#d32f2f;">check_circle</span>Crew Tracker repositions crews</div>';
-        html += '<div class="jc-activity"><span class="material-symbols-outlined" style="color:#d32f2f;">check_circle</span>Reserve pools evaluated for coverage</div>';
-        html += '<div class="jc-activity"><span class="material-symbols-outlined" style="color:#d32f2f;">check_circle</span>Passenger rebooking initiated via Sabre PSS</div>';
-        html += '<div class="jc-activity"><span class="material-symbols-outlined" style="color:#d32f2f;">check_circle</span>Downstream flights assessed for impact</div>';
-        html += '</div>';
-        html += '<div class="jc-divider"></div>';
-        html += '<div class="jc-section-title" style="color:#d32f2f;">People & Systems</div>';
-        html += '<div class="jc-people">';
-        html += '<span class="jc-person user">Crew Scheduler</span>';
-        html += '<span class="jc-person user">Crew Tracker</span>';
-        html += '<span class="jc-person user">Chief Pilots Office</span>';
-        html += '<span class="jc-person product">ECS</span>';
-        html += '<span class="jc-person product">FOS</span>';
-        html += '<span class="jc-person product">IOC Platform</span>';
-        html += '<span class="jc-person product">Sabre PSS</span>';
-        html += '</div>';
-        html += '</div></div></div>';
-        // Open the row of phase cards below IROPS
+        // Only render IROPS card if there IS an IROPS situation
+        if (anyIrops) {
+          html += '<div class="irops-card" id="irops-card">';
+          html += '<div class="irops-card-toggle" id="irops-toggle">';
+          html += '<span class="material-symbols-outlined" style="font-size:0.85rem;">warning</span>';
+          html += '<span style="font-family:var(--sans);font-size:0.85rem;font-weight:600;">IROPS Active</span>';
+          html += '<span class="material-symbols-outlined irops-card-chevron">expand_more</span>';
+          html += '</div>';
+          html += '<div class="irops-card-body">';
+          html += '<div class="jc-title" style="color:#d32f2f;">Irregular Operations</div>';
+          html += '<div class="jc-desc">IOC is coordinating network recovery. Crew Schedulers and Trackers are managing reassignments and reserve activation across affected phases.</div>';
+          html += '<div class="jc-divider"></div>';
+          html += '<div class="jc-section-title" style="color:#d32f2f;">Recovery Actions</div>';
+          html += '<div class="jc-activities">';
+          html += '<div class="jc-activity"><span class="material-symbols-outlined" style="color:#d32f2f;">check_circle</span>IOC activates recovery plan</div>';
+          html += '<div class="jc-activity"><span class="material-symbols-outlined" style="color:#d32f2f;">check_circle</span>Crew Tracker repositions crews</div>';
+          html += '<div class="jc-activity"><span class="material-symbols-outlined" style="color:#d32f2f;">check_circle</span>Reserve pools evaluated for coverage</div>';
+          html += '<div class="jc-activity"><span class="material-symbols-outlined" style="color:#d32f2f;">check_circle</span>Passenger rebooking initiated via Sabre PSS</div>';
+          html += '<div class="jc-activity"><span class="material-symbols-outlined" style="color:#d32f2f;">check_circle</span>Downstream flights assessed for impact</div>';
+          html += '</div>';
+          html += '<div class="jc-divider"></div>';
+          html += '<div class="jc-section-title" style="color:#d32f2f;">People & Systems</div>';
+          html += '<div class="jc-people">';
+          html += '<span class="jc-person user">Crew Scheduler</span>';
+          html += '<span class="jc-person user">Crew Tracker</span>';
+          html += '<span class="jc-person user">Chief Pilots Office</span>';
+          html += '<span class="jc-person product">ECS</span>';
+          html += '<span class="jc-person product">FOS</span>';
+          html += '<span class="jc-person product">IOC Platform</span>';
+          html += '<span class="jc-person product">Sabre PSS</span>';
+          html += '</div>';
+          html += '</div></div>';
+        }
         html += '<div style="display:flex;">';
       }
 
