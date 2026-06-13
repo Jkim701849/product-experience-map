@@ -2795,57 +2795,69 @@
       border-radius: 4px; transform: none;
     }
 
-    /* Dataflow diagram */
-    .pd-dataflow {
-      position: relative; padding: 1rem 0;
+    /* Data mapping diagram — source → data → destination */
+    .pd-datamap {
+      display: flex; align-items: stretch; gap: 0;
+      min-height: 200px;
     }
-    .pd-df-nodes {
-      display: flex; flex-wrap: wrap; gap: 16px; justify-content: center;
-      align-items: flex-start;
+    /* Source and destination columns */
+    .pd-dm-col {
+      display: flex; flex-direction: column; gap: 8px;
+      min-width: 140px; max-width: 180px;
     }
-    .pd-df-node {
-      width: 140px; padding: 0.75rem;
-      background: var(--card-elevated); border: 1px solid var(--card-border);
-      border-radius: 10px; text-align: center;
+    .pd-dm-node {
+      padding: 0.6rem 0.75rem; background: var(--card-elevated);
+      border: 1px solid var(--card-border); border-radius: 8px;
+      display: flex; align-items: center; gap: 0.5rem;
+      flex: 1;
+    }
+    .pd-dm-node-icon {
+      width: 28px; height: 28px; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .pd-dm-node-icon .material-symbols-outlined { font-size: 0.9rem; }
+    .pd-dm-col.sources .pd-dm-node-icon { background: var(--cyan-dim); }
+    .pd-dm-col.sources .pd-dm-node-icon .material-symbols-outlined { color: var(--cyan); }
+    .pd-dm-col.sources .pd-dm-node { border-left: 3px solid var(--cyan); }
+    .pd-dm-col.destinations .pd-dm-node-icon { background: var(--gold-dim); }
+    .pd-dm-col.destinations .pd-dm-node-icon .material-symbols-outlined { color: var(--gold); }
+    .pd-dm-col.destinations .pd-dm-node { border-right: 3px solid var(--gold); }
+    .pd-dm-node-name {
+      font-size: 0.68rem; font-weight: 600; color: var(--text); line-height: 1.2;
+    }
+    .pd-dm-node-desc {
+      font-size: 0.5rem; color: var(--dim); margin-top: 1px;
+    }
+    /* Center connection area */
+    .pd-dm-center {
+      flex: 1; display: flex; flex-direction: column;
+      justify-content: center; padding: 0 0.5rem;
+      min-width: 160px;
+    }
+    .pd-dm-flow {
+      display: flex; align-items: center; gap: 0;
+      padding: 0.3rem 0;
+    }
+    .pd-dm-flow-line {
+      flex: 1; height: 1px; background: var(--card-border);
       position: relative;
     }
-    .pd-df-node-icon {
-      width: 36px; height: 36px; border-radius: 8px;
-      background: var(--cyan-dim); display: flex; align-items: center;
-      justify-content: center; margin: 0 auto 0.5rem;
+    .pd-dm-flow-line::after {
+      content: ''; position: absolute; right: -1px; top: -3px;
+      border: 4px solid transparent;
+      border-left: 5px solid var(--cyan);
     }
-    .pd-df-node-icon .material-symbols-outlined { font-size: 1rem; color: var(--cyan); }
-    .pd-df-node-name {
-      font-size: 0.72rem; font-weight: 600; color: var(--text);
-      margin-bottom: 0.25rem;
+    .pd-dm-flow-label {
+      padding: 0.15rem 0.5rem; background: var(--bg);
+      border: 1px solid var(--card-border); border-radius: 4px;
+      font-size: 0.55rem; color: var(--card-text-secondary);
+      white-space: nowrap; z-index: 1;
     }
-    .pd-df-node-desc {
-      font-size: 0.55rem; color: var(--dim); line-height: 1.4;
-    }
-
-    /* Data flow connections */
-    .pd-df-flows {
-      margin-top: 1rem; padding-top: 0.75rem;
-      border-top: 1px solid var(--card-border);
-    }
-    .pd-df-flow {
-      display: flex; align-items: center; gap: 0.5rem;
-      padding: 0.35rem 0; font-size: 0.65rem;
-    }
-    .pd-df-flow-from {
-      font-weight: 600; color: var(--text); min-width: 80px; text-align: right;
-    }
-    .pd-df-flow-arrow {
-      display: flex; align-items: center; color: var(--cyan);
-    }
-    .pd-df-flow-arrow .material-symbols-outlined { font-size: 0.9rem; }
-    .pd-df-flow-to {
-      font-weight: 600; color: var(--text); min-width: 80px;
-    }
-    .pd-df-flow-label {
-      font-size: 0.58rem; color: var(--dim); font-style: italic;
-      padding: 0.1rem 0.5rem; background: var(--card-elevated);
-      border-radius: 4px; border: 1px solid var(--card-border);
+    .pd-dm-col-label {
+      font-size: 0.55rem; font-weight: 700; color: var(--dim);
+      text-transform: uppercase; letter-spacing: 0.08em;
+      padding-bottom: 0.4rem; text-align: center;
     }
 
     /* User activity cards */
@@ -8537,50 +8549,91 @@ function toggleTheme() {
       html += '</div>';
     }
 
-    // Systems & Data — left column
+    // Systems & Data Map — left-to-right source → data → destination
     if (d.systems && d.systems.length) {
-      html += '<div class="pd-card">';
-      html += '<div class="pd-card-title"><span class="material-symbols-outlined">dns</span>Systems & Data Flow</div>';
-      // System nodes
-      html += '<div class="pd-df-nodes">';
+      html += '<div class="pd-card pd-full">';
+      html += '<div class="pd-card-title"><span class="material-symbols-outlined">dns</span>Data Map</div>';
+
+      // Build source and destination lists from sends/receives
+      var sources = [];
+      var destinations = [];
+      var flows = [];
       d.systems.forEach(function(sys) {
-        html += '<div class="pd-df-node">';
-        html += '<div class="pd-df-node-icon"><span class="material-symbols-outlined">' + sys.icon + '</span></div>';
-        html += '<div class="pd-df-node-name">' + sys.name + '</div>';
-        html += '<div class="pd-df-node-desc">' + sys.desc + '</div>';
+        if (sys.sends && sys.sends.length) {
+          if (sources.indexOf(sys.name) === -1) sources.push(sys.name);
+          sys.sends.forEach(function(s) {
+            // Parse "Data label to Target" or just use as label
+            flows.push({ from: sys.name, label: s, fromIcon: sys.icon });
+          });
+        }
+        if (sys.receives && sys.receives.length) {
+          if (destinations.indexOf(sys.name) === -1) destinations.push(sys.name);
+          sys.receives.forEach(function(r) {
+            flows.push({ to: sys.name, label: r, toIcon: sys.icon });
+          });
+        }
+      });
+      // Systems without sends/receives go to both columns
+      d.systems.forEach(function(sys) {
+        if ((!sys.sends || !sys.sends.length) && (!sys.receives || !sys.receives.length)) {
+          if (sources.indexOf(sys.name) === -1) sources.push(sys.name);
+        }
+      });
+
+      html += '<div class="pd-datamap">';
+
+      // Sources column
+      html += '<div class="pd-dm-col sources">';
+      html += '<div class="pd-dm-col-label">Sources</div>';
+      d.systems.forEach(function(sys) {
+        html += '<div class="pd-dm-node">';
+        html += '<div class="pd-dm-node-icon"><span class="material-symbols-outlined">' + sys.icon + '</span></div>';
+        html += '<div><div class="pd-dm-node-name">' + sys.name + '</div>';
+        html += '<div class="pd-dm-node-desc">' + sys.desc + '</div></div>';
         html += '</div>';
       });
       html += '</div>';
-      // Data flow connections
-      var hasFlows = false;
-      d.systems.forEach(function(sys) {
-        if ((sys.sends && sys.sends.length) || (sys.receives && sys.receives.length)) hasFlows = true;
-      });
-      if (hasFlows) {
-        html += '<div class="pd-df-flows">';
-        d.systems.forEach(function(sys) {
-          if (sys.sends) {
-            sys.sends.forEach(function(s) {
-              html += '<div class="pd-df-flow">';
-              html += '<span class="pd-df-flow-from">' + sys.name + '</span>';
-              html += '<span class="pd-df-flow-arrow"><span class="material-symbols-outlined">arrow_forward</span></span>';
-              html += '<span class="pd-df-flow-label">' + s + '</span>';
-              html += '</div>';
-            });
-          }
-          if (sys.receives) {
-            sys.receives.forEach(function(r) {
-              html += '<div class="pd-df-flow">';
-              html += '<span class="pd-df-flow-label">' + r + '</span>';
-              html += '<span class="pd-df-flow-arrow"><span class="material-symbols-outlined">arrow_forward</span></span>';
-              html += '<span class="pd-df-flow-to">' + sys.name + '</span>';
-              html += '</div>';
-            });
-          }
-        });
+
+      // Center — data flow lines with labels
+      html += '<div class="pd-dm-center">';
+      flows.forEach(function(f) {
+        html += '<div class="pd-dm-flow">';
+        html += '<div class="pd-dm-flow-line"></div>';
+        html += '<div class="pd-dm-flow-label">' + f.label + '</div>';
+        html += '<div class="pd-dm-flow-line"></div>';
         html += '</div>';
+      });
+      if (flows.length === 0) {
+        html += '<div style="text-align:center;color:var(--dim);font-size:0.65rem;padding:1rem;">Systems operate independently in this phase</div>';
       }
       html += '</div>';
+
+      // Destinations column — show systems that receive
+      html += '<div class="pd-dm-col destinations">';
+      html += '<div class="pd-dm-col-label">Destinations</div>';
+      d.systems.forEach(function(sys) {
+        if (sys.receives && sys.receives.length) {
+          html += '<div class="pd-dm-node">';
+          html += '<div class="pd-dm-node-icon"><span class="material-symbols-outlined">' + sys.icon + '</span></div>';
+          html += '<div><div class="pd-dm-node-name">' + sys.name + '</div>';
+          html += '<div class="pd-dm-node-desc">' + sys.desc + '</div></div>';
+          html += '</div>';
+        }
+      });
+      // If no explicit receivers, show all systems
+      var hasReceivers = d.systems.some(function(s) { return s.receives && s.receives.length; });
+      if (!hasReceivers) {
+        d.systems.forEach(function(sys) {
+          html += '<div class="pd-dm-node">';
+          html += '<div class="pd-dm-node-icon"><span class="material-symbols-outlined">' + sys.icon + '</span></div>';
+          html += '<div><div class="pd-dm-node-name">' + sys.name + '</div>';
+          html += '<div class="pd-dm-node-desc">' + sys.desc + '</div></div>';
+          html += '</div>';
+        });
+      }
+      html += '</div>';
+
+      html += '</div></div>';
     }
 
     // User Activities — right column
