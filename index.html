@@ -7472,9 +7472,9 @@ function toggleTheme() {
 
       html += '<div class="journey-card" data-phase="' + i + '" data-status="' + currentState + '">';
 
-      // IROPS bar at top of affected cards
-      if (isIropsPhase) {
-        html += '<div class="jc-irops-bar' + (phaseHasIrops ? ' active' : '') + '">';
+      // IROPS bar — only on phases 4-7, only when that specific phase is disrupted
+      if (isIropsPhase && phaseHasIrops) {
+        html += '<div class="jc-irops-bar active">';
         html += '<div class="jc-irops-bar-title"><span class="material-symbols-outlined">warning</span>IROPS Active</div>';
         html += '<div class="jc-irops-bar-desc">IOC coordinating recovery · Crew reassignment in progress</div>';
         html += '</div>';
