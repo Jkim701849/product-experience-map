@@ -2795,69 +2795,59 @@
       border-radius: 4px; transform: none;
     }
 
-    /* Data mapping diagram — source → data → destination */
+    /* Data mapping — 4-column: Source → Application → Device → User */
     .pd-datamap {
       display: flex; align-items: stretch; gap: 0;
-      min-height: 200px;
+      overflow-x: auto;
     }
-    /* Source and destination columns */
+    .pd-datamap::-webkit-scrollbar { height: 3px; }
+    .pd-datamap::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
     .pd-dm-col {
       display: flex; flex-direction: column; gap: 8px;
-      min-width: 140px; max-width: 180px;
+      min-width: 130px; flex-shrink: 0;
+    }
+    .pd-dm-col-label {
+      font-size: 0.52rem; font-weight: 700; color: var(--dim);
+      text-transform: uppercase; letter-spacing: 0.08em;
+      padding-bottom: 0.4rem; text-align: center;
     }
     .pd-dm-node {
-      padding: 0.6rem 0.75rem; background: var(--card-elevated);
+      padding: 0.5rem 0.65rem; background: var(--card-elevated);
       border: 1px solid var(--card-border); border-radius: 8px;
-      display: flex; align-items: center; gap: 0.5rem;
-      flex: 1;
+      display: flex; align-items: center; gap: 0.4rem;
     }
     .pd-dm-node-icon {
-      width: 28px; height: 28px; border-radius: 6px;
+      width: 26px; height: 26px; border-radius: 6px;
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
-    .pd-dm-node-icon .material-symbols-outlined { font-size: 0.9rem; }
-    .pd-dm-col.sources .pd-dm-node-icon { background: var(--cyan-dim); }
-    .pd-dm-col.sources .pd-dm-node-icon .material-symbols-outlined { color: var(--cyan); }
-    .pd-dm-col.sources .pd-dm-node { border-left: 3px solid var(--cyan); }
-    .pd-dm-col.destinations .pd-dm-node-icon { background: var(--gold-dim); }
-    .pd-dm-col.destinations .pd-dm-node-icon .material-symbols-outlined { color: var(--gold); }
-    .pd-dm-col.destinations .pd-dm-node { border-right: 3px solid var(--gold); }
+    .pd-dm-node-icon .material-symbols-outlined { font-size: 0.85rem; }
     .pd-dm-node-name {
-      font-size: 0.68rem; font-weight: 600; color: var(--text); line-height: 1.2;
+      font-size: 0.65rem; font-weight: 600; color: var(--text); line-height: 1.2;
     }
     .pd-dm-node-desc {
-      font-size: 0.5rem; color: var(--dim); margin-top: 1px;
+      font-size: 0.48rem; color: var(--dim); margin-top: 1px;
     }
-    /* Center connection area */
-    .pd-dm-center {
-      flex: 1; display: flex; flex-direction: column;
-      justify-content: center; padding: 0 0.5rem;
-      min-width: 160px;
+    /* Column accent colors */
+    .pd-dm-col.col-source .pd-dm-node { border-left: 3px solid #3ea6ff; }
+    .pd-dm-col.col-source .pd-dm-node-icon { background: rgba(62,166,255,0.1); }
+    .pd-dm-col.col-source .pd-dm-node-icon .material-symbols-outlined { color: #3ea6ff; }
+    .pd-dm-col.col-app .pd-dm-node { border-left: 3px solid #c58af9; }
+    .pd-dm-col.col-app .pd-dm-node-icon { background: rgba(197,138,249,0.1); }
+    .pd-dm-col.col-app .pd-dm-node-icon .material-symbols-outlined { color: #c58af9; }
+    .pd-dm-col.col-device .pd-dm-node { border-left: 3px solid #81c995; }
+    .pd-dm-col.col-device .pd-dm-node-icon { background: rgba(129,201,149,0.1); }
+    .pd-dm-col.col-device .pd-dm-node-icon .material-symbols-outlined { color: #81c995; }
+    .pd-dm-col.col-user .pd-dm-node { border-left: 3px solid #ffa000; }
+    .pd-dm-col.col-user .pd-dm-node-icon { background: rgba(255,160,0,0.1); }
+    .pd-dm-col.col-user .pd-dm-node-icon .material-symbols-outlined { color: #ffa000; }
+    /* Connector arrows between columns */
+    .pd-dm-arrows {
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 0 6px; flex-shrink: 0; gap: 6px;
     }
-    .pd-dm-flow {
-      display: flex; align-items: center; gap: 0;
-      padding: 0.3rem 0;
-    }
-    .pd-dm-flow-line {
-      flex: 1; height: 1px; background: var(--card-border);
-      position: relative;
-    }
-    .pd-dm-flow-line::after {
-      content: ''; position: absolute; right: -1px; top: -3px;
-      border: 4px solid transparent;
-      border-left: 5px solid var(--cyan);
-    }
-    .pd-dm-flow-label {
-      padding: 0.15rem 0.5rem; background: var(--bg);
-      border: 1px solid var(--card-border); border-radius: 4px;
-      font-size: 0.55rem; color: var(--card-text-secondary);
-      white-space: nowrap; z-index: 1;
-    }
-    .pd-dm-col-label {
-      font-size: 0.55rem; font-weight: 700; color: var(--dim);
-      text-transform: uppercase; letter-spacing: 0.08em;
-      padding-bottom: 0.4rem; text-align: center;
+    .pd-dm-arrows .material-symbols-outlined {
+      font-size: 1rem; color: var(--dim); opacity: 0.4;
     }
 
     /* User activity cards */
@@ -8549,86 +8539,83 @@ function toggleTheme() {
       html += '</div>';
     }
 
-    // Systems & Data Map — left-to-right source → data → destination
+    // Data Map — 4 columns: Data Source → Application → Device → User Group
     if (d.systems && d.systems.length) {
       html += '<div class="pd-card pd-full">';
       html += '<div class="pd-card-title"><span class="material-symbols-outlined">dns</span>Data Map</div>';
-
-      // Build source and destination lists from sends/receives
-      var sources = [];
-      var destinations = [];
-      var flows = [];
-      d.systems.forEach(function(sys) {
-        if (sys.sends && sys.sends.length) {
-          if (sources.indexOf(sys.name) === -1) sources.push(sys.name);
-          sys.sends.forEach(function(s) {
-            // Parse "Data label to Target" or just use as label
-            flows.push({ from: sys.name, label: s, fromIcon: sys.icon });
-          });
-        }
-        if (sys.receives && sys.receives.length) {
-          if (destinations.indexOf(sys.name) === -1) destinations.push(sys.name);
-          sys.receives.forEach(function(r) {
-            flows.push({ to: sys.name, label: r, toIcon: sys.icon });
-          });
-        }
-      });
-      // Systems without sends/receives go to both columns
-      d.systems.forEach(function(sys) {
-        if ((!sys.sends || !sys.sends.length) && (!sys.receives || !sys.receives.length)) {
-          if (sources.indexOf(sys.name) === -1) sources.push(sys.name);
-        }
-      });
-
       html += '<div class="pd-datamap">';
 
-      // Sources column
-      html += '<div class="pd-dm-col sources">';
-      html += '<div class="pd-dm-col-label">Sources</div>';
+      // Column 1: Data Sources
+      var dataSources = [];
       d.systems.forEach(function(sys) {
-        html += '<div class="pd-dm-node">';
-        html += '<div class="pd-dm-node-icon"><span class="material-symbols-outlined">' + sys.icon + '</span></div>';
+        if (sys.sends) sys.sends.forEach(function(s) { if (dataSources.indexOf(s) === -1) dataSources.push(s); });
+        if (sys.receives) sys.receives.forEach(function(r) { if (dataSources.indexOf(r) === -1) dataSources.push(r); });
+      });
+      if (dataSources.length === 0) dataSources = ['Operational data'];
+      html += '<div class="pd-dm-col col-source">';
+      html += '<div class="pd-dm-col-label">Data Source</div>';
+      dataSources.forEach(function(ds) {
+        html += '<div class="pd-dm-node"><div class="pd-dm-node-icon"><span class="material-symbols-outlined">database</span></div>';
+        html += '<div><div class="pd-dm-node-name">' + ds + '</div></div></div>';
+      });
+      html += '</div>';
+
+      // Arrow
+      html += '<div class="pd-dm-arrows"><span class="material-symbols-outlined">arrow_forward</span></div>';
+
+      // Column 2: Applications
+      html += '<div class="pd-dm-col col-app">';
+      html += '<div class="pd-dm-col-label">Application</div>';
+      d.systems.forEach(function(sys) {
+        html += '<div class="pd-dm-node"><div class="pd-dm-node-icon"><span class="material-symbols-outlined">' + sys.icon + '</span></div>';
         html += '<div><div class="pd-dm-node-name">' + sys.name + '</div>';
-        html += '<div class="pd-dm-node-desc">' + sys.desc + '</div></div>';
-        html += '</div>';
+        html += '<div class="pd-dm-node-desc">' + sys.desc + '</div></div></div>';
       });
       html += '</div>';
 
-      // Center — data flow lines with labels
-      html += '<div class="pd-dm-center">';
-      flows.forEach(function(f) {
-        html += '<div class="pd-dm-flow">';
-        html += '<div class="pd-dm-flow-line"></div>';
-        html += '<div class="pd-dm-flow-label">' + f.label + '</div>';
-        html += '<div class="pd-dm-flow-line"></div>';
-        html += '</div>';
-      });
-      if (flows.length === 0) {
-        html += '<div style="text-align:center;color:var(--dim);font-size:0.65rem;padding:1rem;">Systems operate independently in this phase</div>';
+      // Arrow
+      html += '<div class="pd-dm-arrows"><span class="material-symbols-outlined">arrow_forward</span></div>';
+
+      // Column 3: Devices — derive from phase users' hardware
+      var devices = [];
+      var deviceIcons = { 'handheld': 'smartphone', 'mobile': 'smartphone', 'phone': 'smartphone', 'tablet': 'tablet', 'desktop': 'computer', 'workstation': 'computer', 'scanner': 'qr_code_scanner', 'vehicle': 'local_shipping', 'radio': 'settings_input_antenna' };
+      if (phase.users) {
+        phase.users.forEach(function(uname) {
+          // Find matching user node to get hardware
+          nodes.forEach(function(n) {
+            if (n.type === 'user' && n.detail) {
+              var title = (n.detail.title || n.label || '').replace(/\n/g,' ');
+              if (title === uname && n.detail.hardware) {
+                n.detail.hardware.forEach(function(hw) {
+                  if (devices.indexOf(hw) === -1) devices.push(hw);
+                });
+              }
+            }
+          });
+        });
       }
+      if (devices.length === 0) devices = ['Handheld scanner', 'Desktop workstation'];
+      html += '<div class="pd-dm-col col-device">';
+      html += '<div class="pd-dm-col-label">Device</div>';
+      devices.forEach(function(dev) {
+        var dIcon = 'devices';
+        var devLower = dev.toLowerCase();
+        for (var k in deviceIcons) { if (devLower.indexOf(k) !== -1) { dIcon = deviceIcons[k]; break; } }
+        html += '<div class="pd-dm-node"><div class="pd-dm-node-icon"><span class="material-symbols-outlined">' + dIcon + '</span></div>';
+        html += '<div><div class="pd-dm-node-name">' + dev + '</div></div></div>';
+      });
       html += '</div>';
 
-      // Destinations column — show systems that receive
-      html += '<div class="pd-dm-col destinations">';
-      html += '<div class="pd-dm-col-label">Destinations</div>';
-      d.systems.forEach(function(sys) {
-        if (sys.receives && sys.receives.length) {
-          html += '<div class="pd-dm-node">';
-          html += '<div class="pd-dm-node-icon"><span class="material-symbols-outlined">' + sys.icon + '</span></div>';
-          html += '<div><div class="pd-dm-node-name">' + sys.name + '</div>';
-          html += '<div class="pd-dm-node-desc">' + sys.desc + '</div></div>';
-          html += '</div>';
-        }
-      });
-      // If no explicit receivers, show all systems
-      var hasReceivers = d.systems.some(function(s) { return s.receives && s.receives.length; });
-      if (!hasReceivers) {
-        d.systems.forEach(function(sys) {
-          html += '<div class="pd-dm-node">';
-          html += '<div class="pd-dm-node-icon"><span class="material-symbols-outlined">' + sys.icon + '</span></div>';
-          html += '<div><div class="pd-dm-node-name">' + sys.name + '</div>';
-          html += '<div class="pd-dm-node-desc">' + sys.desc + '</div></div>';
-          html += '</div>';
+      // Arrow
+      html += '<div class="pd-dm-arrows"><span class="material-symbols-outlined">arrow_forward</span></div>';
+
+      // Column 4: User Groups
+      html += '<div class="pd-dm-col col-user">';
+      html += '<div class="pd-dm-col-label">User Group</div>';
+      if (phase.users) {
+        phase.users.forEach(function(u) {
+          html += '<div class="pd-dm-node"><div class="pd-dm-node-icon"><span class="material-symbols-outlined">person</span></div>';
+          html += '<div><div class="pd-dm-node-name">' + u + '</div></div></div>';
         });
       }
       html += '</div>';
