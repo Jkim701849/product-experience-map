@@ -2517,37 +2517,47 @@
     @media (max-width: 768px) {
     /* IROPS spanning card */
     .irops-card {
-      background: rgba(211,47,47,0.04);
-      border: none; border-bottom: 1px solid rgba(211,47,47,0.2);
-      border-top: 3px solid #d32f2f;
+      background: transparent;
+      border: none; border-bottom: 1px solid var(--card-border);
       border-radius: 0; overflow: hidden;
       width: 100%;
-      animation: irops-slide-in 0.3s ease;
+      animation: irops-slide-in 0.4s ease;
     }
     @keyframes irops-slide-in {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
+      from { opacity: 0; max-height: 0; }
+      to { opacity: 1; max-height: 500px; }
     }
-    .irops-card-toggle {
-      display: flex; align-items: center; padding: 0.75rem 1.5rem;
-      font-family: 'Orbitron', sans-serif; font-size: 0.55rem;
-      font-weight: 700; color: #d32f2f;
-      letter-spacing: 0.15em; text-transform: uppercase;
-      gap: 6px; cursor: pointer;
-      transition: background 0.15s;
+    /* Progress bar at top */
+    .irops-progress {
+      height: 3px; background: var(--card-border); width: 100%; position: relative; overflow: hidden;
     }
-    .irops-card-toggle:hover { background: rgba(211,47,47,0.06); }
-    .irops-card-chevron {
-      margin-left: auto; font-size: 1rem; color: var(--dim);
-      transition: transform 0.3s;
+    .irops-progress-bar {
+      position: absolute; top: 0; left: 0; height: 100%;
+      width: 100%; background: #d32f2f;
+      animation: irops-pulse 2s ease-in-out infinite;
     }
-    .irops-card.expanded .irops-card-chevron { transform: rotate(180deg); }
-    .irops-card-body {
-      display: none;
+    @keyframes irops-pulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
     }
-    .irops-card.expanded .irops-card-body {
-      display: block;
+    /* Expandable body */
+    .irops-expand-body { display: none; }
+    .irops-card.expanded .irops-expand-body { display: block; }
+    .irops-expand-btn {
+      display: flex; align-items: center; justify-content: center; gap: 4px;
+      padding: 0.4rem 1.5rem; cursor: pointer;
+      font-size: 0.62rem; font-weight: 600; color: var(--dim);
+      transition: color 0.2s;
     }
+    .irops-expand-btn:hover { color: var(--text); }
+    .irops-expand-btn .material-symbols-outlined {
+      font-size: 0.85rem; transition: transform 0.3s;
+    }
+    .irops-card.expanded .irops-expand-btn .material-symbols-outlined {
+      transform: rotate(180deg);
+    }
+    /* Hide status border on affected phases when IROPS active */
+    .irops-affected .journey-card { border-top: none !important; }
 
       .journey-card { width: 300px; }
       .jc-title { font-size: 1rem; }
@@ -7510,25 +7520,32 @@ function toggleTheme() {
       html += '<div style="display:flex;flex-direction:column;flex-shrink:0;align-self:stretch;">';
       if (anyIrops) {
         html += '<div class="irops-card" id="irops-card">';
-        html += '<div class="jc-phase-num" style="color:#d32f2f;display:flex;align-items:center;gap:4px;"><span class="material-symbols-outlined" style="font-size:0.7rem;">warning</span>Irregular Operations</div>';
-        html += '<div class="jc-title" style="color:#d32f2f;">IROPS</div>';
-        html += '<div class="jc-desc">IOC is coordinating network recovery. Crew Schedulers and Trackers are managing reassignments and reserve activation across affected phases.</div>';
+        // Pulsing progress bar
+        html += '<div class="irops-progress"><div class="irops-progress-bar"></div></div>';
+        // Always visible: label + title + short desc
+        html += '<div class="jc-phase-num" style="display:flex;align-items:center;gap:4px;"><span class="material-symbols-outlined" style="font-size:0.7rem;color:#d32f2f;">warning</span>Irregular Operations</div>';
+        html += '<div class="jc-title">IROPS</div>';
+        html += '<div class="jc-desc">IOC is coordinating network recovery across affected phases.</div>';
+        // Expand button
+        html += '<div class="irops-expand-btn" id="irops-expand"><span class="material-symbols-outlined">expand_more</span>Details</div>';
+        // Expandable body
+        html += '<div class="irops-expand-body">';
         html += '<div class="jc-divider"></div>';
-        html += '<div class="jc-section-title" style="color:#d32f2f;">Recovery Actions</div>';
+        html += '<div class="jc-section-title">Recovery Actions</div>';
         html += '<div class="jc-activities">';
-        html += '<div class="jc-activity"><span class="material-symbols-outlined" style="color:#d32f2f;">check_circle</span>IOC activates recovery plan</div>';
-        html += '<div class="jc-activity"><span class="material-symbols-outlined" style="color:#d32f2f;">check_circle</span>Crew Tracker repositions crews</div>';
-        html += '<div class="jc-activity"><span class="material-symbols-outlined" style="color:#d32f2f;">check_circle</span>Reserve pools evaluated for coverage</div>';
-        html += '<div class="jc-activity"><span class="material-symbols-outlined" style="color:#d32f2f;">check_circle</span>Passenger rebooking initiated via Sabre PSS</div>';
+        html += '<div class="jc-activity"><span class="material-symbols-outlined">check_circle</span>IOC activates recovery plan</div>';
+        html += '<div class="jc-activity"><span class="material-symbols-outlined">check_circle</span>Crew Tracker repositions crews</div>';
+        html += '<div class="jc-activity"><span class="material-symbols-outlined">check_circle</span>Reserve pools evaluated for coverage</div>';
+        html += '<div class="jc-activity"><span class="material-symbols-outlined">check_circle</span>Passenger rebooking initiated via Sabre PSS</div>';
         html += '</div>';
         html += '<div class="jc-divider"></div>';
-        html += '<div class="jc-section-title" style="color:#d32f2f;">People & Systems</div>';
+        html += '<div class="jc-section-title">People & Systems</div>';
         html += '<div class="jc-people">';
         html += '<span class="jc-person user">Crew Scheduler</span><span class="jc-person user">Crew Tracker</span><span class="jc-person user">Chief Pilots Office</span>';
         html += '<span class="jc-person product">ECS</span><span class="jc-person product">FOS</span><span class="jc-person product">IOC Platform</span><span class="jc-person product">Sabre PSS</span>';
-        html += '</div></div>';
+        html += '</div></div></div>';
       }
-      html += '<div style="display:flex;flex:1;">';
+      html += '<div class="' + (anyIrops ? 'irops-affected ' : '') + '" style="display:flex;flex:1;">';
       for (var i = 4; i <= 7 && i < journeyPhases.length; i++) {
         html += buildPhaseCard(journeyPhases[i], i);
       }
@@ -7543,6 +7560,15 @@ function toggleTheme() {
 
     container.innerHTML = html;
 
+    // IROPS expand/collapse
+    var iropsExpand = document.getElementById('irops-expand');
+    var iropsCard = document.getElementById('irops-card');
+    if (iropsExpand && iropsCard) {
+      iropsExpand.addEventListener('click', function(e) {
+        e.stopPropagation();
+        iropsCard.classList.toggle('expanded');
+      });
+    }
 
     // Bind state button click handlers with cascade logic
     container.querySelectorAll('.jc-state-btn').forEach(function(btn) {
