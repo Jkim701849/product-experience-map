@@ -2343,6 +2343,15 @@
       flex-shrink: 0; gap: 0.75rem;
       border-bottom: 1px solid var(--card-border);
     }
+    .journey-add-btn {
+      margin-left: auto; padding: 0.45rem 1rem; border-radius: 8px;
+      background: var(--cyan-dim); border: 1px solid rgba(62,166,255,0.2);
+      color: var(--cyan); font-family: var(--sans); font-size: 0.72rem;
+      font-weight: 600; cursor: pointer; display: flex; align-items: center;
+      gap: 4px; transition: background 0.2s;
+    }
+    .journey-add-btn:hover { background: rgba(62,166,255,0.2); }
+    .journey-add-btn .material-symbols-outlined { font-size: 0.9rem; }
     .journey-back {
       width: 40px; height: 40px; border-radius: 50%;
       background: var(--card-elevated); border: none;
@@ -2358,27 +2367,28 @@
     }
 
     .journey-scroll {
-      flex: 1; overflow-x: auto; overflow-y: hidden;
-      padding: 2rem 1.5rem;
+      flex: 1; overflow-x: auto; overflow-y: auto;
+      padding: 0;
     }
     .journey-scroll::-webkit-scrollbar { height: 6px; }
     .journey-scroll::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
 
     .journey-cards {
-      display: flex; gap: 20px; min-height: 100%;
+      display: flex; gap: 0; min-height: 100%;
       align-items: stretch;
     }
 
     /* Phase card */
     .journey-card {
       width: 380px; flex-shrink: 0;
-      background: var(--card-bg); border: 1px solid var(--card-border);
-      border-radius: 16px; overflow: hidden;
+      background: transparent;
+      border: none; border-right: 1px solid var(--card-border);
+      border-radius: 0; overflow: hidden;
       display: flex; flex-direction: column;
-      transition: box-shadow 0.2s;
     }
+    .journey-card:last-of-type { border-right: none; }
     .journey-card:hover {
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      background: rgba(255,255,255,0.02);
     }
 
     .jc-phase-num {
@@ -2435,30 +2445,6 @@
     .jc-person.user { color: var(--gold); border-color: var(--gold-dim); }
     .jc-person.product { color: var(--cyan); border-color: var(--cyan-dim); }
 
-    .jc-connector {
-      display: flex; align-items: center; flex-shrink: 0;
-      padding: 0 4px; color: var(--dim);
-    }
-    .jc-connector .material-symbols-outlined { font-size: 1.5rem; }
-
-    /* Add phase button */
-    .journey-add-card {
-      width: 200px; flex-shrink: 0;
-      background: none; border: 2px dashed var(--card-border);
-      border-radius: 16px; cursor: pointer;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 0.5rem; transition: border-color 0.2s, background 0.2s;
-      color: var(--dim); min-height: 300px;
-    }
-    .journey-add-card:hover {
-      border-color: var(--cyan); background: var(--cyan-dim);
-      color: var(--cyan);
-    }
-    .journey-add-card .material-symbols-outlined { font-size: 2rem; }
-    .journey-add-card span:last-child {
-      font-family: var(--sans); font-size: 0.75rem; font-weight: 600;
-    }
 
     @media (max-width: 768px) {
       .journey-card { width: 300px; }
@@ -2589,6 +2575,7 @@
     <div class="journey-header">
       <button class="journey-back" id="journey-back"><span class="material-symbols-outlined">arrow_back</span></button>
       <h2 class="journey-title">Airline Operations Journey</h2>
+      <button class="journey-add-btn" id="journey-add-btn"><span class="material-symbols-outlined">add</span>Add Phase</button>
     </div>
     <div class="journey-scroll" id="journey-scroll">
       <div class="journey-cards" id="journey-cards"></div>
@@ -7133,9 +7120,6 @@ function toggleTheme() {
     var html = '';
 
     journeyPhases.forEach(function(phase, i) {
-      if (i > 0) {
-        html += '<div class="jc-connector"><span class="material-symbols-outlined">arrow_forward</span></div>';
-      }
       html += '<div class="journey-card">';
       html += '<div class="jc-phase-num">Phase ' + (i + 1) + ' of ' + journeyPhases.length + '</div>';
       html += '<div class="jc-title">' + phase.title + '</div>';
@@ -7166,16 +7150,10 @@ function toggleTheme() {
       html += '</div>';
     });
 
-    // Add new phase button
-    html += '<div class="journey-add-card" id="journey-add-btn">';
-    html += '<span class="material-symbols-outlined">add_circle</span>';
-    html += '<span>Add Phase</span>';
-    html += '</div>';
-
     container.innerHTML = html;
 
-    // Bind add button
-    document.getElementById('journey-add-btn').addEventListener('click', function() {
+    // Bind add button (in header)
+    document.getElementById('journey-add-btn').onclick = function() {
       journeyPhases.push({
         title: 'New Phase',
         desc: 'Describe this phase of operations.',
