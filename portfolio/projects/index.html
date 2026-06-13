@@ -2572,6 +2572,89 @@
       .journey-scroll { padding: 1rem; }
     }
 
+    /* ====== JOURNEYS HUB ====== */
+    .journeys-hub {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 40; display: none; background: var(--bg);
+      flex-direction: column; overflow: hidden;
+    }
+    .journeys-hub.active { display: flex; z-index: 60; }
+    body.journeys-active .zoom-controls, body.journeys-active .toolbar,
+    body.journeys-active .detail-panel, body.journeys-active .welcome-card { display: none !important; }
+
+    .journeys-hub-header {
+      display: flex; align-items: center; padding: 0.75rem 1.25rem;
+      flex-shrink: 0; gap: 0.75rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .journeys-hub-back {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--card-elevated); border: none;
+      color: var(--card-text-tertiary); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s; padding: 0;
+    }
+    .journeys-hub-back .material-symbols-outlined { font-size: 1.2rem; }
+    .journeys-hub-back:hover { background: var(--card-hover); color: var(--card-text); }
+    .journeys-hub-title {
+      font-family: var(--sans); font-size: 1rem; font-weight: 500;
+      color: var(--text); margin: 0;
+    }
+
+    .journeys-hub-grid {
+      flex: 1; overflow-y: auto; padding: 2rem;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 16px; align-content: start;
+    }
+    .journeys-hub-grid::-webkit-scrollbar { width: 4px; }
+    .journeys-hub-grid::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
+
+    .jh-card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 16px; padding: 1.5rem; cursor: pointer;
+      transition: box-shadow 0.2s, border-color 0.2s, transform 0.2s;
+      display: flex; flex-direction: column; gap: 0.75rem;
+    }
+    .jh-card:hover {
+      border-color: var(--cyan);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+      transform: translateY(-2px);
+    }
+    .jh-card-header {
+      display: flex; align-items: center; gap: 0.75rem;
+    }
+    .jh-card-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .jh-card-icon .material-symbols-outlined { font-size: 1.4rem; }
+    .jh-card-title {
+      font-family: var(--sans); font-size: 1.1rem;
+      font-weight: 600; color: var(--text);
+    }
+    .jh-card-subtitle {
+      font-size: 0.65rem; color: var(--dim);
+      margin-top: 2px;
+    }
+    .jh-card-desc {
+      font-size: 0.78rem; color: var(--card-text-secondary);
+      line-height: 1.6;
+    }
+    .jh-card-meta {
+      display: flex; gap: 12px; margin-top: auto;
+      font-size: 0.62rem; color: var(--dim);
+    }
+    .jh-card-meta span {
+      display: flex; align-items: center; gap: 4px;
+    }
+    .jh-card-meta .material-symbols-outlined { font-size: 0.8rem; }
+
+    @media (max-width: 768px) {
+      .journeys-hub-grid { grid-template-columns: 1fr; padding: 1rem; }
+      .jh-card { padding: 1.25rem; }
+    }
+
   </style>
 </head>
 <body>
@@ -2592,7 +2675,7 @@
       <a class="start-menu-item" data-start-action="mapv2"><span class="smi-label">PEM v2</span></a>
       <a class="start-menu-item" data-start-action="users"><span class="smi-label">Users</span></a>
       <a class="start-menu-item" data-start-action="workflows"><span class="smi-label">Workflows</span></a>
-      <a class="start-menu-item" data-start-action="journey"><span class="smi-label">Journey</span></a>
+      <a class="start-menu-item" data-start-action="journeys"><span class="smi-label">Journeys</span></a>
       <a class="start-menu-item" data-start-action="glossary"><span class="smi-label">Glossary</span></a>
       <a class="start-menu-item" data-start-action="cms"><span class="smi-label">Content Manager</span></a>
       <a class="start-menu-item" data-start-action="secret" style="margin-top:1.5rem;"><span class="smi-label" style="font-size:clamp(0.55rem,1vw,0.72rem);letter-spacing:0.12em;color:rgba(210,215,230,0.25);">Don't click. This is the secret room.</span></a>
@@ -2694,12 +2777,21 @@
   <div class="journey-view" id="journey-view">
     <div class="journey-header">
       <button class="journey-back" id="journey-back"><span class="material-symbols-outlined">arrow_back</span></button>
-      <h2 class="journey-title">Airline Operations Journey</h2>
+      <h2 class="journey-title">Flight Operations Journey</h2>
       <button class="journey-add-btn" id="journey-add-btn"><span class="material-symbols-outlined">add</span>Add Phase</button>
     </div>
     <div class="journey-scroll" id="journey-scroll">
       <div class="journey-cards" id="journey-cards"></div>
     </div>
+  </div>
+
+  <!-- Journey Hub View -->
+  <div class="journeys-hub" id="journeys-hub">
+    <div class="journeys-hub-header">
+      <button class="journeys-hub-back" id="journeys-hub-back"><span class="material-symbols-outlined">arrow_back</span></button>
+      <h2 class="journeys-hub-title">Employee Journeys</h2>
+    </div>
+    <div class="journeys-hub-grid" id="journeys-hub-grid"></div>
   </div>
 
   <!-- CMS View -->
@@ -6547,8 +6639,8 @@ function toggleTheme() {
   /* ========== FILTER DROPDOWN ========== */
   var filterBtn = document.getElementById('filter-btn');
   var filterMenu = document.getElementById('filter-menu');
-  var filterLabels = { all: 'All', usermap: 'Relationships', datamap: 'Data Map', pathgraph: 'Path Graph', glossary: 'Glossary', users: 'Users', workflows: 'Workflows', journey: 'Journey', cms: 'CMS', mapv2: 'PEM v2' };
-  var filterIcons = { all: 'hub', usermap: 'group', product: 'widgets', datamap: 'share', pathgraph: 'timeline', glossary: 'menu_book', users: 'group', workflows: 'account_tree', journey: 'flight', cms: 'edit_note', mapv2: 'grid_view' };
+  var filterLabels = { all: 'All', usermap: 'Relationships', datamap: 'Data Map', pathgraph: 'Path Graph', glossary: 'Glossary', users: 'Users', workflows: 'Workflows', journey: 'Journey', journeys: 'Journeys', cms: 'CMS', mapv2: 'PEM v2' };
+  var filterIcons = { all: 'hub', usermap: 'group', product: 'widgets', datamap: 'share', pathgraph: 'timeline', glossary: 'menu_book', users: 'group', workflows: 'account_tree', journey: 'flight', journeys: 'explore', cms: 'edit_note', mapv2: 'grid_view' };
 
   filterBtn.addEventListener('click', function(e) {
     e.stopPropagation();
@@ -6972,6 +7064,8 @@ function toggleTheme() {
     if (cmsView) { cmsView.classList.remove('active'); document.body.classList.remove('cms-active'); }
     var jv = document.getElementById('journey-view');
     if (jv) { jv.classList.remove('active'); document.body.classList.remove('journey-active'); }
+    var jHub = document.getElementById('journeys-hub');
+    if (jHub) { jHub.classList.remove('active'); document.body.classList.remove('journeys-active'); }
     document.getElementById('viewport').style.display = '';
     closeDetail();
     hideWelcomeCard();
@@ -7018,6 +7112,12 @@ function toggleTheme() {
         document.getElementById('mapv2-view').classList.add('active');
         document.body.classList.add('mapv2-active');
         initMapV2();
+        break;
+      case 'journeys':
+        startOverlay.classList.add('hidden');
+        document.getElementById('journeys-hub').classList.add('active');
+        document.body.classList.add('journeys-active');
+        renderJourneysHub();
         break;
       case 'journey':
         startOverlay.classList.add('hidden');
@@ -7649,7 +7749,128 @@ function toggleTheme() {
     };
   }
 
-  document.getElementById('journey-back').addEventListener('click', backToMenu);
+  document.getElementById('journey-back').addEventListener('click', function() { navigateTo('journeys'); });
+
+  /* ====== JOURNEYS HUB ====== */
+  var journeysData = [
+    {
+      id: 'flight-ops',
+      title: 'Flight Operations',
+      subtitle: 'Airport to Pushback to Destination',
+      desc: 'The complete journey of a flight from crew scheduling through departure, in-flight operations, arrival, and post-flight turnaround.',
+      icon: 'flight_takeoff',
+      iconBg: 'var(--cyan-dim)',
+      iconColor: 'var(--cyan)',
+      phases: 9,
+      users: 12,
+      route: 'journey'
+    },
+    {
+      id: 'crew-scheduling',
+      title: 'Crew Scheduling',
+      subtitle: 'Schedule Build to Award Distribution',
+      desc: 'How crew schedules are planned, built through PBS, bid on by pilots and flight attendants, awarded, and distributed across the network.',
+      icon: 'calendar_month',
+      iconBg: 'var(--gold-dim)',
+      iconColor: 'var(--gold)',
+      phases: 6,
+      users: 5,
+      route: null
+    },
+    {
+      id: 'training',
+      title: 'Training & Certification',
+      subtitle: 'Initial Qual to Recurrent Training',
+      desc: 'The lifecycle of crew training — from initial qualification through recurrent training, simulator sessions, and certification management.',
+      icon: 'school',
+      iconBg: 'var(--purple-dim)',
+      iconColor: 'var(--purple)',
+      phases: 5,
+      users: 4,
+      route: null
+    },
+    {
+      id: 'baggage-ops',
+      title: 'Baggage Operations',
+      subtitle: 'Check-in to Baggage Claim',
+      desc: 'The bag journey from customer check-in through BHS security screening, sorting, loading, transport, and delivery to baggage claim.',
+      icon: 'luggage',
+      iconBg: 'rgba(242,139,130,0.12)',
+      iconColor: '#f28b82',
+      phases: 8,
+      users: 6,
+      route: null
+    },
+    {
+      id: 'passenger-exp',
+      title: 'Passenger Experience',
+      subtitle: 'Booking to Destination',
+      desc: 'The end-to-end passenger journey — booking, check-in, security, boarding, in-flight service, arrival, and baggage claim.',
+      icon: 'airline_seat_recline_extra',
+      iconBg: 'rgba(129,201,149,0.12)',
+      iconColor: '#81c995',
+      phases: 7,
+      users: 8,
+      route: null
+    },
+    {
+      id: 'maintenance',
+      title: 'Maintenance & Turnaround',
+      subtitle: 'Gate Arrival to Next Departure',
+      desc: 'Aircraft servicing between flights — maintenance checks, MEL management, catering, cleaning, fueling, and dispatch release.',
+      icon: 'build',
+      iconBg: 'rgba(255,160,0,0.12)',
+      iconColor: '#ffa000',
+      phases: 6,
+      users: 5,
+      route: null
+    },
+    {
+      id: 'crew-lifestyle',
+      title: 'Crew Lifestyle',
+      subtitle: 'Commuting, Reserves & Overnights',
+      desc: 'The daily life of crew members — commuting to base, reserve duty, hotel overnights, trip trading, and work-life balance challenges.',
+      icon: 'hotel',
+      iconBg: 'rgba(197,138,249,0.12)',
+      iconColor: '#c58af9',
+      phases: 5,
+      users: 4,
+      route: null
+    }
+  ];
+
+  function renderJourneysHub() {
+    var grid = document.getElementById('journeys-hub-grid');
+    var html = '';
+
+    journeysData.forEach(function(j) {
+      html += '<div class="jh-card" data-journey-id="' + j.id + '" data-route="' + (j.route || '') + '">';
+      html += '<div class="jh-card-header">';
+      html += '<div class="jh-card-icon" style="background:' + j.iconBg + ';"><span class="material-symbols-outlined" style="color:' + j.iconColor + ';">' + j.icon + '</span></div>';
+      html += '<div><div class="jh-card-title">' + j.title + '</div>';
+      html += '<div class="jh-card-subtitle">' + j.subtitle + '</div></div>';
+      html += '</div>';
+      html += '<div class="jh-card-desc">' + j.desc + '</div>';
+      html += '<div class="jh-card-meta">';
+      html += '<span><span class="material-symbols-outlined">view_timeline</span>' + j.phases + ' phases</span>';
+      html += '<span><span class="material-symbols-outlined">group</span>' + j.users + ' user groups</span>';
+      if (!j.route) html += '<span style="color:var(--gold);"><span class="material-symbols-outlined">construction</span>Coming soon</span>';
+      html += '</div></div>';
+    });
+
+    grid.innerHTML = html;
+
+    grid.querySelectorAll('.jh-card').forEach(function(card) {
+      card.addEventListener('click', function() {
+        var route = card.dataset.route;
+        if (route) {
+          navigateTo(route);
+        }
+      });
+    });
+  }
+
+  document.getElementById('journeys-hub-back').addEventListener('click', backToMenu);
 
   /* ========== CMS ========== */
   var cmsCurrentTab = 'users';
