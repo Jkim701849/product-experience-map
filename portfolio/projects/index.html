@@ -8600,12 +8600,12 @@ function toggleTheme() {
     html += '<div class="pd-two-col"><div>';
     html += '<div class="pd-section-title">About this phase</div>';
     html += '<div class="pd-info-card">';
+    html += '<div class="pd-body-text" style="margin-bottom:0.75rem;">' + phase.desc + '</div>';
     html += '<div class="pd-info-row"><span class="pd-info-label">Phase</span><span class="pd-info-value">' + (idx + 1) + ' of ' + totalPhases + '</span></div>';
     html += '<div class="pd-info-row"><span class="pd-info-label">Users involved</span><span class="pd-info-value">' + userCount + '</span></div>';
     html += '<div class="pd-info-row"><span class="pd-info-label">Systems</span><span class="pd-info-value">' + systemCount + '</span></div>';
     html += '<div class="pd-info-row"><span class="pd-info-label">Workflows</span><span class="pd-info-value">' + workflowCount + '</span></div>';
     html += '</div>';
-    html += '<div class="pd-body-text">' + phase.desc + '</div>';
     html += '</div><div>';
     // Key activities — list user activities as a summary
     html += '<div class="pd-section-title">Key activities</div>';
