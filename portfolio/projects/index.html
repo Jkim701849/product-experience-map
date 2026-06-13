@@ -8729,26 +8729,26 @@ function toggleTheme() {
             var parts = s.split(' to ');
             var dataLabel = parts[0].trim();
             var dest = parts.length >= 2 ? parts.slice(1).join(' to ').trim() : '';
-            html += '<div style="display:flex;align-items:center;gap:0.5rem;padding:0.45rem 0;border-bottom:1px solid var(--card-border);font-size:0.75rem;">';
-            html += '<span style="font-weight:600;color:var(--cyan);min-width:110px;">' + sys.name + '</span>';
-            html += '<span class="material-symbols-outlined" style="font-size:0.8rem;color:var(--dim);">arrow_forward</span>';
-            html += '<span style="flex:1;color:var(--card-text-secondary);font-style:italic;">' + dataLabel + '</span>';
-            if (dest) {
-              html += '<span class="material-symbols-outlined" style="font-size:0.8rem;color:var(--dim);">arrow_forward</span>';
-              html += '<span style="font-weight:600;color:var(--gold);min-width:110px;text-align:right;">' + dest + '</span>';
-            }
+            html += '<div style="padding:0.35rem 0;border-bottom:1px solid var(--card-border);">';
+            html += '<div style="display:flex;align-items:center;gap:0.4rem;font-size:0.75rem;">';
+            html += '<span style="font-weight:500;color:var(--cyan);">' + sys.name + '</span>';
+            html += '<span class="material-symbols-outlined" style="font-size:0.7rem;color:var(--dim);">arrow_forward</span>';
+            if (dest) html += '<span style="font-weight:500;color:var(--gold);">' + dest + '</span>';
+            html += '</div>';
+            html += '<div style="font-size:0.62rem;color:var(--card-text-tertiary);font-style:italic;margin-top:2px;padding-left:0.25rem;">' + dataLabel + '</div>';
             html += '</div>';
           });
         }
         if (sys.receives && sys.receives.length) {
           sys.receives.forEach(function(r) {
             hasFlows = true;
-            html += '<div style="display:flex;align-items:center;gap:0.5rem;padding:0.45rem 0;border-bottom:1px solid var(--card-border);font-size:0.75rem;">';
-            html += '<span style="font-weight:600;color:var(--dim);min-width:110px;font-style:italic;">External</span>';
-            html += '<span class="material-symbols-outlined" style="font-size:0.8rem;color:var(--dim);">arrow_forward</span>';
-            html += '<span style="flex:1;color:var(--card-text-secondary);font-style:italic;">' + r + '</span>';
-            html += '<span class="material-symbols-outlined" style="font-size:0.8rem;color:var(--dim);">arrow_forward</span>';
-            html += '<span style="font-weight:600;color:var(--gold);min-width:110px;text-align:right;">' + sys.name + '</span>';
+            html += '<div style="padding:0.35rem 0;border-bottom:1px solid var(--card-border);">';
+            html += '<div style="display:flex;align-items:center;gap:0.4rem;font-size:0.75rem;">';
+            html += '<span style="font-weight:500;color:var(--dim);font-style:italic;">External</span>';
+            html += '<span class="material-symbols-outlined" style="font-size:0.7rem;color:var(--dim);">arrow_forward</span>';
+            html += '<span style="font-weight:500;color:var(--gold);">' + sys.name + '</span>';
+            html += '</div>';
+            html += '<div style="font-size:0.62rem;color:var(--card-text-tertiary);font-style:italic;margin-top:2px;padding-left:0.25rem;">' + r + '</div>';
             html += '</div>';
           });
         }
