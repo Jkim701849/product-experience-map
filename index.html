@@ -2517,9 +2517,9 @@
     @media (max-width: 768px) {
     /* IROPS spanning card — same style as journey-card */
     .irops-row {
-      display: none; flex-shrink: 0;
+      display: none !important; flex-shrink: 0;
     }
-    .irops-row.active { display: flex; }
+    .irops-row.active { display: flex !important; }
     .irops-card {
       background: transparent;
       border: none; border-right: 1px solid var(--card-border);
@@ -2543,11 +2543,10 @@
     }
     .irops-card.expanded .irops-card-chevron { transform: rotate(180deg); }
     .irops-card-body {
-      max-height: 0; overflow: hidden;
-      transition: max-height 0.3s ease;
+      display: none;
     }
     .irops-card.expanded .irops-card-body {
-      max-height: 600px;
+      display: block;
     }
 
       .journey-card { width: 300px; }
