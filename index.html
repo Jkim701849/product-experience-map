@@ -2520,7 +2520,7 @@
       background: transparent;
       border: none; border-bottom: 1px solid var(--card-border);
       border-radius: 0; overflow: hidden;
-      width: 100%;
+      width: 100%; cursor: pointer;
       animation: irops-slide-in 0.4s ease;
     }
     @keyframes irops-slide-in {
@@ -7527,7 +7527,7 @@ function toggleTheme() {
         html += '<div class="jc-title">IROPS</div>';
         html += '<div class="jc-desc">IOC is coordinating network recovery across affected phases.</div>';
         // Expand button
-        html += '<div class="irops-expand-btn" id="irops-expand"><span class="material-symbols-outlined">expand_more</span>Details</div>';
+        html += '<div class="irops-expand-btn" id="irops-expand"><span class="material-symbols-outlined">expand_more</span></div>';
         // Expandable body
         html += '<div class="irops-expand-body" style="display:none;">';
         html += '<div class="jc-divider"></div>';
@@ -7564,7 +7564,7 @@ function toggleTheme() {
     var iropsExpand = document.getElementById('irops-expand');
     var iropsCard = document.getElementById('irops-card');
     if (iropsExpand && iropsCard) {
-      iropsExpand.addEventListener('click', function(e) {
+      iropsCard.addEventListener('click', function(e) {
         e.stopPropagation();
         var body = iropsCard.querySelector('.irops-expand-body');
         var isExpanded = body.style.display === 'block';
