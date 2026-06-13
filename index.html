@@ -4388,6 +4388,7 @@ function toggleTheme() {
   var detailContent = document.getElementById('detail-content');
   var activeNodeId = null;
   var draggingNodeId = null;
+  var editorMode = false;
   var currentFilter = 'all';
 
   /* Pan & Zoom state */
@@ -4848,8 +4849,7 @@ function toggleTheme() {
       nodesInitialized = true;
 
       /* Node dragging + click selection */
-      /* Editor mode + group selection + dragging */
-      var editorMode = false;
+      /* Group selection + dragging */
       var selectedGroup = {}; /* nodeId -> true */
       var dragNode = null;
       var dragMouseStart = { x: 0, y: 0 };
