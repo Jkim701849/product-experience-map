@@ -7548,9 +7548,8 @@ function toggleTheme() {
     container.innerHTML = html;
 
     // IROPS expand/collapse
-    var iropsExpand = document.getElementById('irops-expand');
     var iropsCard = document.getElementById('irops-card');
-    if (iropsExpand && iropsCard) {
+    if (iropsCard) {
       iropsCard.addEventListener('click', function(e) {
         e.stopPropagation();
         var body = iropsCard.querySelector('.irops-expand-body');
