@@ -8792,13 +8792,43 @@ function toggleTheme() {
       });
 
       if (otherFlows.length > 0) {
+        // Enrich with data types from dataFlowMeta
+        otherFlows.forEach(function(f) {
+          f.dataTypes = [];
+          // Check if outside system sends to inPhase system
+          Object.keys(dataFlowMeta).forEach(function(metaId) {
+            var meta = dataFlowMeta[metaId];
+            var metaNode = nMap[metaId];
+            var metaName = metaNode ? (metaNode.detail ? metaNode.detail.title : metaNode.label || '').replace(/\n/g,' ') : '';
+            if (metaName === f.outside && meta.sends) {
+              meta.sends.forEach(function(s) {
+                var destNode = nMap[s.to];
+                var destName = destNode ? (destNode.detail ? destNode.detail.title : destNode.label || '').replace(/\n/g,' ') : '';
+                if (destName === f.inPhase) f.dataTypes.push(s.dataType);
+              });
+            }
+            if (metaName === f.inPhase && meta.sends) {
+              meta.sends.forEach(function(s) {
+                var destNode = nMap[s.to];
+                var destName = destNode ? (destNode.detail ? destNode.detail.title : destNode.label || '').replace(/\n/g,' ') : '';
+                if (destName === f.outside) f.dataTypes.push(s.dataType);
+              });
+            }
+          });
+        });
+
         html += '<div style="margin-top:0.75rem;padding:0.6rem 0.75rem;background:var(--card-bg);border:1px dashed var(--card-border);border-radius:8px;font-size:0.68rem;color:var(--dim);">';
         html += '<div style="font-weight:600;margin-bottom:0.4rem;color:var(--card-text-tertiary);">Also connected outside this phase</div>';
         otherFlows.forEach(function(f) {
-          html += '<div style="padding:0.15rem 0;display:flex;align-items:center;gap:0.4rem;">';
-          html += '<span style="color:var(--purple);">' + f.outside + '</span>';
+          html += '<div style="padding:0.25rem 0;border-bottom:1px solid var(--card-border);">';
+          html += '<div style="display:flex;align-items:center;gap:0.4rem;">';
+          html += '<span style="color:var(--purple);font-weight:500;">' + f.outside + '</span>';
           html += '<span class="material-symbols-outlined" style="font-size:0.7rem;">sync_alt</span>';
-          html += '<span style="color:var(--cyan);">' + f.inPhase + '</span>';
+          html += '<span style="color:var(--cyan);font-weight:500;">' + f.inPhase + '</span>';
+          html += '</div>';
+          if (f.dataTypes.length > 0) {
+            html += '<div style="font-size:0.6rem;color:var(--card-text-tertiary);font-style:italic;margin-top:2px;padding-left:0.25rem;">' + f.dataTypes.join('; ') + '</div>';
+          }
           html += '</div>';
         });
         html += '</div>';
