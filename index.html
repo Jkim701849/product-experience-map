@@ -7620,7 +7620,15 @@ function toggleTheme() {
             }
           }
         }
-        // 'ontime' resets only this phase, no cascade
+        if (state === 'ontime') {
+          // Reset downstream cascaded phases back to ontime
+          var resetEnd = Math.min(7, journeyStates.length - 1);
+          for (var j = phase + 1; j <= resetEnd; j++) {
+            if (journeyStates[j] === 'delayed') {
+              journeyStates[j] = 'ontime';
+            }
+          }
+        }
 
         renderJourney();
       });
