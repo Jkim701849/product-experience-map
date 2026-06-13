@@ -7162,10 +7162,9 @@ function toggleTheme() {
         products: []
       });
       renderJourney();
-      // Scroll to end
       var scroll = document.getElementById('journey-scroll');
       setTimeout(function() { scroll.scrollLeft = scroll.scrollWidth; }, 100);
-    });
+    };
 
     // Mousewheel horizontal scroll
     var scrollEl = document.getElementById('journey-scroll');
