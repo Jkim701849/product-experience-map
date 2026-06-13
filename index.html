@@ -2445,6 +2445,44 @@
     .jc-person.user { color: var(--gold); border-color: var(--gold-dim); }
     .jc-person.product { color: var(--cyan); border-color: var(--cyan-dim); }
 
+    /* State buttons */
+    .jc-states {
+      display: flex; gap: 4px; padding: 0.5rem 1.5rem;
+      flex-wrap: wrap;
+    }
+    .jc-state-btn {
+      padding: 0.25rem 0.6rem; border-radius: 6px;
+      border: 1px solid var(--card-border); background: none;
+      font-family: var(--sans); font-size: 0.6rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+      color: var(--dim);
+    }
+    .jc-state-btn:hover { border-color: var(--text); color: var(--text); }
+    .jc-state-btn.active { color: #fff; }
+    .jc-state-btn[data-state="ontime"].active { background: #2ba640; border-color: #2ba640; }
+    .jc-state-btn[data-state="delayed"].active { background: #ffa000; border-color: #ffa000; color: #000; }
+    .jc-state-btn[data-state="crew-late"].active { background: #e65100; border-color: #e65100; }
+    .jc-state-btn[data-state="mechanical"].active { background: #d32f2f; border-color: #d32f2f; }
+    .jc-state-btn[data-state="cancelled"].active { background: #7f0000; border-color: #7f0000; }
+
+    /* Card state indicators */
+    .journey-card[data-status="ontime"] { border-top: 3px solid #2ba640; }
+    .journey-card[data-status="delayed"] { border-top: 3px solid #ffa000; }
+    .journey-card[data-status="crew-late"] { border-top: 3px solid #e65100; }
+    .journey-card[data-status="mechanical"] { border-top: 3px solid #d32f2f; }
+    .journey-card[data-status="cancelled"] { border-top: 3px solid #7f0000; opacity: 0.6; }
+
+    .jc-status-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 0.2rem 0.6rem; border-radius: 4px;
+      font-size: 0.55rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; margin-left: auto;
+    }
+    .jc-status-badge[data-status="ontime"] { background: rgba(43,166,64,0.15); color: #2ba640; }
+    .jc-status-badge[data-status="delayed"] { background: rgba(255,160,0,0.15); color: #ffa000; }
+    .jc-status-badge[data-status="crew-late"] { background: rgba(230,81,0,0.15); color: #e65100; }
+    .jc-status-badge[data-status="mechanical"] { background: rgba(211,47,47,0.15); color: #d32f2f; }
+    .jc-status-badge[data-status="cancelled"] { background: rgba(127,0,0,0.15); color: #7f0000; }
 
     @media (max-width: 768px) {
       .journey-card { width: 300px; }
@@ -7115,13 +7153,36 @@ function toggleTheme() {
     }
   ];
 
+  var journeyStates = journeyPhases.map(function() { return 'ontime'; });
+
   function renderJourney() {
     var container = document.getElementById('journey-cards');
     var html = '';
+    var stateLabels = { 'ontime': 'On Time', 'delayed': 'Delayed', 'crew-late': 'Crew Late', 'mechanical': 'Mechanical', 'cancelled': 'Cancelled' };
+    var stateIcons = { 'ontime': 'check_circle', 'delayed': 'schedule', 'crew-late': 'person_off', 'mechanical': 'build', 'cancelled': 'cancel' };
+    var stateKeys = ['ontime', 'delayed', 'crew-late', 'mechanical', 'cancelled'];
+
+    // Ensure journeyStates matches journeyPhases length
+    while (journeyStates.length < journeyPhases.length) {
+      journeyStates.push('ontime');
+    }
 
     journeyPhases.forEach(function(phase, i) {
-      html += '<div class="journey-card">';
-      html += '<div class="jc-phase-num">Phase ' + (i + 1) + ' of ' + journeyPhases.length + '</div>';
+      var currentState = journeyStates[i] || 'ontime';
+
+      html += '<div class="journey-card" data-phase="' + i + '" data-status="' + currentState + '">';
+      html += '<div class="jc-phase-num" style="display:flex;align-items:center;">';
+      html += 'Phase ' + (i + 1) + ' of ' + journeyPhases.length;
+      html += '<span class="jc-status-badge" data-status="' + currentState + '"><span class="material-symbols-outlined" style="font-size:0.7rem;">' + stateIcons[currentState] + '</span>' + stateLabels[currentState] + '</span>';
+      html += '</div>';
+
+      // State buttons
+      html += '<div class="jc-states">';
+      stateKeys.forEach(function(state) {
+        html += '<button class="jc-state-btn' + (currentState === state ? ' active' : '') + '" data-state="' + state + '" data-phase="' + i + '">' + stateLabels[state] + '</button>';
+      });
+      html += '</div>';
+
       html += '<div class="jc-title">' + phase.title + '</div>';
       html += '<div class="jc-desc">' + phase.desc + '</div>';
       html += '<div class="jc-divider"></div>';
@@ -7151,6 +7212,36 @@ function toggleTheme() {
     });
 
     container.innerHTML = html;
+
+    // Bind state button click handlers with cascade logic
+    container.querySelectorAll('.jc-state-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var phase = parseInt(btn.dataset.phase);
+        var state = btn.dataset.state;
+
+        // Set this phase's state
+        journeyStates[phase] = state;
+
+        // Cascade logic
+        if (state === 'cancelled') {
+          // Cancel everything after this phase
+          for (var j = phase + 1; j < journeyStates.length; j++) {
+            journeyStates[j] = 'cancelled';
+          }
+        } else if (state === 'crew-late' || state === 'mechanical' || state === 'delayed') {
+          // Delay phases between this one and Arrival & Gate (index 7)
+          var cascadeEnd = Math.min(7, journeyStates.length - 1);
+          for (var j = phase + 1; j <= cascadeEnd; j++) {
+            if (journeyStates[j] !== 'cancelled') {
+              journeyStates[j] = 'delayed';
+            }
+          }
+        }
+        // 'ontime' resets only this phase, no cascade
+
+        renderJourney();
+      });
+    });
 
     // Bind add button (in header)
     document.getElementById('journey-add-btn').onclick = function() {
