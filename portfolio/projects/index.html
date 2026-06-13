@@ -8717,146 +8717,88 @@ function toggleTheme() {
 
     // == Data ==
     if (d.systems && d.systems.length) {
-      html += '<div class="pd-section-title">Data flow</div>';
+      html += '<div class="pd-section-title" style="margin-top:2rem;">Data flow</div>';
+      html += '<div class="pd-info-card">';
 
-      // Build source and destination lists from sends/receives
-      var sources = [];
-      var destinations = [];
-      var flows = [];
+      // Build flow rows from sends/receives
+      var hasFlows = false;
       d.systems.forEach(function(sys) {
         if (sys.sends && sys.sends.length) {
-          if (sources.indexOf(sys.name) === -1) sources.push(sys.name);
           sys.sends.forEach(function(s) {
-            flows.push({ from: sys.name, label: s, fromIcon: sys.icon });
+            hasFlows = true;
+            var parts = s.split(' to ');
+            var dataLabel = parts[0].trim();
+            var dest = parts.length >= 2 ? parts.slice(1).join(' to ').trim() : '';
+            html += '<div style="display:flex;align-items:center;gap:0.5rem;padding:0.45rem 0;border-bottom:1px solid var(--card-border);font-size:0.75rem;">';
+            html += '<span style="font-weight:600;color:var(--cyan);min-width:110px;">' + sys.name + '</span>';
+            html += '<span class="material-symbols-outlined" style="font-size:0.8rem;color:var(--dim);">arrow_forward</span>';
+            html += '<span style="flex:1;color:var(--card-text-secondary);font-style:italic;">' + dataLabel + '</span>';
+            if (dest) {
+              html += '<span class="material-symbols-outlined" style="font-size:0.8rem;color:var(--dim);">arrow_forward</span>';
+              html += '<span style="font-weight:600;color:var(--gold);min-width:110px;text-align:right;">' + dest + '</span>';
+            }
+            html += '</div>';
           });
         }
         if (sys.receives && sys.receives.length) {
-          if (destinations.indexOf(sys.name) === -1) destinations.push(sys.name);
           sys.receives.forEach(function(r) {
-            flows.push({ to: sys.name, label: r, toIcon: sys.icon });
+            hasFlows = true;
+            html += '<div style="display:flex;align-items:center;gap:0.5rem;padding:0.45rem 0;border-bottom:1px solid var(--card-border);font-size:0.75rem;">';
+            html += '<span style="font-weight:600;color:var(--dim);min-width:110px;font-style:italic;">External</span>';
+            html += '<span class="material-symbols-outlined" style="font-size:0.8rem;color:var(--dim);">arrow_forward</span>';
+            html += '<span style="flex:1;color:var(--card-text-secondary);font-style:italic;">' + r + '</span>';
+            html += '<span class="material-symbols-outlined" style="font-size:0.8rem;color:var(--dim);">arrow_forward</span>';
+            html += '<span style="font-weight:600;color:var(--gold);min-width:110px;text-align:right;">' + sys.name + '</span>';
+            html += '</div>';
           });
         }
       });
-      d.systems.forEach(function(sys) {
-        if ((!sys.sends || !sys.sends.length) && (!sys.receives || !sys.receives.length)) {
-          if (sources.indexOf(sys.name) === -1) sources.push(sys.name);
-        }
-      });
 
-      html += '<div class="pd-datamap">';
-
-      // Sources column
-      html += '<div class="pd-dm-col sources">';
-      html += '<div class="pd-dm-col-label">Sources</div>';
-      d.systems.forEach(function(sys) {
-        html += '<div class="pd-dm-node">';
-        html += '<div class="pd-dm-node-icon"><span class="material-symbols-outlined">' + sys.icon + '</span></div>';
-        html += '<div><div class="pd-dm-node-name">' + sys.name + '</div>';
-        html += '<div class="pd-dm-node-desc">' + sys.desc + '</div></div>';
-        html += '</div>';
-      });
-      html += '</div>';
-
-      // Center — data flow lines with labels
-      html += '<div class="pd-dm-center">';
-      flows.forEach(function(f) {
-        html += '<div class="pd-dm-flow">';
-        html += '<div class="pd-dm-flow-line"></div>';
-        html += '<div class="pd-dm-flow-label">' + f.label + '</div>';
-        html += '<div class="pd-dm-flow-line"></div>';
-        html += '</div>';
-      });
-      if (flows.length === 0) {
-        html += '<div style="text-align:center;color:var(--dim);font-size:0.65rem;padding:1rem;">Systems operate independently in this phase</div>';
+      if (!hasFlows) {
+        html += '<div style="font-size:0.75rem;color:var(--dim);padding:0.5rem 0;">Systems operate independently in this phase.</div>';
       }
       html += '</div>';
 
-      // Destinations column
-      html += '<div class="pd-dm-col destinations">';
-      html += '<div class="pd-dm-col-label">Destinations</div>';
-      d.systems.forEach(function(sys) {
-        if (sys.receives && sys.receives.length) {
-          html += '<div class="pd-dm-node">';
-          html += '<div class="pd-dm-node-icon"><span class="material-symbols-outlined">' + sys.icon + '</span></div>';
-          html += '<div><div class="pd-dm-node-name">' + sys.name + '</div>';
-          html += '<div class="pd-dm-node-desc">' + sys.desc + '</div></div>';
-          html += '</div>';
-        }
-      });
-      var hasReceivers = d.systems.some(function(s) { return s.receives && s.receives.length; });
-      if (!hasReceivers) {
-        d.systems.forEach(function(sys) {
-          html += '<div class="pd-dm-node">';
-          html += '<div class="pd-dm-node-icon"><span class="material-symbols-outlined">' + sys.icon + '</span></div>';
-          html += '<div><div class="pd-dm-node-name">' + sys.name + '</div>';
-          html += '<div class="pd-dm-node-desc">' + sys.desc + '</div></div>';
-          html += '</div>';
-        });
-      }
-      html += '</div>';
+      // How users access this data — as rows
+      html += '<div class="pd-section-title" style="margin-top:1.5rem;">How users access this data</div>';
+      html += '<div class="pd-info-card">';
 
-      html += '</div>';
-
-      // Second row: Application → Device → User Group
-      html += '<div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--card-border);">';
-      html += '<div class="pd-section-title" style="font-size:0.85rem;">How users access this data</div>';
-      html += '<div class="pd-datamap">';
-
-      // Applications column
-      html += '<div class="pd-dm-col" style="min-width:140px;">';
-      html += '<div class="pd-dm-col-label">Application</div>';
-      d.systems.forEach(function(sys) {
-        html += '<div class="pd-dm-node" style="border-left:3px solid var(--purple);">';
-        html += '<div class="pd-dm-node-icon" style="background:var(--purple-dim);"><span class="material-symbols-outlined" style="color:var(--purple);">' + sys.icon + '</span></div>';
-        html += '<div><div class="pd-dm-node-name">' + sys.name + '</div></div></div>';
-      });
-      html += '</div>';
-
-      html += '<div class="pd-dm-arrows"><span class="material-symbols-outlined">arrow_forward</span></div>';
-
-      // Devices column
-      var devices = [];
-      var deviceIcons = {'handheld':'qr_code_scanner','mobile':'smartphone','phone':'smartphone','tablet':'tablet','desktop':'computer','workstation':'computer','scanner':'qr_code_scanner','vehicle':'local_shipping','radio':'settings_input_antenna','belt':'precision_manufacturing','flashlight':'flashlight_on'};
-      if (phase.users) {
-        phase.users.forEach(function(uname) {
+      // Build rows: User → Device → Application
+      if (phase.users && phase.users.length) {
+        phase.users.forEach(function(uname, ui) {
+          // Find devices for this user
+          var userDevices = [];
           nodes.forEach(function(n) {
             if (n.type === 'user' && n.detail) {
               var title = (n.detail.title || n.label || '').replace(/\n/g,' ');
               if (title === uname && n.detail.hardware) {
-                n.detail.hardware.forEach(function(hw) { if (devices.indexOf(hw) === -1) devices.push(hw); });
+                n.detail.hardware.forEach(function(hw) { if (userDevices.indexOf(hw) === -1) userDevices.push(hw); });
               }
             }
           });
-        });
-      }
-      if (devices.length === 0) devices = ['Handheld device'];
-      html += '<div class="pd-dm-col" style="min-width:140px;">';
-      html += '<div class="pd-dm-col-label">Device</div>';
-      devices.forEach(function(dev) {
-        var dIcon = 'devices';
-        var dl = dev.toLowerCase();
-        for (var k in deviceIcons) { if (dl.indexOf(k) !== -1) { dIcon = deviceIcons[k]; break; } }
-        html += '<div class="pd-dm-node" style="border-left:3px solid #81c995;">';
-        html += '<div class="pd-dm-node-icon" style="background:rgba(129,201,149,0.1);"><span class="material-symbols-outlined" style="color:#81c995;">' + dIcon + '</span></div>';
-        html += '<div><div class="pd-dm-node-name">' + dev + '</div></div></div>';
-      });
-      html += '</div>';
+          if (userDevices.length === 0) userDevices = ['Company device'];
 
-      html += '<div class="pd-dm-arrows"><span class="material-symbols-outlined">arrow_forward</span></div>';
+          // Find which apps this user touches in this phase
+          var userApps = [];
+          d.systems.forEach(function(sys) { userApps.push(sys.name); });
 
-      // User Groups column
-      html += '<div class="pd-dm-col" style="min-width:130px;">';
-      html += '<div class="pd-dm-col-label">User Group</div>';
-      if (phase.users) {
-        phase.users.forEach(function(u) {
-          html += '<div class="pd-dm-node" style="border-left:3px solid var(--gold);">';
-          html += '<div class="pd-dm-node-icon" style="background:var(--gold-dim);"><span class="material-symbols-outlined" style="color:var(--gold);">person</span></div>';
-          html += '<div><div class="pd-dm-node-name">' + u + '</div></div></div>';
+          html += '<div style="padding:0.6rem 0;' + (ui > 0 ? 'border-top:1px solid var(--card-border);' : '') + '">';
+          html += '<div style="font-size:0.75rem;font-weight:600;color:var(--gold);margin-bottom:0.3rem;">' + uname + '</div>';
+          html += '<div style="display:flex;align-items:center;gap:0.4rem;font-size:0.68rem;color:var(--card-text-secondary);flex-wrap:wrap;">';
+          html += '<span>Uses </span>';
+          userDevices.forEach(function(dev, di) {
+            if (di > 0) html += '<span>, </span>';
+            html += '<span style="color:var(--text);font-weight:500;">' + dev + '</span>';
+          });
+          html += '<span> to access </span>';
+          userApps.forEach(function(app, ai) {
+            if (ai > 0) html += '<span>, </span>';
+            html += '<span style="color:var(--cyan);font-weight:500;">' + app + '</span>';
+          });
+          html += '</div></div>';
         });
       }
       html += '</div>';
-
-      html += '</div></div>';
     } else {
       html += '<div class="pd-body-text">No data systems defined for this phase.</div>';
     }
