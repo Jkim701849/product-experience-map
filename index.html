@@ -2515,16 +2515,20 @@
 
     @media (max-width: 768px) {
     /* IROPS spanning card */
+    /* IROPS card — always in DOM, animated via max-height */
     .irops-card {
       background: transparent;
       border: none; border-bottom: 1px solid var(--card-border);
       border-radius: 0; overflow: hidden;
       width: 100%; cursor: pointer;
-      animation: irops-slide-in 0.4s ease;
+      max-height: 0; opacity: 0;
+      transition: max-height 0.4s ease, opacity 0.3s ease;
     }
-    @keyframes irops-slide-in {
-      from { opacity: 0; max-height: 0; }
-      to { opacity: 1; max-height: 500px; }
+    .irops-card.visible {
+      max-height: 200px; opacity: 1;
+    }
+    .irops-card.visible.expanded {
+      max-height: 800px;
     }
     /* Progress bar at top */
     .irops-progress {
@@ -2539,9 +2543,6 @@
       0%, 100% { opacity: 0.4; }
       50% { opacity: 1; }
     }
-    /* Expandable body */
-    .irops-expand-body { display: none !important; }
-    .irops-card.expanded .irops-expand-body { display: block !important; }
     /* Affected phases: remove top status border, add top border to match */
     .irops-affected .journey-card {
       border-top: 1px solid var(--card-border) !important;
@@ -7506,8 +7507,7 @@ function toggleTheme() {
     // Phases 4-7: wrapped in column with optional IROPS banner on top
     if (journeyPhases.length > 4) {
       html += '<div style="display:flex;flex-direction:column;flex-shrink:0;align-self:stretch;">';
-      if (anyIrops) {
-        html += '<div class="irops-card" id="irops-card">';
+        html += '<div class="irops-card' + (anyIrops ? ' visible' : '') + '" id="irops-card">';
         // Pulsing progress bar
         html += '<div class="irops-progress"><div class="irops-progress-bar"></div></div>';
         // Always visible: label + title + short desc
@@ -7515,7 +7515,7 @@ function toggleTheme() {
         html += '<div class="jc-title">IROPS</div>';
         html += '<div class="jc-desc" style="padding-bottom:1rem;">IOC is coordinating network recovery across affected phases.</div>';
         // Expandable body
-        html += '<div class="irops-expand-body" style="display:none;">';
+        html += '<div class="irops-expand-body">';
         html += '<div class="jc-divider"></div>';
         html += '<div class="jc-section-title">Recovery Actions</div>';
         html += '<div class="jc-activities">';
@@ -7530,7 +7530,6 @@ function toggleTheme() {
         html += '<span class="jc-person user">Crew Scheduler</span><span class="jc-person user">Crew Tracker</span><span class="jc-person user">Chief Pilots Office</span>';
         html += '<span class="jc-person product">ECS</span><span class="jc-person product">FOS</span><span class="jc-person product">IOC Platform</span><span class="jc-person product">Sabre PSS</span>';
         html += '</div></div></div>';
-      }
       html += '<div class="' + (anyIrops ? 'irops-affected ' : '') + '" style="display:flex;flex:1;">';
       for (var i = 4; i <= 7 && i < journeyPhases.length; i++) {
         html += buildPhaseCard(journeyPhases[i], i);
@@ -7551,11 +7550,9 @@ function toggleTheme() {
     if (iropsCard) {
       iropsCard.addEventListener('click', function(e) {
         e.stopPropagation();
-        var body = iropsCard.querySelector('.irops-expand-body');
+        iropsCard.classList.toggle('expanded');
         var chevron = document.getElementById('irops-chevron');
-        var isExpanded = body.style.display === 'block';
-        body.style.display = isExpanded ? 'none' : 'block';
-        if (chevron) chevron.style.transform = isExpanded ? '' : 'rotate(180deg)';
+        if (chevron) chevron.style.transform = iropsCard.classList.contains('expanded') ? 'rotate(180deg)' : '';
       });
     }
 
