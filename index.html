@@ -2515,6 +2515,34 @@
     .jc-status-badge[data-status="bag-delay"] { background: rgba(121,85,72,0.15); color: #795548; }
 
     @media (max-width: 768px) {
+    /* IROPS banner */
+    .irops-wrapper {
+      display: flex; flex-direction: column; flex-shrink: 0;
+    }
+    .irops-banner {
+      display: none; background: rgba(211,47,47,0.1);
+      border: 1px solid rgba(211,47,47,0.3); border-radius: 8px;
+      padding: 0.75rem 1.25rem; margin-bottom: 0;
+      font-family: var(--sans);
+    }
+    .irops-banner.active { display: block; }
+    .irops-banner-title {
+      font-size: 0.7rem; font-weight: 700; color: #d32f2f;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      display: flex; align-items: center; gap: 6px;
+      margin-bottom: 0.3rem;
+    }
+    .irops-banner-title .material-symbols-outlined { font-size: 1rem; }
+    .irops-banner-desc {
+      font-size: 0.68rem; color: var(--card-text-secondary); line-height: 1.5;
+    }
+    .irops-banner-people {
+      display: flex; flex-wrap: wrap; gap: 4px; margin-top: 0.5rem;
+    }
+    .irops-cards {
+      display: flex;
+    }
+
       .journey-card { width: 300px; }
       .jc-title { font-size: 1rem; }
       .journey-scroll { padding: 1rem; }
@@ -7390,51 +7418,6 @@ function toggleTheme() {
         }
       }
     },
-    {
-      title: 'Irregular Operations',
-      desc: 'When delays, cancellations, or diversions occur. Crew Schedulers and Trackers manage reassignments. IOC coordinates recovery.',
-      activities: ['Delay management and announcements', 'Crew reassignment via ECS', 'Reserve crew activation', 'Passenger rebooking (Sabre PSS)', 'Recovery planning at IOC', 'Chief Pilots Office escalation'],
-      users: ['Crew Scheduler', 'Crew Tracker', 'Chief Pilots Office', 'Gate Agent'],
-      products: ['ECS', 'FOS', 'CME', 'Sabre PSS', 'IOC Platform'],
-      states: {
-        'delayed': {
-          desc: 'IOC manages cascading delays across the network. Crew Tracker repositions crews to cover downstream flights. Recovery plan activated.',
-          activities: ['IOC activates network recovery plan', 'Crew Tracker repositions crews across network', 'Downstream flights assessed for impact', 'Reserve pools evaluated for coverage', 'Communication sent to affected stations'],
-          users: ['Crew Scheduler', 'Crew Tracker', 'Chief Pilots Office'],
-          products: ['ECS', 'FOS', 'CME', 'IOC Platform']
-        },
-        'crew-late': {
-          desc: 'Reserve activation chain initiated. Crew Scheduler backfills from DOTC reserve pool. Multiple flights may be impacted if reserves are depleted.',
-          activities: ['Reserve activation chain initiated', 'Crew Scheduler backfills from DOTC', 'Assess reserve pool depth at station', 'Chief Pilots Office notified if critical', 'Track crew duty time limits'],
-          users: ['Crew Scheduler', 'Crew Tracker', 'Reserve Pilot'],
-          products: ['ECS', 'FOS', 'ROTA', 'ROTD']
-        },
-        'mechanical': {
-          desc: 'Aircraft swap coordinated between IOC and maintenance. Fleet status updated. Crews may be reassigned to different aircraft type.',
-          activities: ['Aircraft swap coordinated with maintenance', 'Fleet status updated in FOS', 'Crews assessed for type rating on swap', 'Maintenance updates EAML records', 'IOC adjusts downstream schedule'],
-          users: ['Crew Scheduler', 'Crew Tracker', 'Maintenance', 'Chief Pilots Office'],
-          products: ['ECS', 'FOS', 'EAML', 'IOC Platform']
-        },
-        'weather': {
-          desc: 'System-wide ground stops issued by ATC. Flow control programs activated. Mass rebooking of passengers across affected routes.',
-          activities: ['ATC ground stop in effect system-wide', 'Flow control programs activated', 'Mass passenger rebooking via Sabre PSS', 'Crew repositioning planned for recovery', 'IOC monitors weather progression'],
-          users: ['Crew Scheduler', 'Crew Tracker', 'Gate Agent', 'Chief Pilots Office'],
-          products: ['ECS', 'FOS', 'Sabre PSS', 'WSI', 'IOC Platform']
-        },
-        'cancelled': {
-          desc: 'Flight removed from schedule. All crew released from assignment. Passenger recovery and rebooking initiated across network.',
-          activities: ['Flight removed from active schedule', 'All crew released from assignment', 'Passenger recovery initiated via Sabre PSS', 'Crew available for reassignment in ECS', 'IOC updates network recovery plan'],
-          users: ['Crew Scheduler', 'Crew Tracker', 'Gate Agent'],
-          products: ['ECS', 'FOS', 'Sabre PSS', 'IOC Platform']
-        },
-        'diversion': {
-          desc: 'Crew at alternate station. Hotel and limo arranged for displaced crew. Repositioning flight or deadhead planned to return crew to network.',
-          activities: ['Hotel and ground transport arranged', 'Crew repositioning planned', 'Deadhead or ferry flight coordinated', 'Passenger rebooking at alternate station', 'IOC plans network recovery'],
-          users: ['Crew Scheduler', 'Crew Tracker', 'Hotel/Limo Coordinator'],
-          products: ['ECS', 'FOS', 'CME', 'Sabre PSS', 'IOC Platform']
-        }
-      }
-    }
   ];
 
   var journeyStates = journeyPhases.map(function() { return 'ontime'; });
@@ -7470,14 +7453,24 @@ function toggleTheme() {
       /* 5: Departure */             ['ontime', 'delayed', 'mechanical', 'weather', 'atc-hold', 'cancelled'],
       /* 6: In-Flight */             ['ontime', 'delayed', 'weather', 'atc-hold', 'diversion'],
       /* 7: Arrival & Gate */        ['ontime', 'delayed', 'gate-hold', 'bag-delay', 'diversion'],
-      /* 8: Post-Flight */           ['ontime', 'delayed', 'mechanical'],
-      /* 9: Irregular Operations */  ['ontime', 'delayed', 'crew-late', 'mechanical', 'weather', 'cancelled', 'diversion']
+      /* 8: Post-Flight */           ['ontime', 'delayed', 'mechanical']
     ];
 
     // Ensure journeyStates matches journeyPhases length
     while (journeyStates.length < journeyPhases.length) {
       journeyStates.push('ontime');
     }
+
+    // Check if phases 4-7 have any IROPS (non-ontime state)
+    var iropsPhases = [4, 5, 6, 7];
+    var hasIrops = false;
+    var iropsStates = [];
+    iropsPhases.forEach(function(pi) {
+      if (journeyStates[pi] && journeyStates[pi] !== 'ontime') {
+        hasIrops = true;
+        if (iropsStates.indexOf(journeyStates[pi]) === -1) iropsStates.push(journeyStates[pi]);
+      }
+    });
 
     journeyPhases.forEach(function(phase, i) {
       var currentState = journeyStates[i] || 'ontime';
@@ -7492,6 +7485,25 @@ function toggleTheme() {
           users: phase.states[currentState].users || phase.users,
           products: phase.states[currentState].products || phase.products
         };
+      }
+
+      // Open IROPS wrapper before phase 4
+      if (i === 4) {
+        html += '<div class="irops-wrapper">';
+        html += '<div class="irops-banner' + (hasIrops ? ' active' : '') + '">';
+        html += '<div class="irops-banner-title"><span class="material-symbols-outlined">warning</span>Irregular Operations (IROPS)</div>';
+        html += '<div class="irops-banner-desc">These phases are experiencing irregular operations. IOC is coordinating recovery. Crew Schedulers and Trackers are managing reassignments.</div>';
+        html += '<div class="irops-banner-people">';
+        html += '<span class="jc-person user">Crew Scheduler</span>';
+        html += '<span class="jc-person user">Crew Tracker</span>';
+        html += '<span class="jc-person user">Chief Pilots Office</span>';
+        html += '<span class="jc-person product">ECS</span>';
+        html += '<span class="jc-person product">FOS</span>';
+        html += '<span class="jc-person product">IOC Platform</span>';
+        html += '<span class="jc-person product">Sabre PSS</span>';
+        html += '</div>';
+        html += '</div>';
+        html += '<div class="irops-cards">';
       }
 
       html += '<div class="journey-card" data-phase="' + i + '" data-status="' + currentState + '">';
@@ -7534,6 +7546,11 @@ function toggleTheme() {
       }
       html += '</div>';
       html += '</div>';
+
+      // Close IROPS wrapper after phase 7
+      if (i === 7) {
+        html += '</div></div>'; // close irops-cards + irops-wrapper
+      }
     });
 
     container.innerHTML = html;
