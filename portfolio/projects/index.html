@@ -2758,56 +2758,95 @@
       margin-bottom: 1rem;
     }
 
-    /* Workflow steps */
-    .pd-workflow {
-      margin-bottom: 1rem;
-    }
+    /* Workflow flowchart */
+    .pd-workflow { margin-bottom: 1.5rem; }
     .pd-wf-name {
       font-size: 0.78rem; font-weight: 600; color: var(--text);
-      margin-bottom: 0.5rem; display: flex; align-items: center; gap: 6px;
+      margin-bottom: 0.75rem; display: flex; align-items: center; gap: 6px;
     }
     .pd-wf-name .material-symbols-outlined { font-size: 0.85rem; color: var(--cyan); }
-    .pd-wf-steps {
-      padding-left: 1.5rem; border-left: 2px solid var(--card-border);
+    .pd-flowchart {
+      display: flex; align-items: center; gap: 0;
+      overflow-x: auto; padding-bottom: 0.5rem;
     }
-    .pd-wf-step {
-      font-size: 0.72rem; color: var(--card-text-secondary);
-      padding: 0.3rem 0 0.3rem 0.75rem; line-height: 1.5;
-      position: relative;
+    .pd-flowchart::-webkit-scrollbar { height: 3px; }
+    .pd-flowchart::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
+    .pd-flow-step {
+      flex-shrink: 0; padding: 0.6rem 1rem;
+      background: var(--card-elevated); border: 1px solid var(--card-border);
+      border-radius: 8px; font-size: 0.68rem; color: var(--card-text-secondary);
+      line-height: 1.4; max-width: 180px; min-width: 120px;
+      text-align: center; position: relative;
     }
-    .pd-wf-step::before {
-      content: ''; position: absolute; left: -6px; top: 0.55rem;
-      width: 8px; height: 8px; border-radius: 50%;
-      background: var(--bg); border: 2px solid var(--cyan);
+    .pd-flow-step:first-child {
+      border-left: 3px solid var(--cyan);
+    }
+    .pd-flow-step:last-child {
+      border-right: 3px solid var(--green);
+    }
+    .pd-flow-arrow {
+      flex-shrink: 0; display: flex; align-items: center;
+      padding: 0 4px; color: var(--dim);
+    }
+    .pd-flow-arrow .material-symbols-outlined { font-size: 1.2rem; }
+    /* Decision diamond for conditional steps */
+    .pd-flow-step.decision {
+      background: rgba(255,160,0,0.08); border-color: rgba(255,160,0,0.3);
+      border-radius: 4px; transform: none;
     }
 
-    /* System cards */
-    .pd-system {
-      display: flex; align-items: flex-start; gap: 0.75rem;
-      padding: 0.6rem 0; border-bottom: 1px solid var(--card-border);
+    /* Dataflow diagram */
+    .pd-dataflow {
+      position: relative; padding: 1rem 0;
     }
-    .pd-system:last-child { border-bottom: none; }
-    .pd-system-icon {
+    .pd-df-nodes {
+      display: flex; flex-wrap: wrap; gap: 16px; justify-content: center;
+      align-items: flex-start;
+    }
+    .pd-df-node {
+      width: 140px; padding: 0.75rem;
+      background: var(--card-elevated); border: 1px solid var(--card-border);
+      border-radius: 10px; text-align: center;
+      position: relative;
+    }
+    .pd-df-node-icon {
       width: 36px; height: 36px; border-radius: 8px;
       background: var(--cyan-dim); display: flex; align-items: center;
-      justify-content: center; flex-shrink: 0;
+      justify-content: center; margin: 0 auto 0.5rem;
     }
-    .pd-system-icon .material-symbols-outlined { font-size: 1rem; color: var(--cyan); }
-    .pd-system-name {
-      font-size: 0.78rem; font-weight: 600; color: var(--text);
+    .pd-df-node-icon .material-symbols-outlined { font-size: 1rem; color: var(--cyan); }
+    .pd-df-node-name {
+      font-size: 0.72rem; font-weight: 600; color: var(--text);
+      margin-bottom: 0.25rem;
     }
-    .pd-system-desc {
-      font-size: 0.65rem; color: var(--dim); margin-top: 2px; line-height: 1.5;
+    .pd-df-node-desc {
+      font-size: 0.55rem; color: var(--dim); line-height: 1.4;
     }
-    .pd-system-data {
-      display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px;
+
+    /* Data flow connections */
+    .pd-df-flows {
+      margin-top: 1rem; padding-top: 0.75rem;
+      border-top: 1px solid var(--card-border);
     }
-    .pd-data-tag {
-      font-size: 0.55rem; padding: 0.15rem 0.45rem; border-radius: 4px;
-      font-weight: 600;
+    .pd-df-flow {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.35rem 0; font-size: 0.65rem;
     }
-    .pd-data-tag.sends { background: rgba(62,166,255,0.1); color: var(--cyan); }
-    .pd-data-tag.receives { background: rgba(255,160,0,0.1); color: var(--gold); }
+    .pd-df-flow-from {
+      font-weight: 600; color: var(--text); min-width: 80px; text-align: right;
+    }
+    .pd-df-flow-arrow {
+      display: flex; align-items: center; color: var(--cyan);
+    }
+    .pd-df-flow-arrow .material-symbols-outlined { font-size: 0.9rem; }
+    .pd-df-flow-to {
+      font-weight: 600; color: var(--text); min-width: 80px;
+    }
+    .pd-df-flow-label {
+      font-size: 0.58rem; color: var(--dim); font-style: italic;
+      padding: 0.1rem 0.5rem; background: var(--card-elevated);
+      border-radius: 4px; border: 1px solid var(--card-border);
+    }
 
     /* User activity cards */
     .pd-user {
@@ -8502,9 +8541,11 @@ function toggleTheme() {
       d.workflows.forEach(function(wf) {
         html += '<div class="pd-workflow">';
         html += '<div class="pd-wf-name"><span class="material-symbols-outlined">play_arrow</span>' + wf.name + '</div>';
-        html += '<div class="pd-wf-steps">';
-        wf.steps.forEach(function(step) {
-          html += '<div class="pd-wf-step">' + step + '</div>';
+        html += '<div class="pd-flowchart">';
+        wf.steps.forEach(function(step, si) {
+          if (si > 0) html += '<div class="pd-flow-arrow"><span class="material-symbols-outlined">arrow_forward</span></div>';
+          var isDecision = step.indexOf('\u2192') !== -1 || step.indexOf('If ') === 0 || step.indexOf('alert') !== -1;
+          html += '<div class="pd-flow-step' + (isDecision ? ' decision' : '') + '">' + step + '</div>';
         });
         html += '</div></div>';
       });
@@ -8515,17 +8556,45 @@ function toggleTheme() {
     if (d.systems && d.systems.length) {
       html += '<div class="pd-card">';
       html += '<div class="pd-card-title"><span class="material-symbols-outlined">dns</span>Systems & Data Flow</div>';
+      // System nodes
+      html += '<div class="pd-df-nodes">';
       d.systems.forEach(function(sys) {
-        html += '<div class="pd-system">';
-        html += '<div class="pd-system-icon"><span class="material-symbols-outlined">' + sys.icon + '</span></div>';
-        html += '<div>';
-        html += '<div class="pd-system-name">' + sys.name + '</div>';
-        html += '<div class="pd-system-desc">' + sys.desc + '</div>';
-        html += '<div class="pd-system-data">';
-        if (sys.sends) sys.sends.forEach(function(s) { html += '<span class="pd-data-tag sends">\u2192 ' + s + '</span>'; });
-        if (sys.receives) sys.receives.forEach(function(r) { html += '<span class="pd-data-tag receives">\u2190 ' + r + '</span>'; });
-        html += '</div></div></div>';
+        html += '<div class="pd-df-node">';
+        html += '<div class="pd-df-node-icon"><span class="material-symbols-outlined">' + sys.icon + '</span></div>';
+        html += '<div class="pd-df-node-name">' + sys.name + '</div>';
+        html += '<div class="pd-df-node-desc">' + sys.desc + '</div>';
+        html += '</div>';
       });
+      html += '</div>';
+      // Data flow connections
+      var hasFlows = false;
+      d.systems.forEach(function(sys) {
+        if ((sys.sends && sys.sends.length) || (sys.receives && sys.receives.length)) hasFlows = true;
+      });
+      if (hasFlows) {
+        html += '<div class="pd-df-flows">';
+        d.systems.forEach(function(sys) {
+          if (sys.sends) {
+            sys.sends.forEach(function(s) {
+              html += '<div class="pd-df-flow">';
+              html += '<span class="pd-df-flow-from">' + sys.name + '</span>';
+              html += '<span class="pd-df-flow-arrow"><span class="material-symbols-outlined">arrow_forward</span></span>';
+              html += '<span class="pd-df-flow-label">' + s + '</span>';
+              html += '</div>';
+            });
+          }
+          if (sys.receives) {
+            sys.receives.forEach(function(r) {
+              html += '<div class="pd-df-flow">';
+              html += '<span class="pd-df-flow-label">' + r + '</span>';
+              html += '<span class="pd-df-flow-arrow"><span class="material-symbols-outlined">arrow_forward</span></span>';
+              html += '<span class="pd-df-flow-to">' + sys.name + '</span>';
+              html += '</div>';
+            });
+          }
+        });
+        html += '</div>';
+      }
       html += '</div>';
     }
 
