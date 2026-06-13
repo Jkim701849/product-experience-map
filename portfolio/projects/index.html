@@ -8488,9 +8488,7 @@ function toggleTheme() {
     document.getElementById('phase-drill-title').textContent = phase.title;
 
     // Build progress indicator
-    var progHtml = '';
-    progHtml += '<button class="pd-progress-arrow" id="pd-prev"' + (idx === 0 ? ' disabled' : '') + '><span class="material-symbols-outlined">chevron_left</span></button>';
-    progHtml += '<div class="pd-progress-steps">';
+    var progHtml = '<div class="pd-progress-steps">';
     activeJourneyPhases.forEach(function(p, i) {
       if (i > 0) progHtml += '<div class="pd-progress-connector"></div>';
       progHtml += '<div class="pd-progress-step' + (i === idx ? ' active' : '') + '" data-phase-idx="' + i + '">';
@@ -8499,22 +8497,9 @@ function toggleTheme() {
       progHtml += '</div>';
     });
     progHtml += '</div>';
-    progHtml += '<button class="pd-progress-arrow" id="pd-next"' + (idx >= activeJourneyPhases.length - 1 ? ' disabled' : '') + '><span class="material-symbols-outlined">chevron_right</span></button>';
     document.getElementById('pd-progress').innerHTML = progHtml;
 
-    // Bind progress navigation
-    document.getElementById('pd-prev').addEventListener('click', function() {
-      if (idx > 0) {
-        var prevPhase = activeJourneyPhases[idx - 1];
-        if (prevPhase && prevPhase.drilldown) openPhaseDrilldown(idx - 1, prevPhase);
-      }
-    });
-    document.getElementById('pd-next').addEventListener('click', function() {
-      if (idx < activeJourneyPhases.length - 1) {
-        var nextPhase = activeJourneyPhases[idx + 1];
-        if (nextPhase && nextPhase.drilldown) openPhaseDrilldown(idx + 1, nextPhase);
-      }
-    });
+    // Bind progress dot clicks
     document.querySelectorAll('.pd-progress-step').forEach(function(step) {
       step.addEventListener('click', function() {
         var i = parseInt(step.dataset.phaseIdx);
