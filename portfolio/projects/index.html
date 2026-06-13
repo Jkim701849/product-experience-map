@@ -8859,20 +8859,8 @@ function toggleTheme() {
     content.innerHTML = html;
     content.scrollTop = 0;
 
-    // Scroll-to-next: detect when user scrolls to bottom
+    // Click to navigate to next phase
     if (nextPhase && nextPhase.drilldown) {
-      var scrollTriggered = false;
-      content.addEventListener('scroll', function onScroll() {
-        if (scrollTriggered) return;
-        var scrollBottom = content.scrollTop + content.clientHeight;
-        var threshold = content.scrollHeight - 40;
-        if (scrollBottom >= threshold) {
-          scrollTriggered = true;
-          content.removeEventListener('scroll', onScroll);
-          openPhaseDrilldown(nextIdx, nextPhase);
-        }
-      });
-      // Also allow click
       var scrollNextEl = document.getElementById('pd-scroll-next');
       if (scrollNextEl) {
         scrollNextEl.addEventListener('click', function() {
