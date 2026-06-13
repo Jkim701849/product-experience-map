@@ -2522,6 +2522,11 @@
       border-top: 3px solid #d32f2f;
       border-radius: 0; overflow: hidden;
       width: 100%;
+      animation: irops-slide-in 0.3s ease;
+    }
+    @keyframes irops-slide-in {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     .irops-card-toggle {
       display: flex; align-items: center; padding: 0.75rem 1.5rem;
@@ -7458,9 +7463,8 @@ function toggleTheme() {
     ];
 
     // Ensure journeyStates matches journeyPhases length
-    while (journeyStates.length < journeyPhases.length) {
-      journeyStates.push('ontime');
-    }
+    while (journeyStates.length < journeyPhases.length) journeyStates.push('ontime');
+    journeyStates.length = journeyPhases.length;
 
     journeyPhases.forEach(function(phase, i) {
       var currentState = journeyStates[i] || 'ontime';
