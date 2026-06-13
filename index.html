@@ -2515,51 +2515,38 @@
     .jc-status-badge[data-status="bag-delay"] { background: rgba(121,85,72,0.15); color: #795548; }
 
     @media (max-width: 768px) {
-    /* IROPS spanning card — sits above affected phases */
+    /* IROPS spanning card — same style as journey-card */
     .irops-row {
       display: none; flex-shrink: 0;
-      position: relative;
     }
     .irops-row.active { display: flex; }
     .irops-card {
-      background: rgba(211,47,47,0.06);
-      border: 1px solid rgba(211,47,47,0.2);
-      border-radius: 0; border-top: 3px solid #d32f2f;
-      cursor: pointer; overflow: hidden;
-      transition: max-height 0.3s ease;
-      width: 100%;
+      background: transparent;
+      border: none; border-right: 1px solid var(--card-border);
+      border-top: 3px solid #d32f2f;
+      border-radius: 0; overflow: hidden;
+      width: 100%; cursor: pointer;
     }
-    .irops-card-header {
-      display: flex; align-items: center; gap: 8px;
-      padding: 0.6rem 1.5rem;
-    }
-    .irops-card-header .material-symbols-outlined {
-      font-size: 1rem; color: #d32f2f;
-    }
-    .irops-card-title {
-      font-family: var(--sans); font-size: 0.85rem;
-      font-weight: 600; color: #d32f2f;
+    .irops-card:hover { background: rgba(255,255,255,0.02); }
+    .irops-card-toggle {
+      display: flex; align-items: center; padding: 0.3rem 1.5rem 0;
+      font-family: 'Orbitron', sans-serif; font-size: 0.55rem;
+      font-weight: 700; color: #d32f2f;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      gap: 4px;
     }
     .irops-card-chevron {
-      margin-left: auto; font-size: 1.2rem; color: var(--dim);
+      margin-left: auto; font-size: 1rem; color: var(--dim);
       transition: transform 0.3s;
     }
     .irops-card.expanded .irops-card-chevron { transform: rotate(180deg); }
     .irops-card-body {
       max-height: 0; overflow: hidden;
       transition: max-height 0.3s ease;
-      padding: 0 1.5rem;
     }
     .irops-card.expanded .irops-card-body {
-      max-height: 500px;
-      padding: 0 1.5rem 1rem;
+      max-height: 600px;
     }
-    .irops-card-body .jc-section-title { color: #d32f2f; padding: 0; }
-    .irops-card-body .jc-desc { padding: 0; margin-bottom: 0.75rem; }
-    .irops-card-body .jc-activities { padding: 0; }
-    .irops-card-body .jc-activity .material-symbols-outlined { color: #d32f2f; }
-    .irops-card-body .jc-divider { margin: 0.75rem 0; }
-    .irops-card-body .jc-people { padding: 0; margin-top: 0.5rem; }
 
       .journey-card { width: 300px; }
       .jc-title { font-size: 1rem; }
@@ -7507,24 +7494,27 @@ function toggleTheme() {
         // IROPS spanning card
         html += '<div class="irops-row' + (anyIrops ? ' active' : '') + '" id="irops-row">';
         html += '<div class="irops-card" id="irops-card">';
-        html += '<div class="irops-card-header">';
-        html += '<span class="material-symbols-outlined">warning</span>';
-        html += '<span class="irops-card-title">Irregular Operations (IROPS)</span>';
+        // Collapsed header — same style as jc-phase-num
+        html += '<div class="irops-card-toggle">';
+        html += '<span class="material-symbols-outlined" style="font-size:0.7rem;">warning</span>';
+        html += 'Irregular Operations';
         html += '<span class="material-symbols-outlined irops-card-chevron">expand_more</span>';
         html += '</div>';
+        // Expandable body — uses same classes as phase cards
         html += '<div class="irops-card-body">';
+        html += '<div class="jc-title" style="color:#d32f2f;">IROPS Active</div>';
         html += '<div class="jc-desc">IOC is coordinating network recovery. Crew Schedulers and Trackers are managing reassignments and reserve activation across affected phases.</div>';
         html += '<div class="jc-divider"></div>';
-        html += '<div class="jc-section-title">Recovery Actions</div>';
+        html += '<div class="jc-section-title" style="color:#d32f2f;">Recovery Actions</div>';
         html += '<div class="jc-activities">';
-        html += '<div class="jc-activity"><span class="material-symbols-outlined">check_circle</span>IOC activates recovery plan</div>';
-        html += '<div class="jc-activity"><span class="material-symbols-outlined">check_circle</span>Crew Tracker repositions crews</div>';
-        html += '<div class="jc-activity"><span class="material-symbols-outlined">check_circle</span>Reserve pools evaluated for coverage</div>';
-        html += '<div class="jc-activity"><span class="material-symbols-outlined">check_circle</span>Passenger rebooking initiated via Sabre PSS</div>';
-        html += '<div class="jc-activity"><span class="material-symbols-outlined">check_circle</span>Downstream flights assessed for impact</div>';
+        html += '<div class="jc-activity"><span class="material-symbols-outlined" style="color:#d32f2f;">check_circle</span>IOC activates recovery plan</div>';
+        html += '<div class="jc-activity"><span class="material-symbols-outlined" style="color:#d32f2f;">check_circle</span>Crew Tracker repositions crews</div>';
+        html += '<div class="jc-activity"><span class="material-symbols-outlined" style="color:#d32f2f;">check_circle</span>Reserve pools evaluated for coverage</div>';
+        html += '<div class="jc-activity"><span class="material-symbols-outlined" style="color:#d32f2f;">check_circle</span>Passenger rebooking initiated via Sabre PSS</div>';
+        html += '<div class="jc-activity"><span class="material-symbols-outlined" style="color:#d32f2f;">check_circle</span>Downstream flights assessed for impact</div>';
         html += '</div>';
         html += '<div class="jc-divider"></div>';
-        html += '<div class="jc-section-title">People & Systems</div>';
+        html += '<div class="jc-section-title" style="color:#d32f2f;">People & Systems</div>';
         html += '<div class="jc-people">';
         html += '<span class="jc-person user">Crew Scheduler</span>';
         html += '<span class="jc-person user">Crew Tracker</span>';
