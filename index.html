@@ -7485,7 +7485,7 @@ function toggleTheme() {
         for (var ip = 4; ip <= 7; ip++) {
           if (journeyStates[ip] && journeyStates[ip] !== 'ontime') anyIrops = true;
         }
-        html += '<div style="display:flex;flex-direction:column;flex-shrink:0;">';
+        html += '<div style="display:flex;flex-direction:column;flex-shrink:0;align-self:stretch;">';
         // Only render IROPS card if there IS an IROPS situation
         if (anyIrops) {
           html += '<div class="irops-card" id="irops-card">';
@@ -7519,7 +7519,7 @@ function toggleTheme() {
           html += '</div>';
           html += '</div></div>';
         }
-        html += '<div style="display:flex;">';
+        html += '<div style="display:flex;flex:1;">';
       }
 
       html += '<div class="journey-card" data-phase="' + i + '" data-status="' + currentState + '">';
