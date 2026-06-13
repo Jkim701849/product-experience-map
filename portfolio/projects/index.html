@@ -7121,6 +7121,32 @@ function toggleTheme() {
         break;
       case 'journey':
         startOverlay.classList.add('hidden');
+        activeJourneyPhases = journeyPhases;
+        activeJourneyStates = journeyPhases.map(function() { return 'ontime'; });
+        document.querySelector('.journey-title').textContent = 'Flight Operations Journey';
+        document.getElementById('journey-view').classList.add('active');
+        document.body.classList.add('journey-active');
+        renderJourney();
+        break;
+      case 'journey-crew-scheduling':
+      case 'journey-training':
+      case 'journey-baggage':
+      case 'journey-passenger':
+      case 'journey-maintenance':
+      case 'journey-crew-life':
+        startOverlay.classList.add('hidden');
+        var journeyMap = {
+          'journey-crew-scheduling': { phases: crewSchedulingPhases, title: 'Crew Scheduling Journey' },
+          'journey-training': { phases: trainingPhases, title: 'Training & Certification Journey' },
+          'journey-baggage': { phases: baggageOpsPhases, title: 'Baggage Operations Journey' },
+          'journey-passenger': { phases: passengerExpPhases, title: 'Passenger Experience Journey' },
+          'journey-maintenance': { phases: maintenancePhases, title: 'Maintenance & Turnaround Journey' },
+          'journey-crew-life': { phases: crewLifestylePhases, title: 'Crew Lifestyle Journey' }
+        };
+        var jData = journeyMap[hash];
+        activeJourneyPhases = jData.phases;
+        activeJourneyStates = jData.phases.map(function() { return 'ontime'; });
+        document.querySelector('.journey-title').textContent = jData.title;
         document.getElementById('journey-view').classList.add('active');
         document.body.classList.add('journey-active');
         renderJourney();
@@ -7544,7 +7570,323 @@ function toggleTheme() {
     },
   ];
 
-  var journeyStates = journeyPhases.map(function() { return 'ontime'; });
+  var crewSchedulingPhases = [
+    {
+      title: 'Network Planning',
+      desc: 'Network Planning team builds preliminary schedules (P0) based on demand forecasts, aircraft availability, and route economics. Multiple iterations refine to the final schedule (F0).',
+      activities: ['Demand forecasting and route analysis', 'Preliminary schedule creation (P0)', 'Iterative refinement with stakeholders', 'Final schedule publication (F0)', 'Aircraft rotation and line-of-flying assignment'],
+      users: ['Crew Planner'],
+      products: ['FOS', 'PBS'],
+      states: { 'delayed': { desc: 'Schedule publication delayed due to network changes or demand shifts. Downstream bidding timelines shift.', activities: ['Extended schedule refinement', 'Stakeholder re-alignment meetings', 'Notify crew of delayed bid opening', 'Adjust training slot coordination'], users: ['Crew Planner'], products: ['FOS', 'PBS', 'ECS'] }, 'system-down': { desc: 'FOS or scheduling systems offline. Manual schedule drafting as fallback.', activities: ['IT escalation initiated', 'Manual schedule creation', 'Phone-based coordination', 'Contingency timeline communicated'], users: ['Crew Planner'], products: ['FOS'] } }
+    },
+    {
+      title: 'Pairing Construction',
+      desc: 'Crew Planning builds trip pairings — sequences of flights that form a complete crew assignment from check-in to release. Pairings must comply with FAR 117 duty/rest rules.',
+      activities: ['Build trip pairings from flight schedule', 'Validate FAR 117 duty time compliance', 'Optimize for minimum crew cost', 'Account for equipment type qualifications', 'Generate bid line packages'],
+      users: ['Crew Planner'],
+      products: ['PBS', 'AOS', 'FOS'],
+      states: {}
+    },
+    {
+      title: 'Bid Opening',
+      desc: 'Bid packages published to crew members via CCI. Pilots and FAs review available lines and submit ranked preferences through PBS.',
+      activities: ['Bid packages published in CCI', 'Crew members review available lines', 'Standing bids applied automatically', 'Crew submit ranked preferences', 'Bid window opens for set duration'],
+      users: ['Pilot', 'Flight Attendant', 'Crew Planner'],
+      products: ['PBS', 'CCI', 'Crew Portal'],
+      states: { 'system-down': { desc: 'PBS or CCI offline during bid window. Bid deadline extended. Manual bid collection via phone/email.', activities: ['Extend bid deadline', 'Manual bid collection', 'IT escalation for system restore', 'Communication to all crew'], users: ['Crew Planner', 'Pilot', 'Flight Attendant'], products: ['ECS', 'PBS'] }, 'bid-error': { desc: 'Errors detected in bid packages. Crew Planning corrects and re-publishes. Affected crew notified.', activities: ['Identify bid package errors', 'Correct pairing data', 'Re-publish corrected packages', 'Notify affected crew members', 'Extend bid window if needed'], users: ['Crew Planner'], products: ['PBS', 'CCI', 'ECS'] } }
+    },
+    {
+      title: 'Award Processing',
+      desc: 'PBS engine processes all bids using seniority-based optimization. Awards are generated and validated by Crew Planning before publication.',
+      activities: ['PBS engine runs award optimization', 'Seniority-based bid resolution', 'Award validation by Crew Planning', 'BVR reports generated', 'Unsuccessful bidders identified (UBL)'],
+      users: ['Crew Planner'],
+      products: ['PBS', 'AOS', 'BVR', 'UBL', 'FOS'],
+      states: {}
+    },
+    {
+      title: 'Schedule Distribution',
+      desc: 'Awarded schedules published to crew via CCI. Crew Schedulers begin daily coverage (DOTC). Reserve and lineholder designations finalized.',
+      activities: ['Awards published in CCI and Crew Portal', 'Lineholder/Reserve designations set (LRD)', 'DOTC process begins daily', 'MPS notifications sent to pilots', 'ROTA/ROTD reserve processing'],
+      users: ['Crew Scheduler', 'Crew Tracker', 'Pilot', 'Flight Attendant'],
+      products: ['CCI', 'ECS', 'MPS', 'LRD', 'ROTA', 'ROTD', 'FOS', 'CME'],
+      states: { 'delayed': { desc: 'Late schedule distribution. Crews check CCI repeatedly. Schedulers prioritize coverage gaps.', activities: ['Expedite schedule publication', 'Priority coverage for critical flights', 'Phone-based schedule notification', 'Monitor for coverage gaps'], users: ['Crew Scheduler', 'Crew Tracker'], products: ['CCI', 'ECS', 'FOS'] } }
+    },
+    {
+      title: 'Trip Trading & Adjustments',
+      desc: 'After awards, crew members can trade trips via ETB/TTS, pick up open time, and manage their schedules. Crew Schedulers handle daily adjustments.',
+      activities: ['Trip trades via ETB (FA) and TTS', 'Open time pickup opportunities', 'Vacation and personal day management', 'Schedule change notifications via MPS', 'Daily coverage adjustments by Scheduler'],
+      users: ['Pilot', 'Flight Attendant', 'Crew Scheduler'],
+      products: ['ETB', 'TTS', 'CCI', 'MPS', 'FOS', 'CME'],
+      states: {}
+    }
+  ];
+
+  var trainingPhases = [
+    {
+      title: 'Training Needs Assessment',
+      desc: 'Training Schedulers identify upcoming training requirements based on crew qualifications, expiration dates, and regulatory mandates (CQT cycles).',
+      activities: ['Review crew qualification expiration dates', 'Identify CQT cycle requirements', 'Coordinate with FAA regulatory calendar', 'Assess fleet type rating needs', 'Plan training capacity'],
+      users: ['Training Schedulers'],
+      products: ['MINT', 'CPOP', 'FOS'],
+      states: {}
+    },
+    {
+      title: 'Training Slot Creation',
+      desc: 'Training slots built in TSS for flight attendants and MINT for pilots. Simulator availability coordinated. Instructor assignments planned via MARFFLE and Equalization Report.',
+      activities: ['Build training slots in TSS/MINT', 'Coordinate simulator availability', 'Check instructor availability (MARFFLE)', 'Assign instructors by seniority (Equalization Report)', 'Publish training calendar'],
+      users: ['Training Schedulers'],
+      products: ['TSS', 'MINT', 'MARFFLE', 'Equalization Report', 'CPOP'],
+      states: {}
+    },
+    {
+      title: 'Training Bidding',
+      desc: 'Crew members bid on training events. Check Pilots and Instructor Pilots bid on overtime training via CTP Overtime Proffer during the 11am-2pm window.',
+      activities: ['Training bid packages published', 'CKP/IP bid on overtime events (CTP)', 'FCTI/SimP availability checked (MARFFLE)', 'Bids processed by seniority', 'Awards posted in CPOP'],
+      users: ['Training Schedulers', 'Check Pilots & Instructor Pilots', 'FCTI & Sim Pilots'],
+      products: ['CTP', 'CPOP', 'MARFFLE', 'Equalization Report', 'TBS'],
+      states: {}
+    },
+    {
+      title: 'Training Execution',
+      desc: 'Crew members attend assigned training — classroom, simulator sessions, or flight training. Instructors conduct evaluations and record completions.',
+      activities: ['Classroom instruction sessions', 'Full-flight simulator sessions', 'Line check observations', 'Evaluation and proficiency checks', 'Training completion recorded'],
+      users: ['Pilot', 'Flight Attendant', 'Check Pilots & Instructor Pilots', 'FCTI & Sim Pilots'],
+      products: ['MINT', 'Comply 365', 'CPOP'],
+      states: {}
+    },
+    {
+      title: 'Certification & Records',
+      desc: 'Training completions update crew qualification records. Certificates issued. Next recurrent training dates calculated and scheduled.',
+      activities: ['Update qualification records in FOS', 'Issue completion certificates', 'Calculate next recurrent training date', 'Update QLA status for scheduling', 'Report to FAA as required'],
+      users: ['Training Schedulers', 'Crew Planner'],
+      products: ['FOS', 'MINT', 'CPOP', 'CCI'],
+      states: {}
+    }
+  ];
+
+  var baggageOpsPhases = [
+    {
+      title: 'Customer Check-in',
+      desc: 'Customer arrives at departure terminal. Uses self-service kiosk or ticket agent to print bag tags and check bags onto the conveyor belt.',
+      activities: ['Customer prints bag tag at kiosk', 'Ticket agent scans bag tag', 'Bag placed on conveyor belt', 'Bag enters BHS system', 'Customer proceeds to security'],
+      users: ['Ticket Agent'],
+      products: ['Sabre PSS', 'TrackScan'],
+      states: {}
+    },
+    {
+      title: 'Security Screening',
+      desc: 'Bags go through automated security screening inside the BHS. Flagged bags are diverted to TSA for manual inspection.',
+      activities: ['Automated X-ray screening in BHS', 'Clear bags continue to routing', 'Flagged bags diverted to TSA', 'TSA manual inspection', 'Cleared bags re-enter BHS'],
+      users: ['Encoder'],
+      products: ['BHS', 'BMS'],
+      states: {}
+    },
+    {
+      title: 'BMS Routing',
+      desc: 'Baggage Management System scans and routes bags to the correct make-up unit based on flight assignment, terminal, and timing.',
+      activities: ['Bag scanned at multiple BHS points', 'BMS determines correct make-up unit', 'On-time bags route to assigned MU', 'Late bags route to late pier', 'Wrong-terminal bags route to shuttle pier'],
+      users: ['Bag Clerk'],
+      products: ['BMS', 'BMAS', 'TrackScan'],
+      states: { 'bag-delay': { desc: 'Bags delayed in BHS due to volume or system issues. Bag clerks trace via TrackScan.', activities: ['Trace delayed bags via TrackScan', 'Manual routing if BMS down', 'Priority handling for tight connections', 'Notify gate of late bags'], users: ['Bag Clerk'], products: ['TrackScan', 'BMAS'] } }
+    },
+    {
+      title: 'Make-up Unit Loading',
+      desc: 'Bag clerks at the make-up unit scan each bag and load onto baggage carts for transport to the aircraft.',
+      activities: ['Bags arrive at make-up unit', 'Bag clerk scans each bag', 'Load bags onto baggage cart', 'Verify bag count against manifest', 'Cart staged for transport'],
+      users: ['Bag Clerk'],
+      products: ['TrackScan', 'BMAS'],
+      states: {}
+    },
+    {
+      title: 'Transport to Aircraft',
+      desc: 'ABR Drivers transport loaded baggage carts from make-up unit to the aircraft gate position using T.LINE for tracking.',
+      activities: ['ABR Driver receives loaded cart', 'Scan cart with T.LINE', 'Drive to assigned gate position', 'Stage cart at aircraft', 'Coordinate with gate crew for loading'],
+      users: ['ABR Driver'],
+      products: ['T.LINE', 'TrackScan'],
+      states: {}
+    },
+    {
+      title: 'Aircraft Loading',
+      desc: 'Gate crew loads bags into the aircraft cargo hold using belt loaders. Each bag scanned planeside for final verification.',
+      activities: ['Position belt loader at aircraft', 'Scan each bag planeside (TrackScan)', 'Load into correct cargo compartment', 'Verify final bag count', 'Close cargo doors'],
+      users: ['Gate Crew', 'Bag Clerk'],
+      products: ['TrackScan', 'BMAS'],
+      states: {}
+    },
+    {
+      title: 'Arrival & Offload',
+      desc: 'Aircraft arrives at destination. Gate crew offloads bags using belt loaders and TrackScan. ABR drivers transport to baggage claim.',
+      activities: ['Flight arrives, status changes to IN', 'Gate crew offloads with TrackScan', 'Bags loaded onto transport carts', 'ABR drivers transport to claim area', 'Bags placed on carousel'],
+      users: ['Gate Crew', 'ABR Driver'],
+      products: ['TrackScan', 'T.LINE'],
+      states: {}
+    },
+    {
+      title: 'Baggage Claim & Recovery',
+      desc: 'Passengers retrieve bags from carousel. Mishandled bags traced via BMAS. Sweeper recovers bags left on tarmac.',
+      activities: ['Bags delivered to carousel', 'Passengers retrieve checked bags', 'Mishandled bags reported and traced', 'Sweeper patrols tarmac for stranded bags', 'Delivery arrangements for delayed bags'],
+      users: ['Bag Clerk', 'Sweeper'],
+      products: ['BMAS', 'TrackScan'],
+      states: {}
+    }
+  ];
+
+  var passengerExpPhases = [
+    {
+      title: 'Booking & Reservation',
+      desc: 'Passengers book flights through aa.com, mobile app, travel agents, or corporate booking tools. PNR created in Sabre PSS.',
+      activities: ['Search and select flights', 'Create passenger name record (PNR)', 'Select seats and preferences', 'Process payment', 'Confirmation and itinerary sent'],
+      users: ['Gate Agent'],
+      products: ['Sabre PSS'],
+      states: {}
+    },
+    {
+      title: 'Check-in',
+      desc: 'Passengers check in online, via mobile, at kiosk, or with a ticket agent. Boarding pass issued. Bags tagged and dropped.',
+      activities: ['Online/mobile check-in (24hr prior)', 'Kiosk or agent check-in at airport', 'Boarding pass issued', 'Bag tags printed and attached', 'Bags dropped at conveyor'],
+      users: ['Ticket Agent'],
+      products: ['Sabre PSS', 'CCI', 'TrackScan'],
+      states: {}
+    },
+    {
+      title: 'Security & Terminal',
+      desc: 'Passengers proceed through TSA security screening and navigate to their departure gate in the terminal.',
+      activities: ['TSA security screening', 'Navigate to departure gate', 'Monitor flight status displays', 'Use Admirals Club or lounges', 'Respond to gate change notifications'],
+      users: [],
+      products: [],
+      states: {}
+    },
+    {
+      title: 'Boarding',
+      desc: 'Gate agent manages the boarding process by groups. Passengers scan boarding passes and proceed down the jet bridge to the aircraft.',
+      activities: ['Pre-boarding announcements', 'Group-based boarding process', 'Boarding pass scan at gate', 'Jet bridge to aircraft', 'Overhead bin and seat assignment'],
+      users: ['Gate Agent', 'Flight Attendant'],
+      products: ['Sabre PSS'],
+      states: { 'delayed': { desc: 'Boarding delayed due to late aircraft, crew, or operational issues. Gate agent communicates updates.', activities: ['Gate agent announces delay', 'Updated departure time communicated', 'Rebooking for tight connections', 'Monitor for crew arrival'], users: ['Gate Agent'], products: ['Sabre PSS', 'ECS'] } }
+    },
+    {
+      title: 'In-Flight Experience',
+      desc: 'Passengers experience cabin service, entertainment, meals, and safety management by the flight attendant crew.',
+      activities: ['Safety demonstration', 'Meal and beverage service', 'In-flight entertainment', 'Cabin comfort management', 'Special needs accommodation'],
+      users: ['Flight Attendant', 'Pilot'],
+      products: ['CCI', 'Aircraft FMS'],
+      states: {}
+    },
+    {
+      title: 'Arrival & Deplaning',
+      desc: 'Aircraft arrives at destination gate. Passengers deplane and proceed to baggage claim or connecting gates.',
+      activities: ['Aircraft taxis to gate', 'Jet bridge positioned', 'Passengers deplane', 'Connection guidance provided', 'Wheelchair and special assistance'],
+      users: ['Flight Attendant', 'Gate Agent'],
+      products: [],
+      states: {}
+    },
+    {
+      title: 'Baggage Claim & Exit',
+      desc: 'Passengers retrieve checked bags from carousel. Ground transportation arranged. Customs/immigration for international arrivals.',
+      activities: ['Proceed to baggage claim', 'Retrieve checked bags from carousel', 'Report missing bags if needed', 'Customs and immigration (international)', 'Ground transportation to destination'],
+      users: ['Bag Clerk'],
+      products: ['BMAS', 'TrackScan'],
+      states: {}
+    }
+  ];
+
+  var maintenancePhases = [
+    {
+      title: 'Arrival Assessment',
+      desc: 'Aircraft arrives at gate. Pilots log any maintenance items in EAML. Maintenance team reviews incoming write-ups and MEL status.',
+      activities: ['Pilots file maintenance write-ups (EAML)', 'Review existing MEL items', 'Maintenance team dispatched to aircraft', 'Assess aircraft service status', 'Determine turnaround scope'],
+      users: ['Pilot'],
+      products: ['EAML', 'Comply 365', 'FOS'],
+      states: { 'mechanical': { desc: 'Significant maintenance issue discovered. Aircraft may go out of service pending repair.', activities: ['Detailed inspection initiated', 'Parts availability checked', 'Aircraft may go OOS', 'Swap aircraft coordinated', 'Crew reassignment if needed'], users: ['Pilot', 'Crew Tracker'], products: ['EAML', 'FOS', 'ECS'] } }
+    },
+    {
+      title: 'Cabin Turnaround',
+      desc: 'Cleaning crew services the cabin — trash removal, seat pocket restocking, lavatory servicing, and general tidying between flights.',
+      activities: ['Trash removal and cleaning', 'Seat pocket restocking', 'Lavatory servicing', 'Blanket and pillow replacement', 'Cabin inspection'],
+      users: [],
+      products: [],
+      states: { 'delayed': { desc: 'Cleaning crew delayed. Abbreviated turnaround procedures enacted.', activities: ['Expedited cleaning protocol', 'Priority areas only', 'Notify gate of delay', 'Adjust departure time if needed'], users: [], products: [] } }
+    },
+    {
+      title: 'Catering',
+      desc: 'Catering trucks deliver food, beverages, and supplies for the next flight. FAs verify catering counts and special meal orders.',
+      activities: ['Catering truck arrives at aircraft', 'Load galleys with meals and beverages', 'Verify special meal orders', 'Restock beverage carts', 'FA confirms catering complete'],
+      users: ['Flight Attendant'],
+      products: [],
+      states: { 'catering': { desc: 'Catering truck delayed or incorrect order. FA adjusts service plan.', activities: ['Contact catering vendor', 'Adjust in-flight service plan', 'Substitute available items', 'Notify passengers of changes'], users: ['Flight Attendant'], products: [] } }
+    },
+    {
+      title: 'Fueling',
+      desc: 'Fuel truck services the aircraft based on the dispatch-calculated fuel load. Pilots verify fuel quantity matches flight plan requirements.',
+      activities: ['Fuel truck arrives and connects', 'Fuel loaded per dispatch calculation', 'Pilots verify fuel quantity', 'Fuel receipt documentation', 'Disconnect and safety check'],
+      users: ['Pilot'],
+      products: ['FDPro', 'Aircraft FMS'],
+      states: {}
+    },
+    {
+      title: 'Maintenance Checks',
+      desc: 'Line maintenance performs any required checks, MEL deferrals, or repairs. Aircraft must be released by maintenance before dispatch.',
+      activities: ['Perform scheduled maintenance checks', 'Address pilot write-ups from EAML', 'Defer items to MEL if allowed', 'Update maintenance records', 'Release aircraft for service'],
+      users: [],
+      products: ['EAML', 'Comply 365'],
+      states: { 'mechanical': { desc: 'Maintenance issue cannot be deferred. Extended ground time required for repair.', activities: ['Extended repair initiated', 'Parts ordered if not available', 'Estimated return to service calculated', 'Gate agent notified of delay', 'Passenger rebooking if cancelled'], users: ['Gate Agent'], products: ['EAML', 'Comply 365', 'Sabre PSS'] } }
+    },
+    {
+      title: 'Dispatch Release',
+      desc: 'Dispatch reviews all factors — weather, fuel, maintenance, crew, and NOTAMs — and releases the aircraft for the next flight.',
+      activities: ['Weather and route analysis (WSI)', 'Fuel calculation finalized', 'Maintenance release confirmed', 'Crew legality verified', 'Flight plan filed and released'],
+      users: ['Pilot'],
+      products: ['FDPro', 'WSI', 'ACARS', 'DECS', 'FOS'],
+      states: { 'weather': { desc: 'Weather conditions require route changes or fuel adjustments. Dispatch recalculates.', activities: ['Alternate routing analysis', 'Additional fuel calculated', 'Updated flight plan filed', 'Crew briefed on changes', 'ATC coordination'], users: ['Pilot'], products: ['WSI', 'FDPro', 'ACARS', 'DECS'] } }
+    }
+  ];
+
+  var crewLifestylePhases = [
+    {
+      title: 'Monthly Bid & Award',
+      desc: 'Crew members review their awarded schedule for the month. Standing bids may auto-submit. Results determine work-life balance for the period.',
+      activities: ['Review monthly bid results', 'Check awarded trips and days off', 'Compare to standing bid preferences', 'Identify conflict with personal plans', 'Plan commute schedule accordingly'],
+      users: ['Pilot', 'Flight Attendant'],
+      products: ['PBS', 'CCI', 'Crew Portal'],
+      states: {}
+    },
+    {
+      title: 'Commuting to Base',
+      desc: 'Many crew members live in different cities from their base. They commute via jumpseats or non-rev travel to reach their departure station.',
+      activities: ['Check jumpseat availability', 'Travel to base city (non-rev or personal)', 'Arrive at base station', 'Check in at crew room or hotel', 'Prepare for first trip of sequence'],
+      users: ['Pilot', 'Flight Attendant'],
+      products: ['CCI'],
+      states: { 'delayed': { desc: 'Commute flight delayed or cancelled. Crew member may miss trip. Must contact Crew Tracker.', activities: ['Contact Crew Tracker via ECS', 'Attempt alternate transportation', 'Reserve crew may be activated', 'Duty time clock considerations', 'Hotel/rest arrangements if needed'], users: ['Pilot', 'Flight Attendant', 'Crew Tracker'], products: ['ECS', 'CCI', 'FOS'] } }
+    },
+    {
+      title: 'Reserve Duty',
+      desc: 'Reserve crew members are on standby during their Reserve Availability Period (RAP). They must be reachable and ready to report within the required timeframe.',
+      activities: ['Monitor phone during RAP window', 'Stay within report-time distance', 'Receive assignment via ECS/phone', 'Report to airport when called', 'TARS tracks accrued reserve time'],
+      users: ['Pilot', 'Flight Attendant', 'Crew Scheduler'],
+      products: ['ECS', 'CCI', 'ROTA', 'ROTD', 'TARS', 'FOS'],
+      states: {}
+    },
+    {
+      title: 'Overnight Layovers',
+      desc: 'During multi-day trips, crew stay at hotels arranged by the Hotel/Limo Coordinator. Ground transportation provided to/from the airport.',
+      activities: ['Hotel/limo request submitted via ECS', 'Hotel booking confirmed', 'Van/limo to hotel arranged', 'Crew rest period begins', 'Van/limo back to airport for next leg'],
+      users: ['Pilot', 'Flight Attendant', 'Hotel/Limo Coordinator'],
+      products: ['ECS', 'CME'],
+      states: {}
+    },
+    {
+      title: 'Trip Trading & Schedule Management',
+      desc: 'Crew members actively manage their schedules by trading trips, picking up open time for extra pay, or dropping trips when allowed.',
+      activities: ['Browse ETB/TTS for trade opportunities', 'Submit trip trade requests', 'Pick up open time for additional pay', 'Use vacation and personal days', 'Monitor MPS for schedule changes'],
+      users: ['Pilot', 'Flight Attendant'],
+      products: ['ETB', 'TTS', 'CCI', 'MPS', 'FOS'],
+      states: {}
+    }
+  ];
+
+  var activeJourneyPhases = journeyPhases;
+  var activeJourneyStates = journeyPhases.map(function() { return 'ontime'; });
+  var journeyStates = activeJourneyStates;
 
   function renderJourney() {
     var container = document.getElementById('journey-cards');
@@ -7567,34 +7909,24 @@ function toggleTheme() {
       'catering': 'restaurant', 'pax-issue': 'group_off',
       'bag-delay': 'luggage'
     };
-    // Per-phase applicable states
-    var phaseStates = [
-      /* 0: Schedule Planning */     ['ontime', 'delayed', 'system-down'],
-      /* 1: Bidding & Awards */      ['ontime', 'delayed', 'system-down', 'bid-error'],
-      /* 2: Schedule Distribution */ ['ontime', 'delayed', 'system-down', 'misconnect'],
-      /* 3: Crew Travel & Arrival */ ['ontime', 'delayed', 'crew-late', 'weather', 'misconnect'],
-      /* 4: Pre-Flight & Boarding */ ['ontime', 'delayed', 'mechanical', 'weather', 'crew-late', 'gate-hold', 'catering'],
-      /* 5: Departure */             ['ontime', 'delayed', 'mechanical', 'weather', 'atc-hold', 'cancelled'],
-      /* 6: In-Flight */             ['ontime', 'delayed', 'weather', 'atc-hold', 'diversion'],
-      /* 7: Arrival & Gate */        ['ontime', 'delayed', 'gate-hold', 'bag-delay', 'diversion'],
-      /* 8: Post-Flight */           ['ontime', 'delayed', 'mechanical']
-    ];
-
-    // Ensure journeyStates matches journeyPhases length
-    while (journeyStates.length < journeyPhases.length) journeyStates.push('ontime');
-    journeyStates.length = journeyPhases.length;
+    // Ensure activeJourneyStates matches activeJourneyPhases length
+    while (activeJourneyStates.length < activeJourneyPhases.length) activeJourneyStates.push('ontime');
+    activeJourneyStates.length = activeJourneyPhases.length;
 
     // Helper: build a single phase card HTML
     function buildPhaseCard(phase, i) {
-      var currentState = journeyStates[i] || 'ontime';
+      var currentState = activeJourneyStates[i] || 'ontime';
       var phaseData = phase;
       if (currentState !== 'ontime' && phase.states && phase.states[currentState]) {
         phaseData = { title: phase.title, desc: phase.states[currentState].desc, activities: phase.states[currentState].activities, users: phase.states[currentState].users || phase.users, products: phase.states[currentState].products || phase.products };
       }
-      var applicableStates = phaseStates[i] || ['ontime', 'delayed'];
+      var applicableStates = ['ontime'];
+      if (phase.states) { Object.keys(phase.states).forEach(function(s) { if (applicableStates.indexOf(s) === -1) applicableStates.push(s); }); }
+      if (applicableStates.indexOf('delayed') === -1) applicableStates.push('delayed');
+      if (applicableStates.indexOf('cancelled') === -1) applicableStates.push('cancelled');
       var h = '';
       h += '<div class="journey-card" data-phase="' + i + '" data-status="' + currentState + '">';
-      h += '<div class="jc-phase-num" style="display:flex;align-items:center;">Phase ' + (i+1) + ' of ' + journeyPhases.length;
+      h += '<div class="jc-phase-num" style="display:flex;align-items:center;">Phase ' + (i+1) + ' of ' + activeJourneyPhases.length;
       h += '<span class="jc-status-badge" data-status="' + currentState + '"><span class="material-symbols-outlined" style="font-size:0.7rem;">' + stateIcons[currentState] + '</span>' + stateLabels[currentState] + '</span></div>';
       h += '<div class="jc-states">';
       applicableStates.forEach(function(state) { h += '<button class="jc-state-btn' + (currentState === state ? ' active' : '') + '" data-state="' + state + '" data-phase="' + i + '">' + stateLabels[state] + '</button>'; });
@@ -7612,31 +7944,43 @@ function toggleTheme() {
       return h;
     }
 
-    // Check IROPS status
+    // Check if this is the flight ops journey (has IROPS phases 4-7)
+    var isFlightOps = (activeJourneyPhases === journeyPhases);
+
+    // Check IROPS status (only for flight ops)
     var anyIrops = false;
-    for (var ip = 4; ip <= 7; ip++) {
-      if (journeyStates[ip] && journeyStates[ip] !== 'ontime') anyIrops = true;
-    }
-
-    // Phases 0-3: render normally
-    for (var i = 0; i < 4 && i < journeyPhases.length; i++) {
-      html += buildPhaseCard(journeyPhases[i], i);
-    }
-
-    // Phases 4-7: wrapped in column with optional IROPS banner on top
-    if (journeyPhases.length > 4) {
-      html += '<div style="display:flex;flex-direction:column;flex-shrink:0;align-self:stretch;">';
-        html += '<div id="irops-slot"></div>';
-      html += '<div class="' + (anyIrops ? 'irops-affected ' : '') + '" style="display:flex;flex:1;">';
-      for (var i = 4; i <= 7 && i < journeyPhases.length; i++) {
-        html += buildPhaseCard(journeyPhases[i], i);
+    if (isFlightOps) {
+      for (var ip = 4; ip <= 7; ip++) {
+        if (activeJourneyStates[ip] && activeJourneyStates[ip] !== 'ontime') anyIrops = true;
       }
-      html += '</div></div>';
     }
 
-    // Phases 8+: render normally
-    for (var i = 8; i < journeyPhases.length; i++) {
-      html += buildPhaseCard(journeyPhases[i], i);
+    if (isFlightOps) {
+      // Flight ops: Phases 0-3 render normally
+      for (var i = 0; i < 4 && i < activeJourneyPhases.length; i++) {
+        html += buildPhaseCard(activeJourneyPhases[i], i);
+      }
+
+      // Phases 4-7: wrapped in column with optional IROPS banner on top
+      if (activeJourneyPhases.length > 4) {
+        html += '<div style="display:flex;flex-direction:column;flex-shrink:0;align-self:stretch;">';
+          html += '<div id="irops-slot"></div>';
+        html += '<div class="' + (anyIrops ? 'irops-affected ' : '') + '" style="display:flex;flex:1;">';
+        for (var i = 4; i <= 7 && i < activeJourneyPhases.length; i++) {
+          html += buildPhaseCard(activeJourneyPhases[i], i);
+        }
+        html += '</div></div>';
+      }
+
+      // Phases 8+: render normally
+      for (var i = 8; i < activeJourneyPhases.length; i++) {
+        html += buildPhaseCard(activeJourneyPhases[i], i);
+      }
+    } else {
+      // Non-flight-ops journeys: render all phases linearly
+      for (var i = 0; i < activeJourneyPhases.length; i++) {
+        html += buildPhaseCard(activeJourneyPhases[i], i);
+      }
     }
 
 
@@ -7694,29 +8038,30 @@ function toggleTheme() {
         var state = btn.dataset.state;
 
         // Set this phase's state
-        journeyStates[phase] = state;
+        activeJourneyStates[phase] = state;
 
         // Cascade logic
+        var isFlightOpsJourney = (activeJourneyPhases === journeyPhases);
         if (state === 'cancelled') {
           // Cancel everything after this phase
-          for (var j = phase + 1; j < journeyStates.length; j++) {
-            journeyStates[j] = 'cancelled';
+          for (var j = phase + 1; j < activeJourneyStates.length; j++) {
+            activeJourneyStates[j] = 'cancelled';
           }
         } else if (state === 'crew-late' || state === 'mechanical' || state === 'delayed') {
-          // Delay phases between this one and Arrival & Gate (index 7)
-          var cascadeEnd = Math.min(7, journeyStates.length - 1);
+          // Delay downstream phases
+          var cascadeEnd = isFlightOpsJourney ? Math.min(7, activeJourneyStates.length - 1) : activeJourneyStates.length - 1;
           for (var j = phase + 1; j <= cascadeEnd; j++) {
-            if (journeyStates[j] !== 'cancelled') {
-              journeyStates[j] = 'delayed';
+            if (activeJourneyStates[j] !== 'cancelled') {
+              activeJourneyStates[j] = 'delayed';
             }
           }
         }
         if (state === 'ontime') {
           // Reset downstream cascaded phases back to ontime
-          var resetEnd = Math.min(7, journeyStates.length - 1);
+          var resetEnd = isFlightOpsJourney ? Math.min(7, activeJourneyStates.length - 1) : activeJourneyStates.length - 1;
           for (var j = phase + 1; j <= resetEnd; j++) {
-            if (journeyStates[j] === 'delayed') {
-              journeyStates[j] = 'ontime';
+            if (activeJourneyStates[j] === 'delayed') {
+              activeJourneyStates[j] = 'ontime';
             }
           }
         }
@@ -7727,7 +8072,7 @@ function toggleTheme() {
 
     // Bind add button (in header)
     document.getElementById('journey-add-btn').onclick = function() {
-      journeyPhases.push({
+      activeJourneyPhases.push({
         title: 'New Phase',
         desc: 'Describe this phase of operations.',
         activities: ['Activity 1'],
@@ -7775,7 +8120,7 @@ function toggleTheme() {
       iconColor: 'var(--gold)',
       phases: 6,
       users: 5,
-      route: null
+      route: 'journey-crew-scheduling'
     },
     {
       id: 'training',
@@ -7787,7 +8132,7 @@ function toggleTheme() {
       iconColor: 'var(--purple)',
       phases: 5,
       users: 4,
-      route: null
+      route: 'journey-training'
     },
     {
       id: 'baggage-ops',
@@ -7799,7 +8144,7 @@ function toggleTheme() {
       iconColor: '#f28b82',
       phases: 8,
       users: 6,
-      route: null
+      route: 'journey-baggage'
     },
     {
       id: 'passenger-exp',
@@ -7811,7 +8156,7 @@ function toggleTheme() {
       iconColor: '#81c995',
       phases: 7,
       users: 8,
-      route: null
+      route: 'journey-passenger'
     },
     {
       id: 'maintenance',
@@ -7823,7 +8168,7 @@ function toggleTheme() {
       iconColor: '#ffa000',
       phases: 6,
       users: 5,
-      route: null
+      route: 'journey-maintenance'
     },
     {
       id: 'crew-lifestyle',
@@ -7835,7 +8180,7 @@ function toggleTheme() {
       iconColor: '#c58af9',
       phases: 5,
       users: 4,
-      route: null
+      route: 'journey-crew-life'
     }
   ];
 
@@ -7854,7 +8199,6 @@ function toggleTheme() {
       html += '<div class="jh-card-meta">';
       html += '<span><span class="material-symbols-outlined">view_timeline</span>' + j.phases + ' phases</span>';
       html += '<span><span class="material-symbols-outlined">group</span>' + j.users + ' user groups</span>';
-      if (!j.route) html += '<span style="color:var(--gold);"><span class="material-symbols-outlined">construction</span>Coming soon</span>';
       html += '</div></div>';
     });
 
