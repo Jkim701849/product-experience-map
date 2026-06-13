@@ -7666,68 +7666,76 @@ function toggleTheme() {
 
   var baggageOpsPhases = [
     {
-      title: 'Customer Check-in',
-      desc: 'Customer arrives at departure terminal. Uses self-service kiosk or ticket agent to print bag tags and check bags onto the conveyor belt.',
-      activities: ['Customer prints bag tag at kiosk', 'Ticket agent scans bag tag', 'Bag placed on conveyor belt', 'Bag enters BHS system', 'Customer proceeds to security'],
-      users: ['Ticket Agent'],
+      title: 'Induction & Check-in',
+      desc: 'Customer arrives at departure terminal and uses self-service kiosk to print bag tag. Ticket agent takes the bag, scans the tag, and places it on the conveyor belt. Gate agents also handle gate bag checks for passengers with limited overhead space.',
+      activities: ['Customer prints bag tag at kiosk', 'Ticket agent scans bag and places on conveyor (Bag Journey 1)', 'Gate agent checks oversized bags at gate (Bag Journey 2)', 'Gate Bag Check: customer elects to check bag at gate prior to boarding', 'Bag enters BHS system via induction scan'],
+      users: ['Ticket Agent', 'Gate Agent'],
       products: ['Sabre PSS', 'TrackScan'],
-      states: {}
+      states: { 'delayed': { desc: 'Long check-in queues or kiosk failures delay bag induction. Ticket agents process manually.', activities: ['Manual bag tag printing', 'Extended queue management', 'Kiosk troubleshooting', 'Expedite late check-in bags'], users: ['Ticket Agent'], products: ['Sabre PSS', 'TrackScan'] } }
     },
     {
-      title: 'Security Screening',
-      desc: 'Bags go through automated security screening inside the BHS. Flagged bags are diverted to TSA for manual inspection.',
-      activities: ['Automated X-ray screening in BHS', 'Clear bags continue to routing', 'Flagged bags diverted to TSA', 'TSA manual inspection', 'Cleared bags re-enter BHS'],
-      users: ['Encoder'],
+      title: 'BHS Entry & Security Scan',
+      desc: 'Bag is scanned by laser array automatically as it enters the Baggage Handling System. Bag goes through security screening inside BHS. If no security alert, bag continues. If flagged, bag is diverted for TSA inspection.',
+      activities: ['Bag scanned by laser array entering BHS', 'Automated security screening', 'No security alert \u2192 bag continues to BMS routing', 'Security alert \u2192 bag diverted to TSA inspection', 'TSA agent pulls bag for manual search and inspection', 'Bag cleared \u2192 re-enters BHS', 'Bag reintroduced and routed through security again if needed'],
+      users: ['Bag Clerk'],
       products: ['BHS', 'BMS'],
-      states: {}
+      states: { 'delayed': { desc: 'High volume causes BHS congestion. Security screening backlog builds.', activities: ['BHS throughput monitoring', 'Additional TSA lanes activated', 'Priority screening for tight connections', 'Manual bypass for critical bags'], users: ['Bag Clerk'], products: ['BHS', 'BMS'] } }
     },
     {
-      title: 'BMS Routing',
-      desc: 'Baggage Management System scans and routes bags to the correct make-up unit based on flight assignment, terminal, and timing.',
-      activities: ['Bag scanned at multiple BHS points', 'BMS determines correct make-up unit', 'On-time bags route to assigned MU', 'Late bags route to late pier', 'Wrong-terminal bags route to shuttle pier'],
+      title: 'Encode Station',
+      desc: 'If a bag tag has physical problems and cannot be read by the BHS scanners, it is routed to the Encode Station. The Encoder fixes the tag so the bag can be properly scanned and re-entered into the BHS routing system.',
+      activities: ['Bag with unreadable tag routed to Encode Station', 'Encoder diagnoses tag problem', 'Tag reprinted or physically repaired', 'Bag re-scanned into BHS', 'Bag confirmed routing correctly via BMS'],
+      users: ['Encoder'],
+      products: ['BMS', 'TrackScan'],
+      states: { 'delayed': { desc: 'High volume of unreadable tags creates encode station bottleneck.', activities: ['Additional encoders deployed', 'Manual tag replacement', 'Priority encoding for departing flights', 'Escalate systemic tag print issues'], users: ['Encoder'], products: ['BMS', 'TrackScan'] } }
+    },
+    {
+      title: 'BMS Bag Routing',
+      desc: 'Bag is scanned one or more times while traveling in BHS to determine the appropriate make-up unit (MU). BMS routes bags to on-time MU, wrong-terminal shuttle pier, or late pier depending on timing and destination.',
+      activities: ['BMS reads bag tag and determines flight/gate', 'On-time bag \u2192 routes to on-time MU', 'Wrong terminal bag \u2192 routes to Shuttle Pier for inter-terminal transfer', 'Late bag \u2192 routes to Late Pier for expedited handling', 'Bag tag fixed \u2192 re-inducted into BHS from BMAS'],
       users: ['Bag Clerk'],
       products: ['BMS', 'BMAS', 'TrackScan'],
-      states: { 'bag-delay': { desc: 'Bags delayed in BHS due to volume or system issues. Bag clerks trace via TrackScan.', activities: ['Trace delayed bags via TrackScan', 'Manual routing if BMS down', 'Priority handling for tight connections', 'Notify gate of late bags'], users: ['Bag Clerk'], products: ['TrackScan', 'BMAS'] } }
+      states: { 'bag-delay': { desc: 'Bags delayed in BHS routing. Bag clerks trace via TrackScan. Late pier volume increases.', activities: ['Trace delayed bags via TrackScan', 'Manual routing if BMS down', 'Priority handling for tight connections', 'Notify gate of late bags', 'Coordinate with ABR drivers for expedited transport'], users: ['Bag Clerk', 'ABR Driver'], products: ['TrackScan', 'BMAS', 'BMS'] } }
     },
     {
-      title: 'Make-up Unit Loading',
-      desc: 'Bag clerks at the make-up unit scan each bag and load onto baggage carts for transport to the aircraft.',
-      activities: ['Bags arrive at make-up unit', 'Bag clerk scans each bag', 'Load bags onto baggage cart', 'Verify bag count against manifest', 'Cart staged for transport'],
-      users: ['Bag Clerk'],
-      products: ['TrackScan', 'BMAS'],
+      title: 'Make-up Unit & Cart Loading',
+      desc: 'Bags arrive at their designated make-up unit. Bag clerks scan and load bags onto baggage carts. Three possible MU paths: on-time MU (standard), Shuttle Pier (wrong terminal transfer), or Late Pier (expedited for late bags).',
+      activities: ['Bags arrive at on-time MU \u2192 scanned and loaded onto bag cart', 'Bags at Shuttle Pier \u2192 scanned, loaded, cart driven to correct terminal', 'Bags at Late Pier \u2192 scanned, loaded, driven planeside directly', 'Bag cart driven planeside by ABR Driver', 'At wrong terminal: bags inducted into BHS at correct terminal'],
+      users: ['Bag Clerk', 'ABR Driver'],
+      products: ['TrackScan', 'BMAS', 'T.LINE'],
       states: {}
     },
     {
-      title: 'Transport to Aircraft',
-      desc: 'ABR Drivers transport loaded baggage carts from make-up unit to the aircraft gate position using T.LINE for tracking.',
-      activities: ['ABR Driver receives loaded cart', 'Scan cart with T.LINE', 'Drive to assigned gate position', 'Stage cart at aircraft', 'Coordinate with gate crew for loading'],
-      users: ['ABR Driver'],
-      products: ['T.LINE', 'TrackScan'],
-      states: {}
-    },
-    {
-      title: 'Aircraft Loading',
-      desc: 'Gate crew loads bags into the aircraft cargo hold using belt loaders. Each bag scanned planeside for final verification.',
-      activities: ['Position belt loader at aircraft', 'Scan each bag planeside (TrackScan)', 'Load into correct cargo compartment', 'Verify final bag count', 'Close cargo doors'],
+      title: 'Planeside Loading',
+      desc: 'Gate Crew offload scan bags using TrackScan app and load departing bags into the aircraft cargo hold using belt loader vehicles. Bag Clerk verifies final count. Ramp.Int coordinates load planning.',
+      activities: ['Gate Crew positions belt loader at aircraft', 'Departing bags scanned and loaded into aircraft', 'Bag Clerk verifies count against manifest', 'Bags for next flight scanned and loaded', 'Cargo doors closed and secured'],
       users: ['Gate Crew', 'Bag Clerk'],
       products: ['TrackScan', 'BMAS'],
-      states: {}
+      states: { 'delayed': { desc: 'Belt loader positioning delay or weather impacts loading speed.', activities: ['Reposition belt loader', 'Weather hold procedures', 'Coordinate with dispatch on departure delay', 'Expedite remaining bag loading'], users: ['Gate Crew', 'Bag Clerk'], products: ['TrackScan'] } }
+    },
+    {
+      title: 'In-Flight & Connecting Bags',
+      desc: 'Aircraft departs with loaded bags. For connecting flights, the process repeats: flight arrives, bags unloaded, transported, and loaded onto the next aircraft. This is the "tail-to-tail" transfer for another departing flight.',
+      activities: ['Aircraft in route to destination', 'Flight arrives \u2192 Gate Crew offloads bags with TrackScan', 'ABR Drivers scan with T.LINE and transport connecting bags', 'Arriving Bags Unloaded at next gate', 'Bags loaded for transport to next aircraft (Bag Journey 3)', 'Departing bags loaded onto connecting flight'],
+      users: ['Gate Crew', 'ABR Driver', 'Bag Clerk'],
+      products: ['TrackScan', 'T.LINE', 'BMAS'],
+      states: { 'misconnect': { desc: 'Bag misses connecting flight due to tight connection or late arrival. Bag re-inducted into BHS for next available flight.', activities: ['Identify misconnected bags via BMAS', 'Re-tag bag for next available flight', 'Induct back into BHS', 'Notify destination station', 'Update passenger via notification'], users: ['Bag Clerk'], products: ['BMAS', 'TrackScan', 'BMS'] } }
     },
     {
       title: 'Arrival & Offload',
-      desc: 'Aircraft arrives at destination. Gate crew offloads bags using belt loaders and TrackScan. ABR drivers transport to baggage claim.',
-      activities: ['Flight arrives, status changes to IN', 'Gate crew offloads with TrackScan', 'Bags loaded onto transport carts', 'ABR drivers transport to claim area', 'Bags placed on carousel'],
+      desc: 'Aircraft lands and parks at gate. The Gate Crew offload scan bags with TrackScan app while they are being unloaded from aircraft using belt loader vehicles. ABR Drivers scan bags with T.LINE and transport to baggage claim.',
+      activities: ['Flight arrives, status changes to "IN"', 'Gate Crew offloads bags with TrackScan', 'Bags loaded onto transport carts', 'ABR Drivers scan with T.LINE and transport to claim', 'Bags inducted onto local claim belts or transfer induction belt'],
       users: ['Gate Crew', 'ABR Driver'],
       products: ['TrackScan', 'T.LINE'],
       states: {}
     },
     {
       title: 'Baggage Claim & Recovery',
-      desc: 'Passengers retrieve bags from carousel. Mishandled bags traced via BMAS. Sweeper recovers bags left on tarmac.',
-      activities: ['Bags delivered to carousel', 'Passengers retrieve checked bags', 'Mishandled bags reported and traced', 'Sweeper patrols tarmac for stranded bags', 'Delivery arrangements for delayed bags'],
+      desc: 'Passenger grabs bag at designated carousel. Bag Clerk and TrackScan used for delivery tracking. Mishandled bags traced via BMAS. The Sweeper drives around service roads looking for bags left on tarmac to pick up and take to appropriate location.',
+      activities: ['Bags delivered to designated carousel', 'Passengers retrieve checked bags', 'Mishandled bags reported and traced via BMAS', 'Sweeper patrols tarmac for stranded bags', 'Sweeper bag: when a bag doesn\'t belong to departing flight or wasn\'t transported, it\'s left on tarmac for Sweeper pickup', 'Missed flight bags: retagged and inducted back into BHS', 'Delivery arrangements for delayed bags to passenger'],
       users: ['Bag Clerk', 'Sweeper'],
-      products: ['BMAS', 'TrackScan'],
-      states: {}
+      products: ['BMAS', 'TrackScan', 'BMS'],
+      states: { 'bag-delay': { desc: 'Bags delayed or lost. Sweeper activated. BMAS tracing initiated for mishandled bags.', activities: ['BMAS tracing for all missing bags', 'Sweeper dispatched to tarmac search', 'Retagging of found bags', 'Re-induction into BHS for correct routing', 'Passenger notification and delivery arrangement'], users: ['Bag Clerk', 'Sweeper'], products: ['BMAS', 'TrackScan', 'BMS'] } }
     }
   ];
 
@@ -7742,8 +7750,8 @@ function toggleTheme() {
     },
     {
       title: 'Check-in',
-      desc: 'Passengers check in online, via mobile, at kiosk, or with a ticket agent. Boarding pass issued. Bags tagged and dropped.',
-      activities: ['Online/mobile check-in (24hr prior)', 'Kiosk or agent check-in at airport', 'Boarding pass issued', 'Bag tags printed and attached', 'Bags dropped at conveyor'],
+      desc: 'Customer uses self-service kiosk to print bag tag for their checked bag. They stand and check-in with ticket agent. Bag is scanned and placed on conveyor belt for BHS induction.',
+      activities: ['Online/mobile check-in (24hr prior)', 'Self-service kiosk bag tag printing', 'Ticket agent check-in and bag scan', 'Bag placed on conveyor belt', 'Boarding pass issued'],
       users: ['Ticket Agent'],
       products: ['Sabre PSS', 'CCI', 'TrackScan'],
       states: {}
@@ -7757,11 +7765,11 @@ function toggleTheme() {
       states: {}
     },
     {
-      title: 'Boarding',
-      desc: 'Gate agent manages the boarding process by groups. Passengers scan boarding passes and proceed down the jet bridge to the aircraft.',
-      activities: ['Pre-boarding announcements', 'Group-based boarding process', 'Boarding pass scan at gate', 'Jet bridge to aircraft', 'Overhead bin and seat assignment'],
+      title: 'Gate & Boarding',
+      desc: 'Customer waits to board aircraft at departure gate. Gate agent manages gate bag checks for oversized carry-ons and the boarding process by groups. Passengers scan boarding passes and proceed down the jet bridge.',
+      activities: ['Gate Bag Check: oversized carry-ons checked at gate (Bag Journey 2)', 'Pre-boarding announcements', 'Group-based boarding process', 'Boarding pass scan at gate', 'Jet bridge to aircraft', 'Overhead bin and seat assignment'],
       users: ['Gate Agent', 'Flight Attendant'],
-      products: ['Sabre PSS'],
+      products: ['Sabre PSS', 'TrackScan'],
       states: { 'delayed': { desc: 'Boarding delayed due to late aircraft, crew, or operational issues. Gate agent communicates updates.', activities: ['Gate agent announces delay', 'Updated departure time communicated', 'Rebooking for tight connections', 'Monitor for crew arrival'], users: ['Gate Agent'], products: ['Sabre PSS', 'ECS'] } }
     },
     {
@@ -7782,8 +7790,8 @@ function toggleTheme() {
     },
     {
       title: 'Baggage Claim & Exit',
-      desc: 'Passengers retrieve checked bags from carousel. Ground transportation arranged. Customs/immigration for international arrivals.',
-      activities: ['Proceed to baggage claim', 'Retrieve checked bags from carousel', 'Report missing bags if needed', 'Customs and immigration (international)', 'Ground transportation to destination'],
+      desc: 'Passenger grabs bag at designated carousel. Bag Clerk and TrackScan track delivery. If bag is missing, BMAS traces it and delivery arrangements are made. Passenger exits airport.',
+      activities: ['Proceed to baggage claim area', 'Retrieve checked bags from designated carousel', 'Report missing or damaged bags to Bag Clerk', 'BMAS traces mishandled bags across the network', 'Customs and immigration (international flights)', 'Ground transportation to final destination'],
       users: ['Bag Clerk'],
       products: ['BMAS', 'TrackScan'],
       states: {}
