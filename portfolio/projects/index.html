@@ -7692,6 +7692,18 @@ function toggleTheme() {
           users: ['Crew Planner'],
           products: ['FOS', 'ECS']
         }
+      },
+      drilldown: {
+        workflows: [
+          { name: 'Schedule Build Process', steps: ['Network Planning creates preliminary schedule (P0)', 'Schedule reviewed with fleet planning', 'Iterations refined through stakeholder feedback', 'Final schedule published (F0)', 'Aircraft rotations assigned to lines of flying'] }
+        ],
+        systems: [
+          { name: 'PBS', icon: 'event', desc: 'Preferential Bidding System for crew schedule optimization', sends: ['Bid packages to CCI', 'Award data to FOS'], receives: ['Schedule data from FOS'] },
+          { name: 'FOS', icon: 'dns', desc: 'Flight Operating System — master schedule and crew records', sends: ['Schedule data to PBS'], receives: ['Award results from PBS'] }
+        ],
+        userActivities: [
+          { user: 'Crew Planner', activities: ['Crew Planner builds trip pairings in PBS', 'Crew Planner validates FAR 117 compliance', 'Crew Planner coordinates training slots via TSS', 'Crew Planner generates BVR reports for validation'] }
+        ]
       }
     },
     {
@@ -7719,6 +7731,20 @@ function toggleTheme() {
           users: ['Pilot', 'Flight Attendant', 'Crew Planner'],
           products: ['PBS', 'CCI', 'ETB', 'ECS']
         }
+      },
+      drilldown: {
+        workflows: [
+          { name: 'PBS Bidding Cycle', steps: ['Bid packages published to crew via CCI', 'Crew members review available lines', 'Crew submit ranked preferences', 'PBS engine processes bids by seniority', 'Awards published and UBL generated'] }
+        ],
+        systems: [
+          { name: 'PBS', icon: 'event', desc: 'Processes crew bids using seniority-based optimization', sends: ['Award results to FOS', 'Bid packages to CCI'], receives: ['Crew preferences from CCI'] },
+          { name: 'CCI', icon: 'smartphone', desc: 'Crew Check In app for viewing and submitting bids', sends: ['Bid preferences to PBS'], receives: ['Bid packages from PBS', 'Award results from FOS'] }
+        ],
+        userActivities: [
+          { user: 'Pilot', activities: ['Pilot reviews bid packages in CCI', 'Pilot submits ranked line preferences', 'Pilot checks award results in CCI'] },
+          { user: 'Flight Attendant', activities: ['Flight Attendant reviews bid packages in CCI', 'Flight Attendant submits lineholder/reserve preference', 'Flight Attendant checks ETB for trade opportunities'] },
+          { user: 'Crew Planner', activities: ['Crew Planner monitors PBS processing', 'Crew Planner validates award results', 'Crew Planner publishes final awards'] }
+        ]
       }
     },
     {
@@ -7746,6 +7772,20 @@ function toggleTheme() {
           users: ['Crew Scheduler', 'Pilot', 'Flight Attendant'],
           products: ['CCI', 'ECS', 'FOS', 'CME']
         }
+      },
+      drilldown: {
+        workflows: [
+          { name: 'Schedule Distribution Flow', steps: ['Awards finalized in PBS', 'Schedules pushed to CCI and Crew Portal', 'Crew Scheduler begins DOTC daily coverage', 'Reserve assignments coordinated via ROTA/ROTD', 'MPS sends notifications to pilots'] },
+          { name: 'DOTC Coverage Process', steps: ['Crew Scheduler reviews open flying for the day', 'Reserve crew matched to uncovered trips', 'Assignments published via ECS', 'Crew Tracker confirms crew acknowledgment', 'Coverage gaps escalated if unresolved'] }
+        ],
+        systems: [
+          { name: 'ECS', icon: 'support_agent', desc: 'Enterprise Crew Scheduling system for daily crew management', sends: ['Assignments to CCI', 'Coverage data to FOS'], receives: ['Award data from PBS', 'Reserve availability from ROTA'] },
+          { name: 'CCI', icon: 'smartphone', desc: 'Crew Check In app for schedule viewing and sign-in', sends: ['Acknowledgments to ECS'], receives: ['Schedules from ECS', 'Notifications from MPS'] }
+        ],
+        userActivities: [
+          { user: 'Crew Scheduler', activities: ['Crew Scheduler manages DOTC daily coverage', 'Crew Scheduler assigns reserves to open trips', 'Crew Scheduler coordinates with Crew Tracker on coverage gaps'] },
+          { user: 'Pilot', activities: ['Pilot reviews awarded schedule in CCI', 'Pilot confirms trip assignments', 'Pilot checks MPS for schedule notifications'] }
+        ]
       }
     },
     {
@@ -7779,6 +7819,19 @@ function toggleTheme() {
           users: ['Crew Tracker', 'Crew Scheduler', 'Reserve Pilot'],
           products: ['ECS', 'FOS', 'CCI', 'Sabre PSS']
         }
+      },
+      drilldown: {
+        workflows: [
+          { name: 'Crew Arrival & Check-in', steps: ['Crew member arrives at airport', 'Pilot proceeds through KCM security screening', 'Crew member signs in via CCI with geofencing', 'Crew member reviews weather and flight plan in WSI', 'Crew member downloads flight documents into FDPro'] }
+        ],
+        systems: [
+          { name: 'CCI', icon: 'smartphone', desc: 'Crew Check In app with geofenced sign-in and flight plan access', sends: ['Sign-in status to FOS', 'Check-in confirmation to ECS'], receives: ['Flight plan data from FDPro', 'Weather data from WSI'] },
+          { name: 'WSI', icon: 'cloud', desc: 'Weather Services International for real-time weather data', sends: ['Weather briefing to CCI'], receives: ['Route data from FDPro'] }
+        ],
+        userActivities: [
+          { user: 'Pilot', activities: ['Pilot passes through KCM security screening', 'Pilot signs in for trip via CCI geofencing', 'Pilot reviews weather briefing in WSI', 'Pilot downloads flight plan into FDPro'] },
+          { user: 'Flight Attendant', activities: ['Flight Attendant arrives at departure station', 'Flight Attendant signs in via CCI', 'Flight Attendant reviews trip details and crew list', 'Flight Attendant proceeds to gate for briefing'] }
+        ]
       }
     },
     {
@@ -7824,6 +7877,20 @@ function toggleTheme() {
           users: ['Flight Attendant', 'Pilot', 'Gate Agent'],
           products: ['CCI']
         }
+      },
+      drilldown: {
+        workflows: [
+          { name: 'Aircraft Walkaround Inspection', steps: ['First Officer begins exterior walkaround', 'FO checks flight control surfaces and tires', 'FO inspects engines and intake areas', 'FO verifies fluid levels and no leaks', 'FO reports inspection status to Captain'] },
+          { name: 'Boarding Process', steps: ['Gate agent opens jet bridge', 'Pre-boarding for special needs and first class', 'Group-based boarding announced', 'Flight Attendant greets passengers at door', 'Final headcount confirmed by #1 FA'] }
+        ],
+        systems: [
+          { name: 'Comply 365', icon: 'menu_book', desc: 'Electronic flight bag with MEL reference and aircraft manuals', sends: ['MEL status to EAML'], receives: ['Aircraft config data from FOS'] },
+          { name: 'TrackScan', icon: 'qr_code_scanner', desc: 'Baggage scanning system for loading verification', sends: ['Load confirmation to BMS'], receives: ['Bag routing data from BMS'] }
+        ],
+        userActivities: [
+          { user: 'Pilot', activities: ['Pilot performs walkaround inspection', 'Pilot reviews MELs in Comply 365', 'Pilot briefs crew on flight details', 'Pilot validates departure runway and taxi route'] },
+          { user: 'Gate Agent', activities: ['Gate Agent opens jet bridge for boarding', 'Gate Agent manages group-based boarding process', 'Gate Agent scans boarding passes', 'Gate Agent resolves seat conflicts and oversized bags'] }
+        ]
       }
     },
     {
@@ -7863,6 +7930,19 @@ function toggleTheme() {
           users: ['Pilot', 'Flight Attendant', 'Gate Agent', 'Crew Scheduler'],
           products: ['ECS', 'Sabre PSS', 'FOS', 'CCI']
         }
+      },
+      drilldown: {
+        workflows: [
+          { name: 'Door Close & Pushback', steps: ['#1 FA confirms all passengers aboard', 'FA closes aircraft door and arms slides', 'Pilots complete final weight and balance check', 'Pilots contact dispatch via ACARS for release', 'Ground crew coordinates pushback', 'Pilots start engines and taxi to runway'] }
+        ],
+        systems: [
+          { name: 'ACARS', icon: 'router', desc: 'Aircraft Communications Addressing and Reporting System for dispatch messaging', sends: ['Departure reports to dispatch', 'Out/Off times to FOS'], receives: ['Flight plan updates from dispatch', 'Weather amendments'] },
+          { name: 'FDPro', icon: 'flight', desc: 'Flight dispatch and planning tool for pilots', sends: ['Weight and balance data to ACARS'], receives: ['Updated flight plans from dispatch'] }
+        ],
+        userActivities: [
+          { user: 'Pilot', activities: ['Pilot confirms final weight and balance', 'Pilot contacts dispatch via ACARS', 'Pilot coordinates pushback with ground crew', 'Pilot announces departure delay to passengers if needed'] },
+          { user: 'Flight Attendant', activities: ['Flight Attendant confirms all aboard to Captain', 'Flight Attendant closes and arms aircraft door', 'Flight Attendant performs safety demonstration', 'Flight Attendant secures cabin for departure'] }
+        ]
       }
     },
     {
@@ -7896,6 +7976,20 @@ function toggleTheme() {
           users: ['Pilot', 'Flight Attendant'],
           products: ['Aircraft FMS', 'ACARS', 'ATC', 'FDPro']
         }
+      },
+      drilldown: {
+        workflows: [
+          { name: 'Cruise Flight Management', steps: ['Pilots monitor FMS navigation and fuel burn', 'Pilots check weather updates via WSI', 'ATC communications for altitude and route changes', 'ACARS messaging with dispatch for updates', 'Pilots coordinate with FA on cabin status'] },
+          { name: 'Cabin Service Flow', steps: ['FA begins beverage service after seatbelt sign off', 'FA conducts meal service on longer flights', 'FA performs cabin walkthrough for safety checks', 'FA manages passenger requests and special needs', 'FA prepares cabin for arrival'] }
+        ],
+        systems: [
+          { name: 'Aircraft FMS', icon: 'flight', desc: 'Flight Management System for navigation and performance', sends: ['Position reports to ATC', 'Fuel data to ACARS'], receives: ['Route amendments from ATC', 'Performance data from dispatch'] },
+          { name: 'ACARS', icon: 'router', desc: 'Data link for operational messaging between aircraft and ground', sends: ['Position reports to dispatch', 'Fuel status to FOS'], receives: ['Weather updates from WSI', 'Gate assignments from operations'] }
+        ],
+        userActivities: [
+          { user: 'Pilot', activities: ['Pilot navigates via Aircraft FMS', 'Pilot monitors weather updates in WSI', 'Pilot communicates with ATC for routing', 'Pilot sends ACARS updates to dispatch'] },
+          { user: 'Flight Attendant', activities: ['Flight Attendant conducts cabin service', 'Flight Attendant performs safety walkthroughs', 'Flight Attendant manages passenger needs', 'Flight Attendant coordinates with cockpit on turbulence'] }
+        ]
       }
     },
     {
@@ -7929,6 +8023,20 @@ function toggleTheme() {
           users: ['Pilot', 'Gate Crew', 'Gate Agent', 'Crew Tracker'],
           products: ['Sabre PSS', 'FOS', 'ECS', 'TrackScan']
         }
+      },
+      drilldown: {
+        workflows: [
+          { name: 'Landing & Gate Arrival', steps: ['Aircraft lands and taxis to assigned gate', 'Flight status changes to IN in FOS', 'Gate crew positions jet bridge', 'Passengers deplane via jet bridge', 'Gate crew begins bag offload'] },
+          { name: 'Bag Offload & Delivery', steps: ['Gate crew offloads bags from cargo hold', 'Bags scanned with TrackScan at planeside', 'ABR drivers transport bags to BHS', 'BHS routes bags to correct carousel', 'Bag Clerk monitors carousel delivery'] }
+        ],
+        systems: [
+          { name: 'TrackScan', icon: 'qr_code_scanner', desc: 'Mobile scanning for bag tracking at arrival', sends: ['Offload scan events to BMAS', 'Bag status to BMS'], receives: ['Bag manifest from BMS'] },
+          { name: 'BHS', icon: 'conveyor_belt', desc: 'Baggage Handling System for routing bags to claim', sends: ['Delivery confirmation to BMS'], receives: ['Routing instructions from BMS'] }
+        ],
+        userActivities: [
+          { user: 'Gate Crew', activities: ['Gate Crew positions jet bridge at aircraft', 'Gate Crew offloads bags from cargo hold', 'Gate Crew scans bags with TrackScan', 'Gate Crew coordinates with ABR drivers for transport'] },
+          { user: 'ABR Driver', activities: ['ABR Driver transports bag carts to BHS induction', 'ABR Driver scans bags at carousel delivery point', 'ABR Driver reports missing or damaged bags to Bag Clerk'] }
+        ]
       }
     },
     {
@@ -7950,6 +8058,19 @@ function toggleTheme() {
           users: ['Pilot', 'Maintenance', 'Crew Tracker'],
           products: ['EAML', 'FOS', 'ECS', 'Comply 365']
         }
+      },
+      drilldown: {
+        workflows: [
+          { name: 'Post-Flight Reporting', steps: ['Pilot files Pilot Flight Report (PFR)', 'Pilot logs maintenance items in EAML', 'Crew Tracker updates crew positions in FOS', 'Hotel/limo arranged for overnight crews via ECS', 'Aircraft released to maintenance for turnaround'] }
+        ],
+        systems: [
+          { name: 'EAML', icon: 'build', desc: 'Electronic Aircraft Maintenance Log for pilot write-ups', sends: ['Maintenance items to Comply 365', 'Write-up data to FOS'], receives: ['Aircraft history from FOS'] },
+          { name: 'ECS', icon: 'support_agent', desc: 'Enterprise Crew Scheduling for hotel/limo and position tracking', sends: ['Hotel requests to CME', 'Position updates to FOS'], receives: ['Crew arrival data from CCI'] }
+        ],
+        userActivities: [
+          { user: 'Pilot', activities: ['Pilot files PFR for the completed flight', 'Pilot logs maintenance discrepancies in EAML', 'Pilot reviews next trip assignment in CCI'] },
+          { user: 'Crew Tracker', activities: ['Crew Tracker updates crew positions in FOS', 'Crew Tracker arranges hotel and limo via ECS', 'Crew Tracker monitors crew rest compliance', 'Crew Tracker coordinates with Scheduler on next-day coverage'] }
+        ]
       }
     },
   ];
@@ -7961,7 +8082,18 @@ function toggleTheme() {
       activities: ['Demand forecasting and route analysis', 'Preliminary schedule creation (P0)', 'Iterative refinement with stakeholders', 'Final schedule publication (F0)', 'Aircraft rotation and line-of-flying assignment'],
       users: ['Crew Planner'],
       products: ['FOS', 'PBS'],
-      states: { 'delayed': { desc: 'Schedule publication delayed due to network changes or demand shifts. Downstream bidding timelines shift.', activities: ['Extended schedule refinement', 'Stakeholder re-alignment meetings', 'Notify crew of delayed bid opening', 'Adjust training slot coordination'], users: ['Crew Planner'], products: ['FOS', 'PBS', 'ECS'] }, 'system-down': { desc: 'FOS or scheduling systems offline. Manual schedule drafting as fallback.', activities: ['IT escalation initiated', 'Manual schedule creation', 'Phone-based coordination', 'Contingency timeline communicated'], users: ['Crew Planner'], products: ['FOS'] } }
+      states: { 'delayed': { desc: 'Schedule publication delayed due to network changes or demand shifts. Downstream bidding timelines shift.', activities: ['Extended schedule refinement', 'Stakeholder re-alignment meetings', 'Notify crew of delayed bid opening', 'Adjust training slot coordination'], users: ['Crew Planner'], products: ['FOS', 'PBS', 'ECS'] }, 'system-down': { desc: 'FOS or scheduling systems offline. Manual schedule drafting as fallback.', activities: ['IT escalation initiated', 'Manual schedule creation', 'Phone-based coordination', 'Contingency timeline communicated'], users: ['Crew Planner'], products: ['FOS'] } },
+      drilldown: {
+        workflows: [
+          { name: 'Schedule Build Workflow', steps: ['Network Planning runs demand forecast models', 'Preliminary schedule (P0) created from forecast', 'Fleet planning validates aircraft availability', 'Stakeholder review and iteration cycles', 'Final schedule (F0) published to Crew Planning'] }
+        ],
+        systems: [
+          { name: 'FOS', icon: 'dns', desc: 'Flight Operating System — master schedule repository', sends: ['Schedule data to PBS', 'Flight records to ECS'], receives: ['Finalized schedule from Network Planning'] }
+        ],
+        userActivities: [
+          { user: 'Crew Planner', activities: ['Crew Planner reviews preliminary schedule from Network Planning', 'Crew Planner validates aircraft rotation feasibility', 'Crew Planner coordinates training slot impacts with TSS', 'Crew Planner publishes final schedule to PBS'] }
+        ]
+      }
     },
     {
       title: 'Pairing Construction',
@@ -7969,7 +8101,19 @@ function toggleTheme() {
       activities: ['Build trip pairings from flight schedule', 'Validate FAR 117 duty time compliance', 'Optimize for minimum crew cost', 'Account for equipment type qualifications', 'Generate bid line packages'],
       users: ['Crew Planner'],
       products: ['PBS', 'AOS', 'FOS'],
-      states: {}
+      states: {},
+      drilldown: {
+        workflows: [
+          { name: 'Trip Pairing Build', steps: ['Crew Planner imports finalized schedule into PBS', 'PBS generates candidate trip pairings', 'Crew Planner validates FAR 117 duty and rest compliance', 'Pairings optimized for minimum crew cost via AOS', 'Equipment type qualifications applied to pairings', 'Final bid line packages generated'] }
+        ],
+        systems: [
+          { name: 'PBS', icon: 'event', desc: 'Preferential Bidding System for pairing creation and optimization', sends: ['Bid packages to CCI', 'Pairing data to FOS'], receives: ['Schedule data from FOS'] },
+          { name: 'AOS', icon: 'tune', desc: 'Airline Optimization System for crew cost minimization', sends: ['Optimized pairings to PBS'], receives: ['Pairing candidates from PBS'] }
+        ],
+        userActivities: [
+          { user: 'Crew Planner', activities: ['Crew Planner builds trip pairings from flight schedule', 'Crew Planner validates FAR 117 compliance for each pairing', 'Crew Planner optimizes pairings for crew cost efficiency', 'Crew Planner generates final bid line packages'] }
+        ]
+      }
     },
     {
       title: 'Bid Opening',
@@ -7977,7 +8121,20 @@ function toggleTheme() {
       activities: ['Bid packages published in CCI', 'Crew members review available lines', 'Standing bids applied automatically', 'Crew submit ranked preferences', 'Bid window opens for set duration'],
       users: ['Pilot', 'Flight Attendant', 'Crew Planner'],
       products: ['PBS', 'CCI', 'Crew Portal'],
-      states: { 'system-down': { desc: 'PBS or CCI offline during bid window. Bid deadline extended. Manual bid collection via phone/email.', activities: ['Extend bid deadline', 'Manual bid collection', 'IT escalation for system restore', 'Communication to all crew'], users: ['Crew Planner', 'Pilot', 'Flight Attendant'], products: ['ECS', 'PBS'] }, 'bid-error': { desc: 'Errors detected in bid packages. Crew Planning corrects and re-publishes. Affected crew notified.', activities: ['Identify bid package errors', 'Correct pairing data', 'Re-publish corrected packages', 'Notify affected crew members', 'Extend bid window if needed'], users: ['Crew Planner'], products: ['PBS', 'CCI', 'ECS'] } }
+      states: { 'system-down': { desc: 'PBS or CCI offline during bid window. Bid deadline extended. Manual bid collection via phone/email.', activities: ['Extend bid deadline', 'Manual bid collection', 'IT escalation for system restore', 'Communication to all crew'], users: ['Crew Planner', 'Pilot', 'Flight Attendant'], products: ['ECS', 'PBS'] }, 'bid-error': { desc: 'Errors detected in bid packages. Crew Planning corrects and re-publishes. Affected crew notified.', activities: ['Identify bid package errors', 'Correct pairing data', 'Re-publish corrected packages', 'Notify affected crew members', 'Extend bid window if needed'], users: ['Crew Planner'], products: ['PBS', 'CCI', 'ECS'] } },
+      drilldown: {
+        workflows: [
+          { name: 'Bid Package Distribution', steps: ['Crew Planner publishes bid packages in PBS', 'CCI pushes bid packages to crew devices', 'Crew members review available lines and pairings', 'Standing bids applied automatically for returning crew', 'Crew submit ranked preferences before deadline'] }
+        ],
+        systems: [
+          { name: 'PBS', icon: 'event', desc: 'Preferential Bidding System for bid submission and processing', sends: ['Bid packages to CCI'], receives: ['Crew preferences from CCI'] },
+          { name: 'CCI', icon: 'smartphone', desc: 'Crew Check In app for bid review and submission', sends: ['Bid preferences to PBS'], receives: ['Bid packages from PBS'] }
+        ],
+        userActivities: [
+          { user: 'Pilot', activities: ['Pilot reviews available bid lines in CCI', 'Pilot submits ranked preferences before deadline', 'Pilot checks standing bid status'] },
+          { user: 'Flight Attendant', activities: ['Flight Attendant reviews bid packages in CCI', 'Flight Attendant submits lineholder or reserve preference', 'Flight Attendant reviews available pairings for the month'] }
+        ]
+      }
     },
     {
       title: 'Award Processing',
@@ -7985,7 +8142,19 @@ function toggleTheme() {
       activities: ['PBS engine runs award optimization', 'Seniority-based bid resolution', 'Award validation by Crew Planning', 'BVR reports generated', 'Unsuccessful bidders identified (UBL)'],
       users: ['Crew Planner'],
       products: ['PBS', 'AOS', 'BVR', 'UBL', 'FOS'],
-      states: {}
+      states: {},
+      drilldown: {
+        workflows: [
+          { name: 'PBS Award Optimization', steps: ['PBS engine ingests all crew bid submissions', 'Seniority-based optimization processes bids', 'Award assignments generated for each crew member', 'Crew Planner reviews and validates award results', 'BVR reports generated for audit', 'UBL produced for unsuccessful bidders'] }
+        ],
+        systems: [
+          { name: 'PBS', icon: 'event', desc: 'Preferential Bidding System — runs seniority-based award optimization', sends: ['Award results to FOS', 'Award notifications to CCI'], receives: ['All crew bid submissions'] },
+          { name: 'BVR', icon: 'assessment', desc: 'Bid Validation Report for award audit and compliance', sends: ['Validation reports to Crew Planning'], receives: ['Award data from PBS'] }
+        ],
+        userActivities: [
+          { user: 'Crew Planner', activities: ['Crew Planner monitors PBS optimization run', 'Crew Planner validates award results against BVR', 'Crew Planner reviews UBL for unassigned crew', 'Crew Planner approves awards for publication'] }
+        ]
+      }
     },
     {
       title: 'Schedule Distribution',
@@ -7993,7 +8162,20 @@ function toggleTheme() {
       activities: ['Awards published in CCI and Crew Portal', 'Lineholder/Reserve designations set (LRD)', 'DOTC process begins daily', 'MPS notifications sent to pilots', 'ROTA/ROTD reserve processing'],
       users: ['Crew Scheduler', 'Crew Tracker', 'Pilot', 'Flight Attendant'],
       products: ['CCI', 'ECS', 'MPS', 'LRD', 'ROTA', 'ROTD', 'FOS', 'CME'],
-      states: { 'delayed': { desc: 'Late schedule distribution. Crews check CCI repeatedly. Schedulers prioritize coverage gaps.', activities: ['Expedite schedule publication', 'Priority coverage for critical flights', 'Phone-based schedule notification', 'Monitor for coverage gaps'], users: ['Crew Scheduler', 'Crew Tracker'], products: ['CCI', 'ECS', 'FOS'] } }
+      states: { 'delayed': { desc: 'Late schedule distribution. Crews check CCI repeatedly. Schedulers prioritize coverage gaps.', activities: ['Expedite schedule publication', 'Priority coverage for critical flights', 'Phone-based schedule notification', 'Monitor for coverage gaps'], users: ['Crew Scheduler', 'Crew Tracker'], products: ['CCI', 'ECS', 'FOS'] } },
+      drilldown: {
+        workflows: [
+          { name: 'Award Publication Flow', steps: ['Awards pushed to CCI and Crew Portal', 'Lineholder and Reserve designations set via LRD', 'MPS sends schedule notifications to pilots', 'ROTA/ROTD processes reserve assignments', 'Crew Scheduler begins DOTC daily coverage process'] }
+        ],
+        systems: [
+          { name: 'CCI', icon: 'smartphone', desc: 'Crew Check In app for schedule viewing', sends: ['Acknowledgments to ECS'], receives: ['Award schedules from FOS', 'Notifications from MPS'] },
+          { name: 'MPS', icon: 'notifications', desc: 'Message Processing System for crew notifications', sends: ['Schedule notifications to pilots'], receives: ['Award data from FOS'] }
+        ],
+        userActivities: [
+          { user: 'Crew Scheduler', activities: ['Crew Scheduler publishes awards in CCI', 'Crew Scheduler begins DOTC daily operations', 'Crew Scheduler assigns reserves to uncovered trips', 'Crew Scheduler monitors coverage gaps'] },
+          { user: 'Crew Tracker', activities: ['Crew Tracker verifies crew acknowledgments', 'Crew Tracker updates crew positions in FOS', 'Crew Tracker coordinates reserve availability via ROTA'] }
+        ]
+      }
     },
     {
       title: 'Trip Trading & Adjustments',
@@ -8001,7 +8183,20 @@ function toggleTheme() {
       activities: ['Trip trades via ETB (FA) and TTS', 'Open time pickup opportunities', 'Vacation and personal day management', 'Schedule change notifications via MPS', 'Daily coverage adjustments by Scheduler'],
       users: ['Pilot', 'Flight Attendant', 'Crew Scheduler'],
       products: ['ETB', 'TTS', 'CCI', 'MPS', 'FOS', 'CME'],
-      states: {}
+      states: {},
+      drilldown: {
+        workflows: [
+          { name: 'Trip Trade Process', steps: ['Crew member browses ETB or TTS for trade opportunities', 'Crew member selects desired trip and submits trade request', 'System validates FAR 117 compliance for trade', 'Trade approved or denied based on legality check', 'Updated schedule reflected in CCI'] }
+        ],
+        systems: [
+          { name: 'ETB', icon: 'swap_horiz', desc: 'Electronic Trade Board for FA trip trading', sends: ['Trade requests to FOS', 'Updated schedules to CCI'], receives: ['Available trades from FOS'] },
+          { name: 'TTS', icon: 'swap_horiz', desc: 'Trip Trade System for pilot trip exchanges', sends: ['Trade requests to FOS'], receives: ['Open trip data from FOS'] }
+        ],
+        userActivities: [
+          { user: 'Pilot', activities: ['Pilot browses TTS for trade opportunities', 'Pilot submits trip trade request', 'Pilot picks up open time for additional pay', 'Pilot monitors MPS for schedule change notifications'] },
+          { user: 'Flight Attendant', activities: ['Flight Attendant browses ETB for available trades', 'Flight Attendant submits trade request via ETB', 'Flight Attendant picks up open time trips', 'Flight Attendant manages vacation and personal days'] }
+        ]
+      }
     }
   ];
 
@@ -8012,7 +8207,19 @@ function toggleTheme() {
       activities: ['Review crew qualification expiration dates', 'Identify CQT cycle requirements', 'Coordinate with FAA regulatory calendar', 'Assess fleet type rating needs', 'Plan training capacity'],
       users: ['Training Schedulers'],
       products: ['MINT', 'CPOP', 'FOS'],
-      states: {}
+      states: {},
+      drilldown: {
+        workflows: [
+          { name: 'Qualification Review Process', steps: ['Training Scheduler pulls crew qualification records from MINT', 'Expiration dates cross-referenced with CQT cycle calendar', 'FAA regulatory mandates checked for upcoming requirements', 'Fleet type rating needs assessed against fleet plan', 'Training capacity plan built for upcoming quarter'] }
+        ],
+        systems: [
+          { name: 'MINT', icon: 'school', desc: 'Management of Integrated Training — pilot training records and scheduling', sends: ['Training requirements to CPOP', 'Qualification data to FOS'], receives: ['Crew records from FOS'] },
+          { name: 'CPOP', icon: 'calendar_month', desc: 'Check Pilot Operations Portal for training coordination', sends: ['Training calendar to MINT'], receives: ['Instructor availability from MARFFLE'] }
+        ],
+        userActivities: [
+          { user: 'Training Schedulers', activities: ['Training Scheduler reviews crew qualification expiration dates in MINT', 'Training Scheduler identifies upcoming CQT cycle requirements', 'Training Scheduler coordinates with FAA regulatory calendar', 'Training Scheduler plans training capacity for the quarter'] }
+        ]
+      }
     },
     {
       title: 'Training Slot Creation',
@@ -8020,7 +8227,19 @@ function toggleTheme() {
       activities: ['Build training slots in TSS/MINT', 'Coordinate simulator availability', 'Check instructor availability (MARFFLE)', 'Assign instructors by seniority (Equalization Report)', 'Publish training calendar'],
       users: ['Training Schedulers'],
       products: ['TSS', 'MINT', 'MARFFLE', 'Equalization Report', 'CPOP'],
-      states: {}
+      states: {},
+      drilldown: {
+        workflows: [
+          { name: 'Training Slot Build', steps: ['Training Scheduler creates slots in TSS for FA training', 'Training Scheduler creates slots in MINT for pilot training', 'Simulator availability coordinated with training center', 'Instructor availability checked via MARFFLE', 'Instructors assigned by seniority using Equalization Report', 'Training calendar published in CPOP'] }
+        ],
+        systems: [
+          { name: 'TSS', icon: 'event_available', desc: 'Training Scheduling System for FA training slot management', sends: ['Training slots to CCI', 'Slot data to CPOP'], receives: ['FA qualification data from FOS'] },
+          { name: 'MARFFLE', icon: 'person_search', desc: 'Instructor availability and assignment tracking system', sends: ['Instructor assignments to MINT'], receives: ['Instructor seniority data from Equalization Report'] }
+        ],
+        userActivities: [
+          { user: 'Training Schedulers', activities: ['Training Scheduler builds training slots in TSS and MINT', 'Training Scheduler coordinates simulator availability', 'Training Scheduler checks instructor availability via MARFFLE', 'Training Scheduler assigns instructors using Equalization Report'] }
+        ]
+      }
     },
     {
       title: 'Training Bidding',
@@ -8028,7 +8247,20 @@ function toggleTheme() {
       activities: ['Training bid packages published', 'CKP/IP bid on overtime events (CTP)', 'FCTI/SimP availability checked (MARFFLE)', 'Bids processed by seniority', 'Awards posted in CPOP'],
       users: ['Training Schedulers', 'Check Pilots & Instructor Pilots', 'FCTI & Sim Pilots'],
       products: ['CTP', 'CPOP', 'MARFFLE', 'Equalization Report', 'TBS'],
-      states: {}
+      states: {},
+      drilldown: {
+        workflows: [
+          { name: 'CTP Overtime Bidding', steps: ['Training bid packages published in CPOP', 'CTP Overtime Proffer opens during 11am-2pm window', 'Check Pilots and Instructor Pilots submit overtime bids', 'FCTI and Sim Pilot availability verified via MARFFLE', 'Bids processed by seniority', 'Awards posted in CPOP and TBS'] }
+        ],
+        systems: [
+          { name: 'CTP', icon: 'how_to_reg', desc: 'Check Training Pilot overtime proffer system', sends: ['Overtime bids to CPOP', 'Award data to MINT'], receives: ['Available training events from CPOP'] },
+          { name: 'CPOP', icon: 'calendar_month', desc: 'Check Pilot Operations Portal for training event management', sends: ['Training awards to MINT'], receives: ['Overtime bids from CTP', 'Instructor data from MARFFLE'] }
+        ],
+        userActivities: [
+          { user: 'Check Pilots & Instructor Pilots', activities: ['Check Pilot reviews available overtime training events', 'Instructor Pilot submits bid during CTP window', 'Check Pilot checks award results in CPOP'] },
+          { user: 'Training Schedulers', activities: ['Training Scheduler publishes training bid packages', 'Training Scheduler monitors bid submission rates', 'Training Scheduler validates award assignments', 'Training Scheduler fills remaining gaps with FCTI/SimP'] }
+        ]
+      }
     },
     {
       title: 'Training Execution',
@@ -8036,7 +8268,21 @@ function toggleTheme() {
       activities: ['Classroom instruction sessions', 'Full-flight simulator sessions', 'Line check observations', 'Evaluation and proficiency checks', 'Training completion recorded'],
       users: ['Pilot', 'Flight Attendant', 'Check Pilots & Instructor Pilots', 'FCTI & Sim Pilots'],
       products: ['MINT', 'Comply 365', 'CPOP'],
-      states: {}
+      states: {},
+      drilldown: {
+        workflows: [
+          { name: 'Simulator Training Session', steps: ['Crew member reports to training center', 'Instructor briefs crew on session objectives', 'Full-flight simulator session conducted', 'Instructor evaluates performance and proficiency', 'Training completion recorded in MINT'] },
+          { name: 'Line Check Process', steps: ['Check Pilot assigned to observe crew on revenue flight', 'Check Pilot observes normal operations procedures', 'Proficiency evaluated against standards', 'Completion or remediation determined', 'Results recorded in MINT and CPOP'] }
+        ],
+        systems: [
+          { name: 'MINT', icon: 'school', desc: 'Training records system for completion tracking', sends: ['Completion data to FOS', 'Training records to CPOP'], receives: ['Instructor evaluations'] },
+          { name: 'Comply 365', icon: 'menu_book', desc: 'Electronic flight bag with training reference materials', sends: ['Training document access logs to MINT'], receives: ['Updated procedures and manuals'] }
+        ],
+        userActivities: [
+          { user: 'Pilot', activities: ['Pilot attends full-flight simulator session', 'Pilot completes proficiency check with instructor', 'Pilot reviews training materials in Comply 365'] },
+          { user: 'Check Pilots & Instructor Pilots', activities: ['Instructor conducts simulator training session', 'Check Pilot performs line check observation', 'Instructor records evaluation results in MINT', 'Instructor provides debrief and feedback to trainee'] }
+        ]
+      }
     },
     {
       title: 'Certification & Records',
@@ -8044,7 +8290,20 @@ function toggleTheme() {
       activities: ['Update qualification records in FOS', 'Issue completion certificates', 'Calculate next recurrent training date', 'Update QLA status for scheduling', 'Report to FAA as required'],
       users: ['Training Schedulers', 'Crew Planner'],
       products: ['FOS', 'MINT', 'CPOP', 'CCI'],
-      states: {}
+      states: {},
+      drilldown: {
+        workflows: [
+          { name: 'Certification Update Process', steps: ['Training completion verified by instructor', 'Qualification records updated in FOS', 'Completion certificate issued to crew member', 'Next recurrent training date calculated', 'QLA status updated for scheduling eligibility'] }
+        ],
+        systems: [
+          { name: 'FOS', icon: 'dns', desc: 'Flight Operating System — master crew qualification records', sends: ['Qualification data to PBS', 'QLA status to ECS'], receives: ['Training completion data from MINT'] },
+          { name: 'MINT', icon: 'school', desc: 'Training records system for certification management', sends: ['Completion records to FOS', 'Certificate data to CPOP'], receives: ['Evaluation results from instructors'] }
+        ],
+        userActivities: [
+          { user: 'Training Schedulers', activities: ['Training Scheduler updates qualification records in FOS', 'Training Scheduler issues completion certificates', 'Training Scheduler calculates next recurrent training date', 'Training Scheduler reports completions to FAA as required'] },
+          { user: 'Crew Planner', activities: ['Crew Planner verifies updated QLA status for scheduling', 'Crew Planner confirms crew member eligible for line flying', 'Crew Planner adjusts bid eligibility based on new qualifications'] }
+        ]
+      }
     }
   ];
 
@@ -8256,7 +8515,18 @@ function toggleTheme() {
       activities: ['Search and select flights', 'Create passenger name record (PNR)', 'Select seats and preferences', 'Process payment', 'Confirmation and itinerary sent'],
       users: ['Gate Agent'],
       products: ['Sabre PSS'],
-      states: {}
+      states: {},
+      drilldown: {
+        workflows: [
+          { name: 'PNR Creation Flow', steps: ['Passenger searches available flights on aa.com or mobile app', 'Passenger selects outbound and return flights', 'Passenger enters traveler details and preferences', 'Payment processed and PNR created in Sabre PSS', 'Confirmation email and itinerary sent to passenger'] }
+        ],
+        systems: [
+          { name: 'Sabre PSS', icon: 'computer', desc: 'Passenger Service System for reservations and ticketing', sends: ['PNR data to check-in systems', 'Manifest data to gate operations'], receives: ['Booking requests from aa.com and travel agents'] }
+        ],
+        userActivities: [
+          { user: 'Gate Agent', activities: ['Gate Agent assists passengers with booking changes', 'Gate Agent processes upgrades and seat reassignments', 'Gate Agent handles special service requests in Sabre PSS'] }
+        ]
+      }
     },
     {
       title: 'Check-in',
@@ -8264,7 +8534,19 @@ function toggleTheme() {
       activities: ['Online/mobile check-in (24hr prior)', 'Self-service kiosk bag tag printing', 'Ticket agent check-in and bag scan', 'Bag placed on conveyor belt', 'Boarding pass issued'],
       users: ['Ticket Agent'],
       products: ['Sabre PSS', 'CCI', 'TrackScan'],
-      states: {}
+      states: {},
+      drilldown: {
+        workflows: [
+          { name: 'Airport Check-in Process', steps: ['Passenger arrives at terminal and approaches kiosk', 'Passenger prints bag tag at self-service kiosk', 'Passenger proceeds to ticket counter with tagged bag', 'Ticket Agent scans bag tag with TrackScan', 'Bag placed on conveyor belt for BHS induction', 'Boarding pass issued to passenger'] }
+        ],
+        systems: [
+          { name: 'Sabre PSS', icon: 'computer', desc: 'Passenger Service System for check-in processing', sends: ['Check-in data to gate systems', 'Bag tag data to TrackScan'], receives: ['PNR data from booking'] },
+          { name: 'TrackScan', icon: 'qr_code_scanner', desc: 'Bag scanning system for check-in bag tracking', sends: ['Scan events to BMS'], receives: ['Bag tag data from Sabre PSS'] }
+        ],
+        userActivities: [
+          { user: 'Ticket Agent', activities: ['Ticket Agent processes passenger check-in at counter', 'Ticket Agent scans checked bags with TrackScan', 'Ticket Agent places bags on conveyor belt', 'Ticket Agent issues boarding pass to passenger'] }
+        ]
+      }
     },
     {
       title: 'Security & Terminal',
@@ -8272,7 +8554,18 @@ function toggleTheme() {
       activities: ['TSA security screening', 'Navigate to departure gate', 'Monitor flight status displays', 'Use Admirals Club or lounges', 'Respond to gate change notifications'],
       users: [],
       products: [],
-      states: {}
+      states: {},
+      drilldown: {
+        workflows: [
+          { name: 'Terminal Navigation Flow', steps: ['Passenger enters TSA security screening checkpoint', 'Passenger presents boarding pass and identification', 'Passenger proceeds through screening equipment', 'Passenger navigates terminal to departure gate', 'Passenger monitors flight information displays for updates'] }
+        ],
+        systems: [
+          { name: 'Sabre PSS', icon: 'computer', desc: 'Passenger Service System for flight status and gate info', sends: ['Gate assignments to FIDS displays'], receives: ['Gate change updates from operations'] }
+        ],
+        userActivities: [
+          { user: 'Gate Agent', activities: ['Gate Agent updates gate assignment in system', 'Gate Agent makes announcements for gate changes', 'Gate Agent assists passengers with connection information'] }
+        ]
+      }
     },
     {
       title: 'Gate & Boarding',
@@ -8280,7 +8573,20 @@ function toggleTheme() {
       activities: ['Gate Bag Check: oversized carry-ons checked at gate (Bag Journey 2)', 'Pre-boarding announcements', 'Group-based boarding process', 'Boarding pass scan at gate', 'Jet bridge to aircraft', 'Overhead bin and seat assignment'],
       users: ['Gate Agent', 'Flight Attendant'],
       products: ['Sabre PSS', 'TrackScan'],
-      states: { 'delayed': { desc: 'Boarding delayed due to late aircraft, crew, or operational issues. Gate agent communicates updates.', activities: ['Gate agent announces delay', 'Updated departure time communicated', 'Rebooking for tight connections', 'Monitor for crew arrival'], users: ['Gate Agent'], products: ['Sabre PSS', 'ECS'] } }
+      states: { 'delayed': { desc: 'Boarding delayed due to late aircraft, crew, or operational issues. Gate agent communicates updates.', activities: ['Gate agent announces delay', 'Updated departure time communicated', 'Rebooking for tight connections', 'Monitor for crew arrival'], users: ['Gate Agent'], products: ['Sabre PSS', 'ECS'] } },
+      drilldown: {
+        workflows: [
+          { name: 'Boarding Process', steps: ['Gate Agent makes pre-boarding announcement', 'Pre-board passengers with special needs and first class', 'Group-based boarding announced sequentially', 'Passengers scan boarding pass at gate reader', 'Passengers proceed down jet bridge to aircraft', 'Flight Attendant greets passengers at aircraft door'] }
+        ],
+        systems: [
+          { name: 'Sabre PSS', icon: 'computer', desc: 'Passenger Service System for boarding pass scanning and manifest', sends: ['Boarding count to flight deck', 'Manifest data to operations'], receives: ['Boarding scan data from gate reader'] },
+          { name: 'TrackScan', icon: 'qr_code_scanner', desc: 'Gate bag check scanning for oversized carry-ons', sends: ['Gate check scan to BMS'], receives: ['Bag routing data from BMS'] }
+        ],
+        userActivities: [
+          { user: 'Gate Agent', activities: ['Gate Agent manages group-based boarding process', 'Gate Agent handles gate bag checks for oversized carry-ons', 'Gate Agent scans boarding passes at gate reader', 'Gate Agent resolves seat conflicts and standby passengers'] },
+          { user: 'Flight Attendant', activities: ['Flight Attendant greets passengers at aircraft door', 'Flight Attendant assists with overhead bin storage', 'Flight Attendant confirms headcount for Captain'] }
+        ]
+      }
     },
     {
       title: 'In-Flight Experience',
@@ -8288,7 +8594,19 @@ function toggleTheme() {
       activities: ['Safety demonstration', 'Meal and beverage service', 'In-flight entertainment', 'Cabin comfort management', 'Special needs accommodation'],
       users: ['Flight Attendant', 'Pilot'],
       products: ['CCI', 'Aircraft FMS'],
-      states: {}
+      states: {},
+      drilldown: {
+        workflows: [
+          { name: 'Cabin Service Flow', steps: ['Flight Attendant conducts safety demonstration', 'Beverage service begins after seatbelt sign off', 'Meal service conducted on longer flights', 'In-flight entertainment system available to passengers', 'Flight Attendant performs cabin walkthroughs', 'Cabin prepared for arrival and landing'] }
+        ],
+        systems: [
+          { name: 'Aircraft FMS', icon: 'flight', desc: 'Flight Management System providing flight status to cabin', sends: ['Flight status to cabin displays'], receives: ['Route and altitude data from navigation'] }
+        ],
+        userActivities: [
+          { user: 'Flight Attendant', activities: ['Flight Attendant conducts safety demonstration', 'Flight Attendant manages meal and beverage service', 'Flight Attendant handles special needs and accommodation', 'Flight Attendant performs cabin safety walkthroughs'] },
+          { user: 'Pilot', activities: ['Pilot provides PA announcements to passengers', 'Pilot activates seatbelt sign for turbulence', 'Pilot coordinates cabin status with lead FA'] }
+        ]
+      }
     },
     {
       title: 'Arrival & Deplaning',
@@ -8296,7 +8614,19 @@ function toggleTheme() {
       activities: ['Aircraft taxis to gate', 'Jet bridge positioned', 'Passengers deplane', 'Connection guidance provided', 'Wheelchair and special assistance'],
       users: ['Flight Attendant', 'Gate Agent'],
       products: [],
-      states: {}
+      states: {},
+      drilldown: {
+        workflows: [
+          { name: 'Deplaning Process', steps: ['Aircraft taxis to assigned gate', 'Gate crew positions jet bridge at aircraft door', 'Flight Attendant opens door and disarms slides', 'Passengers deplane via jet bridge', 'Gate Agent provides connection guidance at gate', 'Wheelchair and special assistance coordinated'] }
+        ],
+        systems: [
+          { name: 'Sabre PSS', icon: 'computer', desc: 'Passenger Service System for connection rebooking', sends: ['Connection info to gate displays'], receives: ['Arrival status from operations'] }
+        ],
+        userActivities: [
+          { user: 'Flight Attendant', activities: ['Flight Attendant opens aircraft door for deplaning', 'Flight Attendant assists passengers with carry-on retrieval', 'Flight Attendant provides connection gate information'] },
+          { user: 'Gate Agent', activities: ['Gate Agent meets arriving flight at gate', 'Gate Agent assists passengers with tight connections', 'Gate Agent arranges wheelchair and special assistance'] }
+        ]
+      }
     },
     {
       title: 'Baggage Claim & Exit',
@@ -8304,7 +8634,19 @@ function toggleTheme() {
       activities: ['Proceed to baggage claim area', 'Retrieve checked bags from designated carousel', 'Report missing or damaged bags to Bag Clerk', 'BMAS traces mishandled bags across the network', 'Customs and immigration (international flights)', 'Ground transportation to final destination'],
       users: ['Bag Clerk'],
       products: ['BMAS', 'TrackScan'],
-      states: {}
+      states: {},
+      drilldown: {
+        workflows: [
+          { name: 'Baggage Claim & Tracing', steps: ['Bags routed through BHS to designated carousel', 'Passengers retrieve checked bags at carousel', 'Passenger reports missing bag to Bag Clerk', 'Bag Clerk traces bag via BMAS across the network', 'Delivery arrangements made for located bag'] }
+        ],
+        systems: [
+          { name: 'BMAS', icon: 'search', desc: 'Baggage Management and Tracing System for mishandled bags', sends: ['Trace requests across network', 'Delivery orders to courier'], receives: ['Bag scan history from TrackScan'] },
+          { name: 'TrackScan', icon: 'qr_code_scanner', desc: 'Bag scanning for carousel delivery confirmation', sends: ['Delivery scan events to BMAS'], receives: ['Bag routing data from BMS'] }
+        ],
+        userActivities: [
+          { user: 'Bag Clerk', activities: ['Bag Clerk monitors carousel delivery at baggage claim', 'Bag Clerk assists passengers with missing bag reports', 'Bag Clerk traces mishandled bags in BMAS', 'Bag Clerk arranges bag delivery to passenger address'] }
+        ]
+      }
     }
   ];
 
@@ -8315,7 +8657,19 @@ function toggleTheme() {
       activities: ['Pilots file maintenance write-ups (EAML)', 'Review existing MEL items', 'Maintenance team dispatched to aircraft', 'Assess aircraft service status', 'Determine turnaround scope'],
       users: ['Pilot'],
       products: ['EAML', 'Comply 365', 'FOS'],
-      states: { 'mechanical': { desc: 'Significant maintenance issue discovered. Aircraft may go out of service pending repair.', activities: ['Detailed inspection initiated', 'Parts availability checked', 'Aircraft may go OOS', 'Swap aircraft coordinated', 'Crew reassignment if needed'], users: ['Pilot', 'Crew Tracker'], products: ['EAML', 'FOS', 'ECS'] } }
+      states: { 'mechanical': { desc: 'Significant maintenance issue discovered. Aircraft may go out of service pending repair.', activities: ['Detailed inspection initiated', 'Parts availability checked', 'Aircraft may go OOS', 'Swap aircraft coordinated', 'Crew reassignment if needed'], users: ['Pilot', 'Crew Tracker'], products: ['EAML', 'FOS', 'ECS'] } },
+      drilldown: {
+        workflows: [
+          { name: 'EAML Review Process', steps: ['Pilot files maintenance write-ups in EAML after landing', 'Maintenance team reviews incoming write-ups', 'Existing MEL items checked in Comply 365', 'Aircraft service status assessed', 'Turnaround scope determined and work assigned'] }
+        ],
+        systems: [
+          { name: 'EAML', icon: 'build', desc: 'Electronic Aircraft Maintenance Log for pilot discrepancy reporting', sends: ['Write-up data to Comply 365', 'Maintenance items to FOS'], receives: ['Aircraft history from FOS'] },
+          { name: 'Comply 365', icon: 'menu_book', desc: 'Electronic flight bag with MEL reference database', sends: ['MEL status to EAML'], receives: ['Aircraft config data from FOS'] }
+        ],
+        userActivities: [
+          { user: 'Pilot', activities: ['Pilot files maintenance write-ups in EAML', 'Pilot reviews existing MEL items in Comply 365', 'Pilot communicates discrepancies to maintenance team', 'Pilot confirms aircraft status for next flight'] }
+        ]
+      }
     },
     {
       title: 'Cabin Turnaround',
@@ -8323,7 +8677,18 @@ function toggleTheme() {
       activities: ['Trash removal and cleaning', 'Seat pocket restocking', 'Lavatory servicing', 'Blanket and pillow replacement', 'Cabin inspection'],
       users: [],
       products: [],
-      states: { 'delayed': { desc: 'Cleaning crew delayed. Abbreviated turnaround procedures enacted.', activities: ['Expedited cleaning protocol', 'Priority areas only', 'Notify gate of delay', 'Adjust departure time if needed'], users: [], products: [] } }
+      states: { 'delayed': { desc: 'Cleaning crew delayed. Abbreviated turnaround procedures enacted.', activities: ['Expedited cleaning protocol', 'Priority areas only', 'Notify gate of delay', 'Adjust departure time if needed'], users: [], products: [] } },
+      drilldown: {
+        workflows: [
+          { name: 'Cabin Cleaning Process', steps: ['Cleaning crew boards aircraft after passengers deplane', 'Trash collected and removed from all rows', 'Seat pockets restocked with safety cards and magazines', 'Lavatories serviced and restocked', 'Blankets and pillows replaced for next flight', 'Cabin inspection completed by lead cleaner'] }
+        ],
+        systems: [
+          { name: 'FOS', icon: 'dns', desc: 'Flight Operating System for turnaround time tracking', sends: ['Turnaround status to gate operations'], receives: ['Aircraft arrival data from operations'] }
+        ],
+        userActivities: [
+          { user: 'Gate Crew', activities: ['Gate Crew coordinates cleaning crew arrival at aircraft', 'Gate Crew monitors turnaround progress', 'Gate Crew reports cleaning completion to gate agent'] }
+        ]
+      }
     },
     {
       title: 'Catering',
@@ -8331,7 +8696,18 @@ function toggleTheme() {
       activities: ['Catering truck arrives at aircraft', 'Load galleys with meals and beverages', 'Verify special meal orders', 'Restock beverage carts', 'FA confirms catering complete'],
       users: ['Flight Attendant'],
       products: [],
-      states: { 'catering': { desc: 'Catering truck delayed or incorrect order. FA adjusts service plan.', activities: ['Contact catering vendor', 'Adjust in-flight service plan', 'Substitute available items', 'Notify passengers of changes'], users: ['Flight Attendant'], products: [] } }
+      states: { 'catering': { desc: 'Catering truck delayed or incorrect order. FA adjusts service plan.', activities: ['Contact catering vendor', 'Adjust in-flight service plan', 'Substitute available items', 'Notify passengers of changes'], users: ['Flight Attendant'], products: [] } },
+      drilldown: {
+        workflows: [
+          { name: 'Galley Loading Process', steps: ['Catering truck arrives at aircraft with provisioned carts', 'Catering crew loads galleys with meals and beverages', 'Special meal orders verified against manifest', 'Beverage carts restocked and positioned', 'Flight Attendant verifies catering count and quality'] }
+        ],
+        systems: [
+          { name: 'Sabre PSS', icon: 'computer', desc: 'Passenger Service System for special meal manifest data', sends: ['Special meal orders to catering vendor'], receives: ['Passenger meal preferences from booking'] }
+        ],
+        userActivities: [
+          { user: 'Flight Attendant', activities: ['Flight Attendant verifies catering delivery against manifest', 'Flight Attendant checks special meal orders are present', 'Flight Attendant confirms galley stowage is complete', 'Flight Attendant adjusts service plan if items are missing'] }
+        ]
+      }
     },
     {
       title: 'Fueling',
@@ -8339,7 +8715,19 @@ function toggleTheme() {
       activities: ['Fuel truck arrives and connects', 'Fuel loaded per dispatch calculation', 'Pilots verify fuel quantity', 'Fuel receipt documentation', 'Disconnect and safety check'],
       users: ['Pilot'],
       products: ['FDPro', 'Aircraft FMS'],
-      states: {}
+      states: {},
+      drilldown: {
+        workflows: [
+          { name: 'Aircraft Fueling Process', steps: ['Fuel truck arrives and connects to aircraft fuel ports', 'Fuel quantity calculated by dispatch based on flight plan', 'Fuel loaded per dispatch calculation', 'Pilots verify fuel quantity on Aircraft FMS matches plan', 'Fuel receipt documented and signed off', 'Fuel truck disconnects and safety check performed'] }
+        ],
+        systems: [
+          { name: 'FDPro', icon: 'flight', desc: 'Flight dispatch tool with fuel calculation data', sends: ['Fuel requirements to fueling crew'], receives: ['Fuel load confirmation from aircraft'] },
+          { name: 'Aircraft FMS', icon: 'flight', desc: 'Flight Management System for fuel quantity verification', sends: ['Fuel state data to ACARS'], receives: ['Fuel load data from fueling operation'] }
+        ],
+        userActivities: [
+          { user: 'Pilot', activities: ['Pilot reviews dispatch fuel calculation in FDPro', 'Pilot verifies fuel quantity on Aircraft FMS', 'Pilot requests additional fuel if needed for weather', 'Pilot signs off on fuel receipt documentation'] }
+        ]
+      }
     },
     {
       title: 'Maintenance Checks',
@@ -8347,7 +8735,19 @@ function toggleTheme() {
       activities: ['Perform scheduled maintenance checks', 'Address pilot write-ups from EAML', 'Defer items to MEL if allowed', 'Update maintenance records', 'Release aircraft for service'],
       users: [],
       products: ['EAML', 'Comply 365'],
-      states: { 'mechanical': { desc: 'Maintenance issue cannot be deferred. Extended ground time required for repair.', activities: ['Extended repair initiated', 'Parts ordered if not available', 'Estimated return to service calculated', 'Gate agent notified of delay', 'Passenger rebooking if cancelled'], users: ['Gate Agent'], products: ['EAML', 'Comply 365', 'Sabre PSS'] } }
+      states: { 'mechanical': { desc: 'Maintenance issue cannot be deferred. Extended ground time required for repair.', activities: ['Extended repair initiated', 'Parts ordered if not available', 'Estimated return to service calculated', 'Gate agent notified of delay', 'Passenger rebooking if cancelled'], users: ['Gate Agent'], products: ['EAML', 'Comply 365', 'Sabre PSS'] } },
+      drilldown: {
+        workflows: [
+          { name: 'Line Maintenance Check', steps: ['Maintenance team reviews EAML write-ups from arriving crew', 'Scheduled maintenance checks performed per aircraft program', 'Discrepancies addressed or deferred to MEL if allowed', 'Maintenance records updated in EAML', 'Aircraft released for service by maintenance controller'] }
+        ],
+        systems: [
+          { name: 'EAML', icon: 'build', desc: 'Electronic Aircraft Maintenance Log for work tracking', sends: ['Maintenance status to FOS', 'MEL deferrals to Comply 365'], receives: ['Pilot write-ups from flight crew'] },
+          { name: 'Comply 365', icon: 'menu_book', desc: 'MEL reference for deferral eligibility determination', sends: ['Deferral approvals to EAML'], receives: ['MEL lookup requests from maintenance'] }
+        ],
+        userActivities: [
+          { user: 'Pilot', activities: ['Pilot reviews maintenance status before accepting aircraft', 'Pilot verifies MEL deferrals are within dispatch limits', 'Pilot confirms aircraft release for next flight'] }
+        ]
+      }
     },
     {
       title: 'Dispatch Release',
@@ -8355,7 +8755,19 @@ function toggleTheme() {
       activities: ['Weather and route analysis (WSI)', 'Fuel calculation finalized', 'Maintenance release confirmed', 'Crew legality verified', 'Flight plan filed and released'],
       users: ['Pilot'],
       products: ['FDPro', 'WSI', 'ACARS', 'DECS', 'FOS'],
-      states: { 'weather': { desc: 'Weather conditions require route changes or fuel adjustments. Dispatch recalculates.', activities: ['Alternate routing analysis', 'Additional fuel calculated', 'Updated flight plan filed', 'Crew briefed on changes', 'ATC coordination'], users: ['Pilot'], products: ['WSI', 'FDPro', 'ACARS', 'DECS'] } }
+      states: { 'weather': { desc: 'Weather conditions require route changes or fuel adjustments. Dispatch recalculates.', activities: ['Alternate routing analysis', 'Additional fuel calculated', 'Updated flight plan filed', 'Crew briefed on changes', 'ATC coordination'], users: ['Pilot'], products: ['WSI', 'FDPro', 'ACARS', 'DECS'] } },
+      drilldown: {
+        workflows: [
+          { name: 'Flight Plan Filing & Release', steps: ['Dispatch analyzes weather and route options via WSI', 'Fuel calculation finalized based on route and conditions', 'Maintenance release confirmed from EAML', 'Crew legality verified in FOS', 'Flight plan filed via DECS', 'Aircraft released for departure'] }
+        ],
+        systems: [
+          { name: 'DECS', icon: 'send', desc: 'Dispatch and En-route Computer System for flight plan filing', sends: ['Flight plan to ATC', 'Release data to ACARS'], receives: ['Weather data from WSI', 'Crew legality from FOS'] },
+          { name: 'WSI', icon: 'cloud', desc: 'Weather Services International for route weather analysis', sends: ['Weather briefing to FDPro', 'Conditions data to DECS'], receives: ['Route requests from dispatch'] }
+        ],
+        userActivities: [
+          { user: 'Pilot', activities: ['Pilot reviews final flight plan in FDPro', 'Pilot verifies fuel load meets dispatch calculation', 'Pilot confirms maintenance release is complete', 'Pilot accepts dispatch release via ACARS'] }
+        ]
+      }
     }
   ];
 
@@ -8366,7 +8778,20 @@ function toggleTheme() {
       activities: ['Review monthly bid results', 'Check awarded trips and days off', 'Compare to standing bid preferences', 'Identify conflict with personal plans', 'Plan commute schedule accordingly'],
       users: ['Pilot', 'Flight Attendant'],
       products: ['PBS', 'CCI', 'Crew Portal'],
-      states: {}
+      states: {},
+      drilldown: {
+        workflows: [
+          { name: 'Monthly Schedule Review', steps: ['Crew member opens CCI to view award results', 'Crew member compares awarded lines to standing bid preferences', 'Crew member identifies days off and trip patterns', 'Crew member checks for conflicts with personal plans', 'Crew member plans commute schedule for the month'] }
+        ],
+        systems: [
+          { name: 'PBS', icon: 'event', desc: 'Preferential Bidding System for monthly schedule awards', sends: ['Award results to CCI', 'Schedule data to FOS'], receives: ['Crew bid preferences'] },
+          { name: 'CCI', icon: 'smartphone', desc: 'Crew Check In app for viewing awarded schedule', sends: ['Schedule acknowledgment to FOS'], receives: ['Award results from PBS'] }
+        ],
+        userActivities: [
+          { user: 'Pilot', activities: ['Pilot reviews monthly award results in CCI', 'Pilot compares award to standing bid preferences', 'Pilot identifies trip patterns and days off', 'Pilot plans commute schedule for month'] },
+          { user: 'Flight Attendant', activities: ['Flight Attendant reviews monthly award in CCI', 'Flight Attendant checks ETB for early trade opportunities', 'Flight Attendant plans personal schedule around awarded trips'] }
+        ]
+      }
     },
     {
       title: 'Commuting to Base',
@@ -8374,7 +8799,19 @@ function toggleTheme() {
       activities: ['Check jumpseat availability', 'Travel to base city (non-rev or personal)', 'Arrive at base station', 'Check in at crew room or hotel', 'Prepare for first trip of sequence'],
       users: ['Pilot', 'Flight Attendant'],
       products: ['CCI'],
-      states: { 'delayed': { desc: 'Commute flight delayed or cancelled. Crew member may miss trip. Must contact Crew Tracker.', activities: ['Contact Crew Tracker via ECS', 'Attempt alternate transportation', 'Reserve crew may be activated', 'Duty time clock considerations', 'Hotel/rest arrangements if needed'], users: ['Pilot', 'Flight Attendant', 'Crew Tracker'], products: ['ECS', 'CCI', 'FOS'] } }
+      states: { 'delayed': { desc: 'Commute flight delayed or cancelled. Crew member may miss trip. Must contact Crew Tracker.', activities: ['Contact Crew Tracker via ECS', 'Attempt alternate transportation', 'Reserve crew may be activated', 'Duty time clock considerations', 'Hotel/rest arrangements if needed'], users: ['Pilot', 'Flight Attendant', 'Crew Tracker'], products: ['ECS', 'CCI', 'FOS'] } },
+      drilldown: {
+        workflows: [
+          { name: 'Commute Travel Process', steps: ['Crew member checks jumpseat availability for commute flight', 'Crew member travels to base city via non-rev or personal ticket', 'Crew member arrives at base station airport', 'Crew member checks in at crew room or airport hotel', 'Crew member prepares for first trip of the sequence'] }
+        ],
+        systems: [
+          { name: 'CCI', icon: 'smartphone', desc: 'Crew Check In app for jumpseat availability and trip details', sends: ['Check-in status to FOS'], receives: ['Trip details from FOS', 'Jumpseat availability data'] }
+        ],
+        userActivities: [
+          { user: 'Pilot', activities: ['Pilot checks jumpseat availability for commute', 'Pilot travels to base city via non-rev', 'Pilot checks in at crew room before trip', 'Pilot contacts Crew Tracker if commute is delayed'] },
+          { user: 'Flight Attendant', activities: ['Flight Attendant checks jumpseat availability', 'Flight Attendant arrives at base station', 'Flight Attendant checks in via CCI', 'Flight Attendant contacts Crew Tracker if running late'] }
+        ]
+      }
     },
     {
       title: 'Reserve Duty',
@@ -8382,7 +8819,20 @@ function toggleTheme() {
       activities: ['Monitor phone during RAP window', 'Stay within report-time distance', 'Receive assignment via ECS/phone', 'Report to airport when called', 'TARS tracks accrued reserve time'],
       users: ['Pilot', 'Flight Attendant', 'Crew Scheduler'],
       products: ['ECS', 'CCI', 'ROTA', 'ROTD', 'TARS', 'FOS'],
-      states: {}
+      states: {},
+      drilldown: {
+        workflows: [
+          { name: 'Reserve Activation Process', steps: ['Reserve crew member monitors phone during RAP window', 'Crew Scheduler identifies open trip needing coverage', 'Crew Scheduler calls reserve via ECS or phone', 'Reserve crew member acknowledges and reports to airport', 'TARS tracks accrued reserve time for pay'] }
+        ],
+        systems: [
+          { name: 'ROTA', icon: 'person_pin', desc: 'Reserve On-Time Availability tracking for reserve pilots', sends: ['Reserve status to ECS', 'Availability data to FOS'], receives: ['Assignment requests from Crew Scheduler'] },
+          { name: 'TARS', icon: 'timer', desc: 'Time Accrual and Reporting System for reserve pay tracking', sends: ['Accrued time reports to payroll'], receives: ['Reserve duty periods from ROTA'] }
+        ],
+        userActivities: [
+          { user: 'Pilot', activities: ['Pilot monitors phone during RAP window', 'Pilot stays within report-time distance of airport', 'Pilot receives assignment via ECS phone call', 'Pilot reports to airport when called for duty'] },
+          { user: 'Crew Scheduler', activities: ['Crew Scheduler identifies open trips needing reserve coverage', 'Crew Scheduler selects reserve by availability and seniority', 'Crew Scheduler contacts reserve crew via ECS', 'Crew Scheduler confirms assignment acceptance'] }
+        ]
+      }
     },
     {
       title: 'Overnight Layovers',
@@ -8390,7 +8840,20 @@ function toggleTheme() {
       activities: ['Hotel/limo request submitted via ECS', 'Hotel booking confirmed', 'Van/limo to hotel arranged', 'Crew rest period begins', 'Van/limo back to airport for next leg'],
       users: ['Pilot', 'Flight Attendant', 'Hotel/Limo Coordinator'],
       products: ['ECS', 'CME'],
-      states: {}
+      states: {},
+      drilldown: {
+        workflows: [
+          { name: 'Hotel & Limo Coordination', steps: ['Crew arrives at outstation after final leg of the day', 'Hotel/Limo Coordinator submits hotel request via ECS', 'Hotel booking confirmed at contracted property', 'Van or limo arranged for airport-to-hotel transport', 'Crew rest period begins at hotel', 'Van or limo picks up crew for next day departure'] }
+        ],
+        systems: [
+          { name: 'ECS', icon: 'support_agent', desc: 'Enterprise Crew Scheduling for hotel and limo requests', sends: ['Hotel requests to CME', 'Limo requests to ground transport'], receives: ['Crew layover data from FOS'] },
+          { name: 'CME', icon: 'hotel', desc: 'Crew Management Engine for hotel booking coordination', sends: ['Booking confirmations to ECS'], receives: ['Hotel requests from ECS'] }
+        ],
+        userActivities: [
+          { user: 'Pilot', activities: ['Pilot arrives at outstation and awaits hotel transport', 'Pilot checks into contracted hotel property', 'Pilot rests during mandatory crew rest period', 'Pilot takes van or limo back to airport for next leg'] },
+          { user: 'Hotel/Limo Coordinator', activities: ['Hotel/Limo Coordinator books hotel room via CME', 'Hotel/Limo Coordinator arranges ground transport', 'Hotel/Limo Coordinator handles room issues or changes', 'Hotel/Limo Coordinator confirms pickup time for next day'] }
+        ]
+      }
     },
     {
       title: 'Trip Trading & Schedule Management',
@@ -8398,7 +8861,20 @@ function toggleTheme() {
       activities: ['Browse ETB/TTS for trade opportunities', 'Submit trip trade requests', 'Pick up open time for additional pay', 'Use vacation and personal days', 'Monitor MPS for schedule changes'],
       users: ['Pilot', 'Flight Attendant'],
       products: ['ETB', 'TTS', 'CCI', 'MPS', 'FOS'],
-      states: {}
+      states: {},
+      drilldown: {
+        workflows: [
+          { name: 'Trip Trade Workflow', steps: ['Crew member browses ETB or TTS for available trades', 'Crew member identifies desirable trip and submits trade request', 'System validates FAR 117 compliance for proposed trade', 'Trade approved or denied based on legality and coverage', 'Updated schedule reflected in CCI and FOS'] }
+        ],
+        systems: [
+          { name: 'ETB', icon: 'swap_horiz', desc: 'Electronic Trade Board for FA trip trading', sends: ['Trade requests to FOS', 'Updated schedules to CCI'], receives: ['Available trades from FOS'] },
+          { name: 'TTS', icon: 'swap_horiz', desc: 'Trip Trade System for pilot trip exchanges', sends: ['Trade requests to FOS'], receives: ['Open trip data from FOS'] }
+        ],
+        userActivities: [
+          { user: 'Pilot', activities: ['Pilot browses TTS for trip trade opportunities', 'Pilot submits trade request for desired trip', 'Pilot picks up open time for additional pay', 'Pilot monitors MPS for schedule change notifications'] },
+          { user: 'Flight Attendant', activities: ['Flight Attendant browses ETB for available trades', 'Flight Attendant submits trade request via ETB', 'Flight Attendant uses vacation and personal days', 'Flight Attendant monitors MPS for schedule updates'] }
+        ]
+      }
     }
   ];
 
