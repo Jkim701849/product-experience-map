@@ -2515,32 +2515,22 @@
     .jc-status-badge[data-status="bag-delay"] { background: rgba(121,85,72,0.15); color: #795548; }
 
     @media (max-width: 768px) {
-    /* IROPS banner */
-    .irops-wrapper {
-      display: flex; flex-direction: column; flex-shrink: 0;
-    }
-    .irops-banner {
-      display: none; background: rgba(211,47,47,0.1);
-      border: 1px solid rgba(211,47,47,0.3); border-radius: 8px;
-      padding: 0.75rem 1.25rem; margin-bottom: 0;
+    /* IROPS inline banner inside each affected card */
+    .jc-irops-bar {
+      display: none; background: rgba(211,47,47,0.08);
+      border-bottom: 1px solid rgba(211,47,47,0.2);
+      padding: 0.5rem 1.5rem;
       font-family: var(--sans);
     }
-    .irops-banner.active { display: block; }
-    .irops-banner-title {
-      font-size: 0.7rem; font-weight: 700; color: #d32f2f;
+    .jc-irops-bar.active { display: block; }
+    .jc-irops-bar-title {
+      font-size: 0.58rem; font-weight: 700; color: #d32f2f;
       text-transform: uppercase; letter-spacing: 0.1em;
-      display: flex; align-items: center; gap: 6px;
-      margin-bottom: 0.3rem;
+      display: flex; align-items: center; gap: 4px;
     }
-    .irops-banner-title .material-symbols-outlined { font-size: 1rem; }
-    .irops-banner-desc {
-      font-size: 0.68rem; color: var(--card-text-secondary); line-height: 1.5;
-    }
-    .irops-banner-people {
-      display: flex; flex-wrap: wrap; gap: 4px; margin-top: 0.5rem;
-    }
-    .irops-cards {
-      display: flex;
+    .jc-irops-bar-title .material-symbols-outlined { font-size: 0.8rem; }
+    .jc-irops-bar-desc {
+      font-size: 0.6rem; color: var(--card-text-tertiary); margin-top: 2px;
     }
 
       .journey-card { width: 300px; }
@@ -7461,17 +7451,6 @@ function toggleTheme() {
       journeyStates.push('ontime');
     }
 
-    // Check if phases 4-7 have any IROPS (non-ontime state)
-    var iropsPhases = [4, 5, 6, 7];
-    var hasIrops = false;
-    var iropsStates = [];
-    iropsPhases.forEach(function(pi) {
-      if (journeyStates[pi] && journeyStates[pi] !== 'ontime') {
-        hasIrops = true;
-        if (iropsStates.indexOf(journeyStates[pi]) === -1) iropsStates.push(journeyStates[pi]);
-      }
-    });
-
     journeyPhases.forEach(function(phase, i) {
       var currentState = journeyStates[i] || 'ontime';
 
@@ -7487,26 +7466,19 @@ function toggleTheme() {
         };
       }
 
-      // Open IROPS wrapper before phase 4
-      if (i === 4) {
-        html += '<div class="irops-wrapper">';
-        html += '<div class="irops-banner' + (hasIrops ? ' active' : '') + '">';
-        html += '<div class="irops-banner-title"><span class="material-symbols-outlined">warning</span>Irregular Operations (IROPS)</div>';
-        html += '<div class="irops-banner-desc">These phases are experiencing irregular operations. IOC is coordinating recovery. Crew Schedulers and Trackers are managing reassignments.</div>';
-        html += '<div class="irops-banner-people">';
-        html += '<span class="jc-person user">Crew Scheduler</span>';
-        html += '<span class="jc-person user">Crew Tracker</span>';
-        html += '<span class="jc-person user">Chief Pilots Office</span>';
-        html += '<span class="jc-person product">ECS</span>';
-        html += '<span class="jc-person product">FOS</span>';
-        html += '<span class="jc-person product">IOC Platform</span>';
-        html += '<span class="jc-person product">Sabre PSS</span>';
-        html += '</div>';
-        html += '</div>';
-        html += '<div class="irops-cards">';
-      }
+      // Is this an IROPS-eligible phase (4-7) with a disruption?
+      var isIropsPhase = i >= 4 && i <= 7;
+      var phaseHasIrops = isIropsPhase && currentState !== 'ontime';
 
       html += '<div class="journey-card" data-phase="' + i + '" data-status="' + currentState + '">';
+
+      // IROPS bar at top of affected cards
+      if (isIropsPhase) {
+        html += '<div class="jc-irops-bar' + (phaseHasIrops ? ' active' : '') + '">';
+        html += '<div class="jc-irops-bar-title"><span class="material-symbols-outlined">warning</span>IROPS Active</div>';
+        html += '<div class="jc-irops-bar-desc">IOC coordinating recovery · Crew reassignment in progress</div>';
+        html += '</div>';
+      }
       html += '<div class="jc-phase-num" style="display:flex;align-items:center;">';
       html += 'Phase ' + (i + 1) + ' of ' + journeyPhases.length;
       html += '<span class="jc-status-badge" data-status="' + currentState + '"><span class="material-symbols-outlined" style="font-size:0.7rem;">' + stateIcons[currentState] + '</span>' + stateLabels[currentState] + '</span>';
@@ -7546,11 +7518,6 @@ function toggleTheme() {
       }
       html += '</div>';
       html += '</div>';
-
-      // Close IROPS wrapper after phase 7
-      if (i === 7) {
-        html += '</div></div>'; // close irops-cards + irops-wrapper
-      }
     });
 
     container.innerHTML = html;
