@@ -2655,6 +2655,148 @@
       .jh-card { padding: 1.25rem; }
     }
 
+    /* ====== PHASE DRILLDOWN ====== */
+    .phase-drill {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 70; display: none; background: var(--bg);
+      flex-direction: column; overflow: hidden;
+    }
+    .phase-drill.active { display: flex; }
+
+    .phase-drill-header {
+      display: flex; align-items: center; padding: 0.75rem 1.25rem;
+      flex-shrink: 0; gap: 0.75rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .phase-drill-back {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--card-elevated); border: none;
+      color: var(--card-text-tertiary); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s; padding: 0;
+    }
+    .phase-drill-back .material-symbols-outlined { font-size: 1.2rem; }
+    .phase-drill-back:hover { background: var(--card-hover); color: var(--card-text); }
+    .phase-drill-breadcrumb {
+      font-size: 0.62rem; color: var(--dim); margin-bottom: 2px;
+    }
+    .phase-drill-title {
+      font-family: var(--sans); font-size: 1.1rem; font-weight: 500;
+      color: var(--text); margin: 0;
+    }
+
+    .phase-drill-content {
+      flex: 1; overflow-y: auto; padding: 2rem;
+    }
+    .phase-drill-content::-webkit-scrollbar { width: 4px; }
+    .phase-drill-content::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
+
+    /* Drilldown sections */
+    .pd-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 20px; max-width: 1100px;
+    }
+    .pd-full { grid-column: 1 / -1; }
+
+    .pd-card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 12px; padding: 1.25rem; overflow: hidden;
+    }
+    .pd-card-title {
+      font-family: var(--sans); font-size: 0.72rem; font-weight: 700;
+      color: var(--cyan); text-transform: uppercase; letter-spacing: 0.08em;
+      margin-bottom: 0.75rem; display: flex; align-items: center; gap: 6px;
+    }
+    .pd-card-title .material-symbols-outlined { font-size: 0.9rem; }
+
+    .pd-desc {
+      font-size: 0.82rem; color: var(--card-text-secondary); line-height: 1.7;
+      margin-bottom: 1rem;
+    }
+
+    /* Workflow steps */
+    .pd-workflow {
+      margin-bottom: 1rem;
+    }
+    .pd-wf-name {
+      font-size: 0.78rem; font-weight: 600; color: var(--text);
+      margin-bottom: 0.5rem; display: flex; align-items: center; gap: 6px;
+    }
+    .pd-wf-name .material-symbols-outlined { font-size: 0.85rem; color: var(--cyan); }
+    .pd-wf-steps {
+      padding-left: 1.5rem; border-left: 2px solid var(--card-border);
+    }
+    .pd-wf-step {
+      font-size: 0.72rem; color: var(--card-text-secondary);
+      padding: 0.3rem 0 0.3rem 0.75rem; line-height: 1.5;
+      position: relative;
+    }
+    .pd-wf-step::before {
+      content: ''; position: absolute; left: -6px; top: 0.55rem;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--bg); border: 2px solid var(--cyan);
+    }
+
+    /* System cards */
+    .pd-system {
+      display: flex; align-items: flex-start; gap: 0.75rem;
+      padding: 0.6rem 0; border-bottom: 1px solid var(--card-border);
+    }
+    .pd-system:last-child { border-bottom: none; }
+    .pd-system-icon {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: var(--cyan-dim); display: flex; align-items: center;
+      justify-content: center; flex-shrink: 0;
+    }
+    .pd-system-icon .material-symbols-outlined { font-size: 1rem; color: var(--cyan); }
+    .pd-system-name {
+      font-size: 0.78rem; font-weight: 600; color: var(--text);
+    }
+    .pd-system-desc {
+      font-size: 0.65rem; color: var(--dim); margin-top: 2px; line-height: 1.5;
+    }
+    .pd-system-data {
+      display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px;
+    }
+    .pd-data-tag {
+      font-size: 0.55rem; padding: 0.15rem 0.45rem; border-radius: 4px;
+      font-weight: 600;
+    }
+    .pd-data-tag.sends { background: rgba(62,166,255,0.1); color: var(--cyan); }
+    .pd-data-tag.receives { background: rgba(255,160,0,0.1); color: var(--gold); }
+
+    /* User activity cards */
+    .pd-user {
+      display: flex; gap: 0.75rem; padding: 0.75rem 0;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .pd-user:last-child { border-bottom: none; }
+    .pd-user-icon {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: var(--gold-dim); display: flex; align-items: center;
+      justify-content: center; flex-shrink: 0;
+    }
+    .pd-user-icon .material-symbols-outlined { font-size: 1rem; color: var(--gold); }
+    .pd-user-name {
+      font-size: 0.78rem; font-weight: 600; color: var(--text);
+    }
+    .pd-user-activities {
+      margin-top: 4px;
+    }
+    .pd-user-activity {
+      font-size: 0.68rem; color: var(--card-text-secondary);
+      padding: 0.2rem 0; display: flex; align-items: flex-start; gap: 0.4rem;
+      line-height: 1.5;
+    }
+    .pd-user-activity .material-symbols-outlined {
+      font-size: 0.7rem; color: var(--cyan); margin-top: 3px; flex-shrink: 0;
+    }
+
+    @media (max-width: 768px) {
+      .pd-grid { grid-template-columns: 1fr; }
+      .phase-drill-content { padding: 1rem; }
+    }
+
   </style>
 </head>
 <body>
@@ -2783,6 +2925,18 @@
     <div class="journey-scroll" id="journey-scroll">
       <div class="journey-cards" id="journey-cards"></div>
     </div>
+  </div>
+
+  <!-- Phase Drilldown View -->
+  <div class="phase-drill" id="phase-drill">
+    <div class="phase-drill-header">
+      <button class="phase-drill-back" id="phase-drill-back"><span class="material-symbols-outlined">arrow_back</span></button>
+      <div>
+        <div class="phase-drill-breadcrumb" id="phase-drill-breadcrumb"></div>
+        <h2 class="phase-drill-title" id="phase-drill-title"></h2>
+      </div>
+    </div>
+    <div class="phase-drill-content" id="phase-drill-content"></div>
   </div>
 
   <!-- Journey Hub View -->
@@ -7671,7 +7825,21 @@ function toggleTheme() {
       activities: ['Customer prints bag tag at kiosk', 'Ticket agent scans bag and places on conveyor (Bag Journey 1)', 'Gate agent checks oversized bags at gate (Bag Journey 2)', 'Gate Bag Check: customer elects to check bag at gate prior to boarding', 'Bag enters BHS system via induction scan'],
       users: ['Ticket Agent', 'Gate Agent'],
       products: ['Sabre PSS', 'TrackScan'],
-      states: { 'delayed': { desc: 'Long check-in queues or kiosk failures delay bag induction. Ticket agents process manually.', activities: ['Manual bag tag printing', 'Extended queue management', 'Kiosk troubleshooting', 'Expedite late check-in bags'], users: ['Ticket Agent'], products: ['Sabre PSS', 'TrackScan'] } }
+      states: { 'delayed': { desc: 'Long check-in queues or kiosk failures delay bag induction. Ticket agents process manually.', activities: ['Manual bag tag printing', 'Extended queue management', 'Kiosk troubleshooting', 'Expedite late check-in bags'], users: ['Ticket Agent'], products: ['Sabre PSS', 'TrackScan'] } },
+      drilldown: {
+        workflows: [
+          { name: 'Bag Journey 1: Counter Check-in', steps: ['Customer approaches ticket counter', 'Agent prints bag tag via Sabre PSS', 'Agent scans tag with TrackScan', 'Bag placed on conveyor belt', 'Bag enters BHS via induction point'] },
+          { name: 'Bag Journey 2: Gate Bag Check', steps: ['Customer arrives at gate with oversized carry-on', 'Gate agent determines bag must be checked', 'Gate agent prints gate check tag', 'Bag scanned with TrackScan', 'Bag sent down to ramp for loading'] }
+        ],
+        systems: [
+          { name: 'Sabre PSS', icon: 'computer', desc: 'Passenger service system for check-in and bag tag generation', sends: ['Bag tag data to TrackScan', 'PNR info to BMS'], receives: ['Flight manifest data'] },
+          { name: 'TrackScan', icon: 'qr_code_scanner', desc: 'Mobile scanning app for bag tag reading and tracking', sends: ['Scan events to BMAS'], receives: ['Bag routing data from BMS'] }
+        ],
+        userActivities: [
+          { user: 'Ticket Agent', activities: ['Greets customer at counter', 'Prints bag tag via Sabre PSS', 'Scans bag tag with TrackScan handheld', 'Places bag on conveyor belt', 'Confirms bag entered BHS'] },
+          { user: 'Gate Agent', activities: ['Identifies oversized carry-on bags', 'Prints gate check tag', 'Scans bag with TrackScan', 'Coordinates bag delivery to ramp'] }
+        ]
+      }
     },
     {
       title: 'BHS Entry & Security Scan',
@@ -7679,7 +7847,20 @@ function toggleTheme() {
       activities: ['Bag scanned by laser array entering BHS', 'Automated security screening', 'No security alert \u2192 bag continues to BMS routing', 'Security alert \u2192 bag diverted to TSA inspection', 'TSA agent pulls bag for manual search and inspection', 'Bag cleared \u2192 re-enters BHS', 'Bag reintroduced and routed through security again if needed'],
       users: ['Bag Clerk'],
       products: ['BHS', 'BMS'],
-      states: { 'delayed': { desc: 'High volume causes BHS congestion. Security screening backlog builds.', activities: ['BHS throughput monitoring', 'Additional TSA lanes activated', 'Priority screening for tight connections', 'Manual bypass for critical bags'], users: ['Bag Clerk'], products: ['BHS', 'BMS'] } }
+      states: { 'delayed': { desc: 'High volume causes BHS congestion. Security screening backlog builds.', activities: ['BHS throughput monitoring', 'Additional TSA lanes activated', 'Priority screening for tight connections', 'Manual bypass for critical bags'], users: ['Bag Clerk'], products: ['BHS', 'BMS'] } },
+      drilldown: {
+        workflows: [
+          { name: 'Normal Security Screening', steps: ['Bag enters BHS from induction point', 'Laser array scans bag tag barcode', 'Bag routed through inline EDS screening', 'Screening clear \u2192 bag continues to BMS routing', 'Bag tag data updated with security clearance'] },
+          { name: 'TSA Diversion Flow', steps: ['EDS flags bag for additional screening', 'Bag diverted to TSA inspection station', 'TSA agent pulls bag for manual search', 'Bag cleared after manual inspection', 'Bag re-enters BHS and continues routing'] }
+        ],
+        systems: [
+          { name: 'BHS (Baggage Handling System)', icon: 'conveyor_belt', desc: 'Automated conveyor and diverter system that physically moves bags through the terminal', sends: ['Bag position data to BMS', 'Divert signals to screening stations'], receives: ['Routing commands from BMS'] },
+          { name: 'BMS (Bag Management System)', icon: 'hub', desc: 'Central system that tracks bag status and determines routing through BHS', sends: ['Routing instructions to BHS', 'Bag status to BMAS'], receives: ['Scan data from laser arrays', 'Security clearance status'] }
+        ],
+        userActivities: [
+          { user: 'Bag Clerk', activities: ['Monitors BHS throughput on control screens', 'Responds to jam alerts and clears conveyor blockages', 'Coordinates with TSA on flagged bags', 'Tracks bags with extended security holds'] }
+        ]
+      }
     },
     {
       title: 'Encode Station',
@@ -7687,7 +7868,19 @@ function toggleTheme() {
       activities: ['Bag with unreadable tag routed to Encode Station', 'Encoder diagnoses tag problem', 'Tag reprinted or physically repaired', 'Bag re-scanned into BHS', 'Bag confirmed routing correctly via BMS'],
       users: ['Encoder'],
       products: ['BMS', 'TrackScan'],
-      states: { 'delayed': { desc: 'High volume of unreadable tags creates encode station bottleneck.', activities: ['Additional encoders deployed', 'Manual tag replacement', 'Priority encoding for departing flights', 'Escalate systemic tag print issues'], users: ['Encoder'], products: ['BMS', 'TrackScan'] } }
+      states: { 'delayed': { desc: 'High volume of unreadable tags creates encode station bottleneck.', activities: ['Additional encoders deployed', 'Manual tag replacement', 'Priority encoding for departing flights', 'Escalate systemic tag print issues'], users: ['Encoder'], products: ['BMS', 'TrackScan'] } },
+      drilldown: {
+        workflows: [
+          { name: 'Tag Repair & Re-induction', steps: ['Bag with unreadable tag diverted to encode station', 'Encoder retrieves bag from encode station conveyor', 'Encoder scans bag tag with TrackScan to identify issue', 'Tag reprinted or barcode manually entered into BMS', 'Bag re-scanned to confirm readability', 'Bag re-inducted into BHS for proper routing'] }
+        ],
+        systems: [
+          { name: 'BMS', icon: 'hub', desc: 'Bag Management System used to look up bag records and manually encode routing data', sends: ['Updated routing data to BHS'], receives: ['Manual tag entry from encoder'] },
+          { name: 'TrackScan', icon: 'qr_code_scanner', desc: 'Handheld scanner used to read damaged tags and verify reprinted tags', sends: ['Scan events to BMAS'], receives: ['Bag record lookup from BMS'] }
+        ],
+        userActivities: [
+          { user: 'Encoder', activities: ['Retrieves bags from encode station conveyor', 'Diagnoses tag damage (torn, smudged, wrinkled)', 'Reprints bag tag using BMS workstation', 'Manually enters barcode data when tag is illegible', 'Verifies new tag scans correctly before re-induction'] }
+        ]
+      }
     },
     {
       title: 'BMS Bag Routing',
@@ -7695,7 +7888,22 @@ function toggleTheme() {
       activities: ['BMS reads bag tag and determines flight/gate', 'On-time bag \u2192 routes to on-time MU', 'Wrong terminal bag \u2192 routes to Shuttle Pier for inter-terminal transfer', 'Late bag \u2192 routes to Late Pier for expedited handling', 'Bag tag fixed \u2192 re-inducted into BHS from BMAS'],
       users: ['Bag Clerk'],
       products: ['BMS', 'BMAS', 'TrackScan'],
-      states: { 'bag-delay': { desc: 'Bags delayed in BHS routing. Bag clerks trace via TrackScan. Late pier volume increases.', activities: ['Trace delayed bags via TrackScan', 'Manual routing if BMS down', 'Priority handling for tight connections', 'Notify gate of late bags', 'Coordinate with ABR drivers for expedited transport'], users: ['Bag Clerk', 'ABR Driver'], products: ['TrackScan', 'BMAS', 'BMS'] } }
+      states: { 'bag-delay': { desc: 'Bags delayed in BHS routing. Bag clerks trace via TrackScan. Late pier volume increases.', activities: ['Trace delayed bags via TrackScan', 'Manual routing if BMS down', 'Priority handling for tight connections', 'Notify gate of late bags', 'Coordinate with ABR drivers for expedited transport'], users: ['Bag Clerk', 'ABR Driver'], products: ['TrackScan', 'BMAS', 'BMS'] } },
+      drilldown: {
+        workflows: [
+          { name: 'On-time Bag Routing', steps: ['BMS reads bag tag at routing decision point', 'BMS matches bag to flight and gate assignment', 'Bag routed to on-time make-up unit for that flight', 'Bag arrives at MU and awaits cart loading'] },
+          { name: 'Wrong-terminal Transfer', steps: ['BMS detects bag destination is in different terminal', 'Bag diverted to shuttle pier conveyor', 'Bag loaded onto inter-terminal shuttle cart', 'Cart driven to correct terminal by ABR driver', 'Bag inducted into destination terminal BHS'] },
+          { name: 'Late Pier Expedite', steps: ['BMS determines bag is late for scheduled flight', 'Bag routed to late pier for priority handling', 'Bag clerk pulls bag from late pier', 'Bag loaded onto expedite cart', 'ABR driver rushes bag directly planeside'] }
+        ],
+        systems: [
+          { name: 'BMS', icon: 'hub', desc: 'Core routing engine that matches bags to flights and determines optimal conveyor path', sends: ['Divert commands to BHS', 'Bag status updates to BMAS'], receives: ['Bag tag scans from laser arrays', 'Flight gate assignments'] },
+          { name: 'BMAS', icon: 'monitoring', desc: 'Bag Management Analytics System for real-time bag tracking and performance monitoring', sends: ['Bag location to TrackScan queries', 'Alert notifications'], receives: ['Scan events from all sources', 'BMS routing decisions'] },
+          { name: 'TrackScan', icon: 'qr_code_scanner', desc: 'Used by bag clerks to trace bags and verify routing status', sends: ['Manual scan events to BMAS'], receives: ['Bag status and routing info'] }
+        ],
+        userActivities: [
+          { user: 'Bag Clerk', activities: ['Monitors BMS routing dashboard for anomalies', 'Traces delayed bags using TrackScan', 'Manually routes bags when BMS is down', 'Coordinates late pier expedites with ABR drivers', 'Communicates with gate about late bag status'] }
+        ]
+      }
     },
     {
       title: 'Make-up Unit & Cart Loading',
@@ -7703,7 +7911,22 @@ function toggleTheme() {
       activities: ['Bags arrive at on-time MU \u2192 scanned and loaded onto bag cart', 'Bags at Shuttle Pier \u2192 scanned, loaded, cart driven to correct terminal', 'Bags at Late Pier \u2192 scanned, loaded, driven planeside directly', 'Bag cart driven planeside by ABR Driver', 'At wrong terminal: bags inducted into BHS at correct terminal'],
       users: ['Bag Clerk', 'ABR Driver'],
       products: ['TrackScan', 'BMAS', 'T.LINE'],
-      states: {}
+      states: {},
+      drilldown: {
+        workflows: [
+          { name: 'Standard MU Loading', steps: ['Bags arrive at designated make-up unit via BHS', 'Bag clerk scans each bag with TrackScan', 'Bag placed onto baggage cart in flight-sorted order', 'Cart filled and tagged with flight number', 'ABR driver hooks cart to tug and drives planeside'] },
+          { name: 'Late Pier Expedite Loading', steps: ['Late bags arrive at late pier from BMS routing', 'Bag clerk scans and confirms flight assignment', 'Bags loaded onto priority expedite cart', 'ABR driver dispatched for direct planeside delivery', 'Gate crew notified of incoming late bags'] }
+        ],
+        systems: [
+          { name: 'TrackScan', icon: 'qr_code_scanner', desc: 'Handheld scanner for bag-to-cart assignment and load verification', sends: ['Cart load manifest to BMAS', 'Scan confirmations'], receives: ['Expected bag list per flight'] },
+          { name: 'BMAS', icon: 'monitoring', desc: 'Tracks bag-to-cart assignments and provides real-time loading progress', sends: ['Load status to gate operations', 'Late bag alerts'], receives: ['Cart scan data from TrackScan'] },
+          { name: 'T.LINE', icon: 'local_shipping', desc: 'Transport and logistics system used by ABR drivers for cart dispatch and routing', sends: ['Driver dispatch confirmations', 'Cart location updates'], receives: ['Cart ready notifications', 'Planeside delivery assignments'] }
+        ],
+        userActivities: [
+          { user: 'Bag Clerk', activities: ['Scans bags at make-up unit with TrackScan', 'Sorts bags onto correct carts by flight', 'Marks carts ready for transport', 'Handles late pier bags with priority tagging'] },
+          { user: 'ABR Driver', activities: ['Receives cart assignment via T.LINE', 'Hooks loaded cart to tug vehicle', 'Drives cart to assigned aircraft gate', 'Confirms delivery via T.LINE scan'] }
+        ]
+      }
     },
     {
       title: 'Planeside Loading',
@@ -7711,7 +7934,20 @@ function toggleTheme() {
       activities: ['Gate Crew positions belt loader at aircraft', 'Departing bags scanned and loaded into aircraft', 'Bag Clerk verifies count against manifest', 'Bags for next flight scanned and loaded', 'Cargo doors closed and secured'],
       users: ['Gate Crew', 'Bag Clerk'],
       products: ['TrackScan', 'BMAS'],
-      states: { 'delayed': { desc: 'Belt loader positioning delay or weather impacts loading speed.', activities: ['Reposition belt loader', 'Weather hold procedures', 'Coordinate with dispatch on departure delay', 'Expedite remaining bag loading'], users: ['Gate Crew', 'Bag Clerk'], products: ['TrackScan'] } }
+      states: { 'delayed': { desc: 'Belt loader positioning delay or weather impacts loading speed.', activities: ['Reposition belt loader', 'Weather hold procedures', 'Coordinate with dispatch on departure delay', 'Expedite remaining bag loading'], users: ['Gate Crew', 'Bag Clerk'], products: ['TrackScan'] } },
+      drilldown: {
+        workflows: [
+          { name: 'Belt Loader Process', steps: ['ABR driver delivers bag carts to aircraft position', 'Gate crew positions belt loader at cargo door', 'Gate crew scans each bag with TrackScan during loading', 'Bags loaded into forward and aft cargo compartments', 'Bag clerk verifies bag count matches manifest', 'Final bag count confirmed and cargo doors closed'] }
+        ],
+        systems: [
+          { name: 'TrackScan', icon: 'qr_code_scanner', desc: 'Used planeside for offload scanning to confirm each bag loaded onto aircraft', sends: ['Load scan events to BMAS', 'Final load count'], receives: ['Expected bag manifest for flight'] },
+          { name: 'BMAS', icon: 'monitoring', desc: 'Receives load confirmations and tracks bags from cart to aircraft', sends: ['Load completion status to dispatch', 'Bag count discrepancy alerts'], receives: ['Planeside scan events from TrackScan'] }
+        ],
+        userActivities: [
+          { user: 'Gate Crew', activities: ['Positions belt loader vehicle at aircraft cargo door', 'Scans each bag with TrackScan as it goes on belt', 'Loads bags into cargo compartments by zone', 'Secures cargo nets and closes cargo doors'] },
+          { user: 'Bag Clerk', activities: ['Verifies total bag count against passenger manifest', 'Resolves any count discrepancies before door close', 'Coordinates with gate agent on last-minute gate checks', 'Confirms final load to dispatch'] }
+        ]
+      }
     },
     {
       title: 'In-Flight & Connecting Bags',
@@ -7719,7 +7955,23 @@ function toggleTheme() {
       activities: ['Aircraft in route to destination', 'Flight arrives \u2192 Gate Crew offloads bags with TrackScan', 'ABR Drivers scan with T.LINE and transport connecting bags', 'Arriving Bags Unloaded at next gate', 'Bags loaded for transport to next aircraft (Bag Journey 3)', 'Departing bags loaded onto connecting flight'],
       users: ['Gate Crew', 'ABR Driver', 'Bag Clerk'],
       products: ['TrackScan', 'T.LINE', 'BMAS'],
-      states: { 'misconnect': { desc: 'Bag misses connecting flight due to tight connection or late arrival. Bag re-inducted into BHS for next available flight.', activities: ['Identify misconnected bags via BMAS', 'Re-tag bag for next available flight', 'Induct back into BHS', 'Notify destination station', 'Update passenger via notification'], users: ['Bag Clerk'], products: ['BMAS', 'TrackScan', 'BMS'] } }
+      states: { 'misconnect': { desc: 'Bag misses connecting flight due to tight connection or late arrival. Bag re-inducted into BHS for next available flight.', activities: ['Identify misconnected bags via BMAS', 'Re-tag bag for next available flight', 'Induct back into BHS', 'Notify destination station', 'Update passenger via notification'], users: ['Bag Clerk'], products: ['BMAS', 'TrackScan', 'BMS'] } },
+      drilldown: {
+        workflows: [
+          { name: 'Standard Connection Transfer', steps: ['Arriving flight parks at gate', 'Gate crew offloads bags with TrackScan', 'ABR driver scans bags with T.LINE for transport assignment', 'Connecting bags sorted by next flight', 'Bags driven to departure gate or BHS induction', 'Bags loaded onto departing aircraft (Bag Journey 3)'] },
+          { name: 'Misconnect Recovery', steps: ['BMAS flags bags that missed connecting flight', 'Bag clerk locates misconnected bags at arrival gate', 'Bags re-tagged for next available flight via BMS', 'Bags re-inducted into BHS for new routing', 'Destination station notified of delayed bag', 'Passenger notified with updated delivery estimate'] }
+        ],
+        systems: [
+          { name: 'TrackScan', icon: 'qr_code_scanner', desc: 'Used by gate crew during offload to scan and sort connecting bags', sends: ['Offload scan events to BMAS', 'Connection status updates'], receives: ['Connecting bag manifest'] },
+          { name: 'T.LINE', icon: 'local_shipping', desc: 'ABR driver transport system for connecting bag cart routing between gates', sends: ['Transport confirmations', 'Cart location data'], receives: ['Connection transfer assignments', 'Priority routing for tight connections'] },
+          { name: 'BMAS', icon: 'monitoring', desc: 'Monitors connection timing and flags bags at risk of misconnect', sends: ['Misconnect alerts to bag clerks', 'Re-routing instructions'], receives: ['Arrival scan data', 'Flight schedule changes'] }
+        ],
+        userActivities: [
+          { user: 'Gate Crew', activities: ['Offloads bags from arriving aircraft with TrackScan', 'Separates connecting bags from terminating bags', 'Loads connecting bags onto transfer carts'] },
+          { user: 'ABR Driver', activities: ['Scans transfer carts with T.LINE', 'Transports connecting bags between gates or terminals', 'Prioritizes tight-connection bags for expedited delivery'] },
+          { user: 'Bag Clerk', activities: ['Monitors BMAS for misconnect risk alerts', 'Re-tags misconnected bags for next available flight', 'Coordinates with destination station for delayed bag delivery'] }
+        ]
+      }
     },
     {
       title: 'Arrival & Offload',
@@ -7727,7 +7979,20 @@ function toggleTheme() {
       activities: ['Flight arrives, status changes to "IN"', 'Gate Crew offloads bags with TrackScan', 'Bags loaded onto transport carts', 'ABR Drivers scan with T.LINE and transport to claim', 'Bags inducted onto local claim belts or transfer induction belt'],
       users: ['Gate Crew', 'ABR Driver'],
       products: ['TrackScan', 'T.LINE'],
-      states: {}
+      states: {},
+      drilldown: {
+        workflows: [
+          { name: 'Offload Process', steps: ['Aircraft arrives and parks at gate', 'Gate crew opens cargo doors and positions belt loader', 'Gate crew offload scans each bag with TrackScan', 'Bags loaded onto transport carts', 'ABR driver scans cart with T.LINE', 'ABR driver transports bags to baggage claim carousel', 'Bags inducted onto claim belt for passenger retrieval'] }
+        ],
+        systems: [
+          { name: 'TrackScan', icon: 'qr_code_scanner', desc: 'Used during offload to scan each bag as it leaves the aircraft', sends: ['Offload scan events to BMAS', 'Bag arrival confirmations'], receives: ['Arriving flight bag manifest'] },
+          { name: 'T.LINE', icon: 'local_shipping', desc: 'Transport logistics system for cart routing from gate to baggage claim', sends: ['Delivery confirmations to BMAS', 'Cart arrival at claim'], receives: ['Carousel assignment', 'Transport priority routing'] }
+        ],
+        userActivities: [
+          { user: 'Gate Crew', activities: ['Opens cargo doors and sets up belt loader', 'Offload scans each bag with TrackScan', 'Sorts terminating bags from connecting bags', 'Loads bags onto transport carts for claim delivery'] },
+          { user: 'ABR Driver', activities: ['Scans loaded cart with T.LINE', 'Drives bags to assigned baggage claim carousel', 'Confirms cart delivery at carousel', 'Returns empty carts to staging area'] }
+        ]
+      }
     },
     {
       title: 'Baggage Claim & Recovery',
@@ -7735,7 +8000,22 @@ function toggleTheme() {
       activities: ['Bags delivered to designated carousel', 'Passengers retrieve checked bags', 'Mishandled bags reported and traced via BMAS', 'Sweeper patrols tarmac for stranded bags', 'Sweeper bag: when a bag doesn\'t belong to departing flight or wasn\'t transported, it\'s left on tarmac for Sweeper pickup', 'Missed flight bags: retagged and inducted back into BHS', 'Delivery arrangements for delayed bags to passenger'],
       users: ['Bag Clerk', 'Sweeper'],
       products: ['BMAS', 'TrackScan', 'BMS'],
-      states: { 'bag-delay': { desc: 'Bags delayed or lost. Sweeper activated. BMAS tracing initiated for mishandled bags.', activities: ['BMAS tracing for all missing bags', 'Sweeper dispatched to tarmac search', 'Retagging of found bags', 'Re-induction into BHS for correct routing', 'Passenger notification and delivery arrangement'], users: ['Bag Clerk', 'Sweeper'], products: ['BMAS', 'TrackScan', 'BMS'] } }
+      states: { 'bag-delay': { desc: 'Bags delayed or lost. Sweeper activated. BMAS tracing initiated for mishandled bags.', activities: ['BMAS tracing for all missing bags', 'Sweeper dispatched to tarmac search', 'Retagging of found bags', 'Re-induction into BHS for correct routing', 'Passenger notification and delivery arrangement'], users: ['Bag Clerk', 'Sweeper'], products: ['BMAS', 'TrackScan', 'BMS'] } },
+      drilldown: {
+        workflows: [
+          { name: 'Normal Baggage Claim', steps: ['Bags arrive at designated carousel via transport cart', 'Bags inducted onto carousel belt', 'Passengers retrieve bags from carousel', 'Bag clerk monitors carousel for unclaimed bags', 'Unclaimed bags moved to baggage service office after timeout'] },
+          { name: 'Sweeper Recovery', steps: ['Sweeper drives tarmac service roads in patrol pattern', 'Sweeper identifies bag left on ramp or tarmac', 'Sweeper scans found bag with TrackScan', 'BMAS determines correct destination for bag', 'Bag transported to correct carousel or re-inducted into BHS', 'If bag belongs to departed flight, delivery arranged to passenger'] }
+        ],
+        systems: [
+          { name: 'BMAS', icon: 'monitoring', desc: 'Central tracing system for mishandled, delayed, and lost bags across the network', sends: ['Delivery arrangements to destination', 'Passenger notifications', 'Mishandled bag reports'], receives: ['Missing bag reports from passengers', 'Sweeper scan data', 'Network-wide bag status'] },
+          { name: 'TrackScan', icon: 'qr_code_scanner', desc: 'Used by sweepers and bag clerks to scan found bags and update status', sends: ['Found bag scan events to BMAS'], receives: ['Bag destination lookup'] },
+          { name: 'BMS', icon: 'hub', desc: 'Used to re-route found bags back into BHS when they need to reach a different terminal or flight', sends: ['Re-routing commands to BHS'], receives: ['Found bag data from BMAS'] }
+        ],
+        userActivities: [
+          { user: 'Bag Clerk', activities: ['Monitors carousel for unclaimed bags', 'Files mishandled bag reports in BMAS', 'Coordinates delivery arrangements for delayed bags', 'Communicates with passengers about bag status'] },
+          { user: 'Sweeper', activities: ['Patrols tarmac and service roads in vehicle', 'Scans found bags with TrackScan', 'Delivers found bags to correct location', 'Reports recurring problem areas to operations'] }
+        ]
+      }
     }
   ];
 
@@ -8078,6 +8358,19 @@ function toggleTheme() {
       });
     });
 
+    // Phase card drilldown click (only for journeys with drilldown data)
+    container.querySelectorAll('.journey-card').forEach(function(card) {
+      var phaseIdx = parseInt(card.dataset.phase);
+      var phase = activeJourneyPhases[phaseIdx];
+      if (phase && phase.drilldown) {
+        card.style.cursor = 'pointer';
+        card.addEventListener('click', function(e) {
+          if (e.target.closest('.jc-state-btn')) return;
+          openPhaseDrilldown(phaseIdx, phase);
+        });
+      }
+    });
+
     // Bind add button (in header)
     document.getElementById('journey-add-btn').onclick = function() {
       activeJourneyPhases.push({
@@ -8101,6 +8394,87 @@ function toggleTheme() {
       }
     };
   }
+
+  function openPhaseDrilldown(idx, phase) {
+    var drill = document.getElementById('phase-drill');
+    var content = document.getElementById('phase-drill-content');
+    var d = phase.drilldown;
+
+    document.getElementById('phase-drill-breadcrumb').textContent = document.querySelector('.journey-title').textContent + ' \u203A Phase ' + (idx + 1);
+    document.getElementById('phase-drill-title').textContent = phase.title;
+
+    var html = '<div class="pd-grid">';
+
+    // Overview — full width
+    html += '<div class="pd-card pd-full">';
+    html += '<div class="pd-card-title"><span class="material-symbols-outlined">info</span>Overview</div>';
+    html += '<div class="pd-desc">' + phase.desc + '</div>';
+    html += '<div style="display:flex;flex-wrap:wrap;gap:6px;">';
+    if (phase.users) phase.users.forEach(function(u) { html += '<span class="jc-person user">' + u + '</span>'; });
+    if (phase.products) phase.products.forEach(function(p) { html += '<span class="jc-person product">' + p + '</span>'; });
+    html += '</div></div>';
+
+    // Workflows — full width
+    if (d.workflows && d.workflows.length) {
+      html += '<div class="pd-card pd-full">';
+      html += '<div class="pd-card-title"><span class="material-symbols-outlined">account_tree</span>Workflows</div>';
+      d.workflows.forEach(function(wf) {
+        html += '<div class="pd-workflow">';
+        html += '<div class="pd-wf-name"><span class="material-symbols-outlined">play_arrow</span>' + wf.name + '</div>';
+        html += '<div class="pd-wf-steps">';
+        wf.steps.forEach(function(step) {
+          html += '<div class="pd-wf-step">' + step + '</div>';
+        });
+        html += '</div></div>';
+      });
+      html += '</div>';
+    }
+
+    // Systems & Data — left column
+    if (d.systems && d.systems.length) {
+      html += '<div class="pd-card">';
+      html += '<div class="pd-card-title"><span class="material-symbols-outlined">dns</span>Systems & Data Flow</div>';
+      d.systems.forEach(function(sys) {
+        html += '<div class="pd-system">';
+        html += '<div class="pd-system-icon"><span class="material-symbols-outlined">' + sys.icon + '</span></div>';
+        html += '<div>';
+        html += '<div class="pd-system-name">' + sys.name + '</div>';
+        html += '<div class="pd-system-desc">' + sys.desc + '</div>';
+        html += '<div class="pd-system-data">';
+        if (sys.sends) sys.sends.forEach(function(s) { html += '<span class="pd-data-tag sends">\u2192 ' + s + '</span>'; });
+        if (sys.receives) sys.receives.forEach(function(r) { html += '<span class="pd-data-tag receives">\u2190 ' + r + '</span>'; });
+        html += '</div></div></div>';
+      });
+      html += '</div>';
+    }
+
+    // User Activities — right column
+    if (d.userActivities && d.userActivities.length) {
+      html += '<div class="pd-card">';
+      html += '<div class="pd-card-title"><span class="material-symbols-outlined">person</span>How Users Use Technology</div>';
+      d.userActivities.forEach(function(ua) {
+        html += '<div class="pd-user">';
+        html += '<div class="pd-user-icon"><span class="material-symbols-outlined">person</span></div>';
+        html += '<div>';
+        html += '<div class="pd-user-name">' + ua.user + '</div>';
+        html += '<div class="pd-user-activities">';
+        ua.activities.forEach(function(a) {
+          html += '<div class="pd-user-activity"><span class="material-symbols-outlined">check_circle</span>' + a + '</div>';
+        });
+        html += '</div></div></div>';
+      });
+      html += '</div>';
+    }
+
+    html += '</div>';
+    content.innerHTML = html;
+    content.scrollTop = 0;
+    drill.classList.add('active');
+  }
+
+  document.getElementById('phase-drill-back').addEventListener('click', function() {
+    document.getElementById('phase-drill').classList.remove('active');
+  });
 
   document.getElementById('journey-back').addEventListener('click', function() { navigateTo('journeys'); });
 
