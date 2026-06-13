@@ -7466,112 +7466,85 @@ function toggleTheme() {
     while (journeyStates.length < journeyPhases.length) journeyStates.push('ontime');
     journeyStates.length = journeyPhases.length;
 
-    journeyPhases.forEach(function(phase, i) {
+    // Helper: build a single phase card HTML
+    function buildPhaseCard(phase, i) {
       var currentState = journeyStates[i] || 'ontime';
-
-      // Get state-specific content or default
       var phaseData = phase;
       if (currentState !== 'ontime' && phase.states && phase.states[currentState]) {
-        phaseData = {
-          title: phase.title,
-          desc: phase.states[currentState].desc,
-          activities: phase.states[currentState].activities,
-          users: phase.states[currentState].users || phase.users,
-          products: phase.states[currentState].products || phase.products
-        };
+        phaseData = { title: phase.title, desc: phase.states[currentState].desc, activities: phase.states[currentState].activities, users: phase.states[currentState].users || phase.users, products: phase.states[currentState].products || phase.products };
       }
-
-      var isIropsPhase = i >= 4 && i <= 7;
-
-      // Before phase 4: check for IROPS and wrap phases 4-7
-      if (i === 4) {
-        var anyIrops = false;
-        for (var ip = 4; ip <= 7; ip++) {
-          if (journeyStates[ip] && journeyStates[ip] !== 'ontime') anyIrops = true;
-        }
-        html += '<div style="display:flex;flex-direction:column;flex-shrink:0;align-self:stretch;">';
-        // Only render IROPS card if there IS an IROPS situation
-        if (anyIrops) {
-          html += '<div class="irops-card" id="irops-card">';
-          html += '<div class="irops-card-toggle" id="irops-toggle">';
-          html += '<span class="material-symbols-outlined" style="font-size:0.85rem;">warning</span>';
-          html += '<span style="font-family:var(--sans);font-size:0.85rem;font-weight:600;">IROPS Active</span>';
-          html += '<span class="material-symbols-outlined irops-card-chevron">expand_more</span>';
-          html += '</div>';
-          html += '<div class="irops-card-body">';
-          html += '<div class="jc-title" style="color:#d32f2f;">Irregular Operations</div>';
-          html += '<div class="jc-desc">IOC is coordinating network recovery. Crew Schedulers and Trackers are managing reassignments and reserve activation across affected phases.</div>';
-          html += '<div class="jc-divider"></div>';
-          html += '<div class="jc-section-title" style="color:#d32f2f;">Recovery Actions</div>';
-          html += '<div class="jc-activities">';
-          html += '<div class="jc-activity"><span class="material-symbols-outlined" style="color:#d32f2f;">check_circle</span>IOC activates recovery plan</div>';
-          html += '<div class="jc-activity"><span class="material-symbols-outlined" style="color:#d32f2f;">check_circle</span>Crew Tracker repositions crews</div>';
-          html += '<div class="jc-activity"><span class="material-symbols-outlined" style="color:#d32f2f;">check_circle</span>Reserve pools evaluated for coverage</div>';
-          html += '<div class="jc-activity"><span class="material-symbols-outlined" style="color:#d32f2f;">check_circle</span>Passenger rebooking initiated via Sabre PSS</div>';
-          html += '<div class="jc-activity"><span class="material-symbols-outlined" style="color:#d32f2f;">check_circle</span>Downstream flights assessed for impact</div>';
-          html += '</div>';
-          html += '<div class="jc-divider"></div>';
-          html += '<div class="jc-section-title" style="color:#d32f2f;">People & Systems</div>';
-          html += '<div class="jc-people">';
-          html += '<span class="jc-person user">Crew Scheduler</span>';
-          html += '<span class="jc-person user">Crew Tracker</span>';
-          html += '<span class="jc-person user">Chief Pilots Office</span>';
-          html += '<span class="jc-person product">ECS</span>';
-          html += '<span class="jc-person product">FOS</span>';
-          html += '<span class="jc-person product">IOC Platform</span>';
-          html += '<span class="jc-person product">Sabre PSS</span>';
-          html += '</div>';
-          html += '</div></div>';
-        }
-        html += '<div style="display:flex;flex:1;">';
-      }
-
-      html += '<div class="journey-card" data-phase="' + i + '" data-status="' + currentState + '">';
-      html += '<div class="jc-phase-num" style="display:flex;align-items:center;">';
-      html += 'Phase ' + (i + 1) + ' of ' + journeyPhases.length;
-      html += '<span class="jc-status-badge" data-status="' + currentState + '"><span class="material-symbols-outlined" style="font-size:0.7rem;">' + stateIcons[currentState] + '</span>' + stateLabels[currentState] + '</span>';
-      html += '</div>';
-
-      // State buttons — only applicable states for this phase
       var applicableStates = phaseStates[i] || ['ontime', 'delayed'];
-      html += '<div class="jc-states">';
-      applicableStates.forEach(function(state) {
-        html += '<button class="jc-state-btn' + (currentState === state ? ' active' : '') + '" data-state="' + state + '" data-phase="' + i + '">' + stateLabels[state] + '</button>';
-      });
-      html += '</div>';
+      var h = '';
+      h += '<div class="journey-card" data-phase="' + i + '" data-status="' + currentState + '">';
+      h += '<div class="jc-phase-num" style="display:flex;align-items:center;">Phase ' + (i+1) + ' of ' + journeyPhases.length;
+      h += '<span class="jc-status-badge" data-status="' + currentState + '"><span class="material-symbols-outlined" style="font-size:0.7rem;">' + stateIcons[currentState] + '</span>' + stateLabels[currentState] + '</span></div>';
+      h += '<div class="jc-states">';
+      applicableStates.forEach(function(state) { h += '<button class="jc-state-btn' + (currentState === state ? ' active' : '') + '" data-state="' + state + '" data-phase="' + i + '">' + stateLabels[state] + '</button>'; });
+      h += '</div>';
+      h += '<div class="jc-title">' + phaseData.title + '</div>';
+      h += '<div class="jc-desc">' + phaseData.desc + '</div>';
+      h += '<div class="jc-divider"></div>';
+      h += '<div class="jc-section-title">Key Activities</div><div class="jc-activities">';
+      phaseData.activities.forEach(function(a) { h += '<div class="jc-activity"><span class="material-symbols-outlined">check_circle</span>' + a + '</div>'; });
+      h += '</div><div class="jc-divider"></div>';
+      h += '<div class="jc-section-title">People & Systems</div><div class="jc-people">';
+      if (phaseData.users) phaseData.users.forEach(function(u) { h += '<span class="jc-person user">' + u + '</span>'; });
+      if (phaseData.products) phaseData.products.forEach(function(p) { h += '<span class="jc-person product">' + p + '</span>'; });
+      h += '</div></div>';
+      return h;
+    }
 
-      html += '<div class="jc-title">' + phaseData.title + '</div>';
-      html += '<div class="jc-desc">' + phaseData.desc + '</div>';
-      html += '<div class="jc-divider"></div>';
+    // Check IROPS status
+    var anyIrops = false;
+    for (var ip = 4; ip <= 7; ip++) {
+      if (journeyStates[ip] && journeyStates[ip] !== 'ontime') anyIrops = true;
+    }
 
-      html += '<div class="jc-section-title">Key Activities</div>';
-      html += '<div class="jc-activities">';
-      phaseData.activities.forEach(function(a) {
-        html += '<div class="jc-activity"><span class="material-symbols-outlined">check_circle</span>' + a + '</div>';
-      });
-      html += '</div>';
+    // Phases 0-3: render normally
+    for (var i = 0; i < 4 && i < journeyPhases.length; i++) {
+      html += buildPhaseCard(journeyPhases[i], i);
+    }
 
-      html += '<div class="jc-divider"></div>';
-      html += '<div class="jc-section-title">People & Systems</div>';
-      html += '<div class="jc-people">';
-      if (phaseData.users) {
-        phaseData.users.forEach(function(u) {
-          html += '<span class="jc-person user">' + u + '</span>';
-        });
+    // Phases 4-7: wrapped in column with optional IROPS banner on top
+    if (journeyPhases.length > 4) {
+      html += '<div style="display:flex;flex-direction:column;flex-shrink:0;align-self:stretch;">';
+      if (anyIrops) {
+        html += '<div class="irops-card" id="irops-card">';
+        html += '<div class="irops-card-toggle" id="irops-toggle">';
+        html += '<span class="material-symbols-outlined" style="font-size:0.85rem;">warning</span>';
+        html += '<span style="font-family:var(--sans);font-size:0.85rem;font-weight:600;">IROPS Active</span>';
+        html += '<span class="material-symbols-outlined irops-card-chevron">expand_more</span>';
+        html += '</div>';
+        html += '<div class="irops-card-body">';
+        html += '<div class="jc-title" style="color:#d32f2f;">Irregular Operations</div>';
+        html += '<div class="jc-desc">IOC is coordinating network recovery. Crew Schedulers and Trackers are managing reassignments and reserve activation across affected phases.</div>';
+        html += '<div class="jc-divider"></div>';
+        html += '<div class="jc-section-title" style="color:#d32f2f;">Recovery Actions</div>';
+        html += '<div class="jc-activities">';
+        html += '<div class="jc-activity"><span class="material-symbols-outlined" style="color:#d32f2f;">check_circle</span>IOC activates recovery plan</div>';
+        html += '<div class="jc-activity"><span class="material-symbols-outlined" style="color:#d32f2f;">check_circle</span>Crew Tracker repositions crews</div>';
+        html += '<div class="jc-activity"><span class="material-symbols-outlined" style="color:#d32f2f;">check_circle</span>Reserve pools evaluated for coverage</div>';
+        html += '<div class="jc-activity"><span class="material-symbols-outlined" style="color:#d32f2f;">check_circle</span>Passenger rebooking initiated via Sabre PSS</div>';
+        html += '</div>';
+        html += '<div class="jc-divider"></div>';
+        html += '<div class="jc-section-title" style="color:#d32f2f;">People & Systems</div>';
+        html += '<div class="jc-people">';
+        html += '<span class="jc-person user">Crew Scheduler</span><span class="jc-person user">Crew Tracker</span><span class="jc-person user">Chief Pilots Office</span>';
+        html += '<span class="jc-person product">ECS</span><span class="jc-person product">FOS</span><span class="jc-person product">IOC Platform</span><span class="jc-person product">Sabre PSS</span>';
+        html += '</div></div></div>';
       }
-      if (phaseData.products) {
-        phaseData.products.forEach(function(p) {
-          html += '<span class="jc-person product">' + p + '</span>';
-        });
+      html += '<div style="display:flex;flex:1;">';
+      for (var i = 4; i <= 7 && i < journeyPhases.length; i++) {
+        html += buildPhaseCard(journeyPhases[i], i);
       }
-      html += '</div>';
-      html += '</div>';
+      html += '</div></div>';
+    }
 
-      // Close IROPS column wrapper after phase 7
-      if (i === 7) {
-        html += '</div></div>'; // close phases row + column wrapper
-      }
-    });
+    // Phases 8+: render normally
+    for (var i = 8; i < journeyPhases.length; i++) {
+      html += buildPhaseCard(journeyPhases[i], i);
+    }
+
 
     container.innerHTML = html;
 
