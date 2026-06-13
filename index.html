@@ -7496,15 +7496,15 @@ function toggleTheme() {
         // IROPS spanning card
         html += '<div class="irops-row' + (anyIrops ? ' active' : '') + '" id="irops-row">';
         html += '<div class="irops-card" id="irops-card">';
-        // Collapsed header — same style as jc-phase-num
-        html += '<div class="irops-card-toggle">';
-        html += '<span class="material-symbols-outlined" style="font-size:0.7rem;">warning</span>';
-        html += 'Irregular Operations';
+        // Collapsed: shows only "IROPS Active" banner
+        html += '<div class="irops-card-toggle" id="irops-toggle">';
+        html += '<span class="material-symbols-outlined" style="font-size:0.85rem;">warning</span>';
+        html += '<span style="font-family:var(--sans);font-size:0.85rem;font-weight:600;">IROPS Active</span>';
         html += '<span class="material-symbols-outlined irops-card-chevron">expand_more</span>';
         html += '</div>';
-        // Expandable body — uses same classes as phase cards
+        // Expandable body
         html += '<div class="irops-card-body">';
-        html += '<div class="jc-title" style="color:#d32f2f;">IROPS Active</div>';
+        html += '<div class="jc-title" style="color:#d32f2f;">Irregular Operations</div>';
         html += '<div class="jc-desc">IOC is coordinating network recovery. Crew Schedulers and Trackers are managing reassignments and reserve activation across affected phases.</div>';
         html += '<div class="jc-divider"></div>';
         html += '<div class="jc-section-title" style="color:#d32f2f;">Recovery Actions</div>';
@@ -7580,16 +7580,14 @@ function toggleTheme() {
 
     container.innerHTML = html;
 
-    // IROPS card expand/collapse — toggle on header click
+    // IROPS card expand/collapse
+    var iropsToggle = document.getElementById('irops-toggle');
     var iropsCard = document.getElementById('irops-card');
-    if (iropsCard) {
-      var iropsToggle = iropsCard.querySelector('.irops-card-toggle');
-      if (iropsToggle) {
-        iropsToggle.addEventListener('click', function(e) {
-          e.stopPropagation();
-          iropsCard.classList.toggle('expanded');
-        });
-      }
+    if (iropsToggle && iropsCard) {
+      iropsToggle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        iropsCard.classList.toggle('expanded');
+      });
     }
 
     // Bind state button click handlers with cascade logic
