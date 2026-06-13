@@ -2732,6 +2732,35 @@
     .phase-drill-content::-webkit-scrollbar { width: 4px; }
     .phase-drill-content::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
 
+    /* Keep scrolling prompt */
+    .pd-scroll-next {
+      padding: 4rem 2rem; text-align: center;
+      cursor: pointer; transition: opacity 0.3s;
+    }
+    .pd-scroll-next-label {
+      font-size: 0.65rem; color: var(--dim); text-transform: uppercase;
+      letter-spacing: 0.15em; margin-bottom: 0.5rem;
+    }
+    .pd-scroll-next-title {
+      font-family: var(--sans); font-size: 1.3rem; font-weight: 400;
+      color: var(--text); margin-bottom: 1rem;
+      transition: color 0.3s;
+    }
+    .pd-scroll-next:hover .pd-scroll-next-title { color: var(--cyan); }
+    .pd-scroll-next-arrow {
+      animation: pd-bounce 1.5s ease-in-out infinite;
+      color: var(--dim);
+    }
+    .pd-scroll-next-arrow .material-symbols-outlined { font-size: 1.5rem; }
+    @keyframes pd-bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(8px); }
+    }
+    .pd-scroll-next-divider {
+      width: 40px; height: 1px; background: var(--card-border);
+      margin: 0 auto 1.5rem;
+    }
+
     /* Drilldown sections — Google Books editorial style */
     .pd-hero {
       padding: 2rem 2.5rem 0;
@@ -8814,8 +8843,43 @@ function toggleTheme() {
     html += '</div>';
 
     html += '</div>'; // close pd-main
+
+    // Scroll-to-next prompt (if not last phase)
+    var nextIdx = idx + 1;
+    var nextPhase = nextIdx < activeJourneyPhases.length ? activeJourneyPhases[nextIdx] : null;
+    if (nextPhase && nextPhase.drilldown) {
+      html += '<div class="pd-scroll-next" id="pd-scroll-next">';
+      html += '<div class="pd-scroll-next-divider"></div>';
+      html += '<div class="pd-scroll-next-label">Keep scrolling</div>';
+      html += '<div class="pd-scroll-next-title">' + nextPhase.title + '</div>';
+      html += '<div class="pd-scroll-next-arrow"><span class="material-symbols-outlined">expand_more</span></div>';
+      html += '</div>';
+    }
+
     content.innerHTML = html;
     content.scrollTop = 0;
+
+    // Scroll-to-next: detect when user scrolls to bottom
+    if (nextPhase && nextPhase.drilldown) {
+      var scrollTriggered = false;
+      content.addEventListener('scroll', function onScroll() {
+        if (scrollTriggered) return;
+        var scrollBottom = content.scrollTop + content.clientHeight;
+        var threshold = content.scrollHeight - 40;
+        if (scrollBottom >= threshold) {
+          scrollTriggered = true;
+          content.removeEventListener('scroll', onScroll);
+          openPhaseDrilldown(nextIdx, nextPhase);
+        }
+      });
+      // Also allow click
+      var scrollNextEl = document.getElementById('pd-scroll-next');
+      if (scrollNextEl) {
+        scrollNextEl.addEventListener('click', function() {
+          openPhaseDrilldown(nextIdx, nextPhase);
+        });
+      }
+    }
 
 
     drill.classList.add('active');
